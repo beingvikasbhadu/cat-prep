@@ -37,7 +37,9 @@
   const statusClass = s => ({ "Done": "good", "Fixed": "good", "In progress": "accent", "Practising": "accent", "Open": "bad" }[s] || "muted");
   const chip = (text, cls) => '<span class="chip ' + (cls || "muted") + '">' + esc(text) + "</span>";
   const topicStatus = id => (T.topics[id] || { status: "Not started" });
-  const testFor = topic => topic.testId ? byId(TESTS, topic.testId) : null;
+  const testFor = topic => TESTS.find(t => t.topic === topic.id || (t.topics || []).includes(topic.id)) || null;
+  const LV = window.LEVELS;
+  const qTarget = q => q.target || LV[q.lv || 2].target;
 
   // ---------- love system ----------
   const fill = (s, n) => String(s).replace(/\{name\}/g, LOVE.her).replace(/\{n\}/g, n == null ? "" : n);
@@ -102,7 +104,7 @@
   }
 
   let sceneOpen = false;
-  function kissScene(text, title) {
+  function kissScene(text, title, mode) {
     if (sceneOpen) { toast(text); return; }
     sceneOpen = true;
     const prev = document.activeElement;
@@ -111,7 +113,7 @@
     wrap.setAttribute("role", "dialog");
     wrap.setAttribute("aria-modal", "true");
     wrap.setAttribute("aria-label", title || "A message from " + LOVE.me);
-    wrap.innerHTML = '<div class="scene-card">' + couple("once") +
+    wrap.innerHTML = '<div class="scene-card">' + couple("once " + (mode || "")) +
       '<h2>' + esc(title || "Muah! 😘") + '</h2><p>' + esc(text) + '</p><span class="toast-from">— ' + esc(LOVE.me) + ' 💌</span>' +
       '<button class="btn primary" type="button">Aww, close 💗</button></div>';
     document.body.appendChild(wrap);
@@ -147,9 +149,11 @@
   // Runs before the first render so the home page shows today's streak and visit.
   function countVisit() {
     const t = todayISO();
+    let gap = 0, newDay = false;
     if (stats.lastDay !== t) {
-      const y = new Date(); y.setDate(y.getDate() - 1);
-      stats.streak = stats.lastDay === isoOf(y) ? stats.streak + 1 : 1;
+      newDay = true;
+      if (stats.lastDay) gap = Math.round((new Date(t + "T00:00:00") - new Date(stats.lastDay + "T00:00:00")) / 86400000);
+      stats.streak = gap === 1 ? stats.streak + 1 : 1;
       stats.lastDay = t;
     }
     if (stats.timeDay !== t) { stats.timeDay = t; stats.timeSecs = 0; stats.timeShown = []; }
@@ -157,19 +161,90 @@
     const fresh = !session.get("seen");
     if (fresh) { stats.visits += 1; session.set("seen", "1"); }
     saveStats();
-    return fresh ? { firstEver } : null;
+    return fresh ? { firstEver, gap, newDay } : null;
+  }
+  function specialToday() {
+    const md = todayISO().slice(5);
+    return (LOVE.special || []).find(s => s.date === md);
+  }
+  function countdownToday() {
+    const msg = LOVE.countdown[daysLeft()];
+    return msg ? fill(msg) : null;
   }
   function greet(arrival) {
     if (!arrival) return;
-    const firstEver = arrival.firstEver;
     const h = new Date().getHours();
     setTimeout(() => {
-      if (firstEver) { kissScene(fill(LOVE.firstVisit), "Hi " + LOVE.her + " 💗"); return; }
-      toast(fill(pick(LOVE.welcome, "welcome"), stats.visits));
-      if (stats.streak > 1) toast(fill(LOVE.streak, stats.streak));
+      if (arrival.firstEver) { kissScene(fill(LOVE.firstVisit), "Hi " + LOVE.her + " 💗"); return; }
+      const sp = specialToday();
+      if (sp && stats.specialShown !== todayISO()) {
+        stats.specialShown = todayISO(); saveStats();
+        kissScene(fill(sp.text), fill(sp.title));
+      }
+      if (arrival.gap >= 2) toast(fill(LOVE.comeback, arrival.gap));
+      else if (h >= 5 && h < 11 && arrival.newDay) toast(fill(pick(LOVE.morning, "morning")));
+      else toast(fill(pick(LOVE.welcome, "welcome"), stats.visits));
+      if (arrival.newDay && stats.streak > 1) toast(fill((LOVE.streakSpecial || {})[stats.streak] || LOVE.streak, stats.streak));
       if (h >= 23 || h < 5) toast(fill(LOVE.lateNight), { kind: "night" });
     }, 700);
   }
+
+  // Idle nudge (not during a timed test), once per idle stretch.
+  let lastAct = Date.now(), idleShown = false;
+  ["pointerdown", "keydown", "scroll", "touchstart"].forEach(ev => window.addEventListener(ev, () => { lastAct = Date.now(); idleShown = false; }, { passive: true }));
+  setInterval(() => {
+    if (document.hidden || idleShown || sceneOpen) return;
+    if (location.hash.startsWith("#/test/") || focusState()) return;
+    if (Date.now() - lastAct > 180000) { idleShown = true; toast(fill(pick(LOVE.idle, "idle"))); }
+  }, 15000);
+
+  // Tapping the heart logo
+  document.querySelector(".logo").addEventListener("click", e => {
+    e.preventDefault(); e.stopPropagation();
+    heartBurst(e.clientX, e.clientY, 10);
+    toast(fill(pick(LOVE.logoTap, "logo")));
+  });
+
+  // ---------- study date (focus timer) ----------
+  const FOCUS_MIN = 25, BREAK_MIN = 5;
+  const focusState = () => store.get("focus", null);
+  function startFocus(mode) {
+    const mins = mode === "break" ? BREAK_MIN : FOCUS_MIN;
+    store.set("focus", { mode, endsAt: Date.now() + mins * 60000, half: false });
+    if (mode === "focus") toast(fill(LOVE.focusStart));
+    paintFocus();
+  }
+  function stopFocus() { store.del("focus"); paintFocus(); }
+  function paintFocus() {
+    const f = focusState(), pill = document.getElementById("focusPill");
+    const left = f ? Math.max(0, Math.round((f.endsAt - Date.now()) / 1000)) : 0;
+    if (pill) {
+      pill.hidden = !f;
+      if (f) pill.textContent = (f.mode === "break" ? "☕ Break " : "📚 Study date ") + fmt(left);
+    }
+    const big = document.getElementById("focusTime");
+    if (big) {
+      big.textContent = f ? fmt(left) : FOCUS_MIN + ":00";
+      document.getElementById("focusLabel").textContent = f ? (f.mode === "break" ? "Break time ☕" : "Studying together 📚") : "Ready when you are";
+      document.getElementById("focusStart").hidden = !!f;
+      document.getElementById("focusStop").hidden = !f;
+      const total = (f && f.mode === "break" ? BREAK_MIN : FOCUS_MIN) * 60;
+      document.getElementById("focusRing").style.setProperty("--p", f ? Math.round((1 - left / total) * 100) : 0);
+    }
+  }
+  setInterval(() => {
+    const f = focusState();
+    if (!f) return;
+    const left = (f.endsAt - Date.now()) / 1000;
+    if (f.mode === "focus" && !f.half && left <= FOCUS_MIN * 30) { f.half = true; store.set("focus", f); toast(fill(LOVE.focusHalf)); }
+    if (left <= 0) {
+      if (f.mode === "focus") { addKisses(3); kissScene(fill(LOVE.focusEnd) + " (+3 kisses 💋)", "Study date done! 🎉"); startFocus("break"); }
+      else { stopFocus(); toast(fill(LOVE.focusBreakEnd)); }
+      return;
+    }
+    paintFocus();
+  }, 1000);
+  document.getElementById("focusPill").addEventListener("click", () => { location.hash = "#/us"; });
   // Time on site today: counts only while the page is visible.
   setInterval(() => {
     if (document.hidden) return;
@@ -242,20 +317,23 @@
     if (leaveHook) { leaveHook(); leaveHook = null; }
     const [path, anchor] = location.hash.replace(/^#\/?/, "").split("#");
     const parts = (path || "").split("/").filter(Boolean);
-    const [p, id] = parts;
+    const [p, id, sub] = parts;
     let html, after, nav = p || "home";
     if (!p) { html = home(); after = wireHome; }
+    else if (p === "notes") html = notesHub();
     else if (p === "varc") { html = verbal(window.VARC, "varc"); after = () => wireRevised("varc", "VARC"); }
     else if (p === "lrdi") { html = verbal(window.LRDI, "lrdi"); after = () => wireRevised("lrdi", "LRDI"); }
     else if (p === "math" && id) { html = topicPage(id); nav = "math"; after = () => wireRevised(id, (byId(MATH, id) || {}).name); }
     else if (p === "math") html = mathPage();
-    else if (p === "quiz" && id) { const r = quizPage(id); html = r.html; after = r.after; nav = "quiz"; }
+    else if (p === "quiz" && id) { const r = quizPage(id, sub || "all"); html = r.html; after = r.after; nav = "quiz"; }
     else if (p === "quiz") html = quizHub();
+    else if (p === "us") { html = usPage(); after = wireUs; }
     else if (p === "test" && id) { const r = testPage(id); html = r.html; after = r.after; nav = "math"; }
     else if (p === "tracker") { html = trackerPage(); after = wireTracker; }
     else html = notFound();
     app.innerHTML = '<div class="page">' + html + "</div>";
-    document.querySelectorAll("[data-nav]").forEach(a => a.classList.toggle("on", a.dataset.nav === nav));
+    document.querySelectorAll("[data-nav]").forEach(a => a.classList.toggle("on", a.dataset.nav === nav || (a.dataset.nav === "notes" && (nav === "varc" || nav === "lrdi"))));
+    paintFocus();
     const target = anchor && document.getElementById(anchor);
     if (target) target.scrollIntoView(); else window.scrollTo(0, 0);
     if (after) after();
@@ -301,7 +379,9 @@
         '</div>' +
         '<div class="hero-art">' + couple("loop") + '</div>' +
       '</section>' +
-      '<section class="card note"><span class="note-pin" aria-hidden="true">💌</span><p class="sub">Note of the day from ' + esc(LOVE.me) + '</p><p class="note-text">' + esc(note) + '</p></section>' +
+      (countdownToday() ? '<section class="banner"><span aria-hidden="true">⏳</span><p>' + esc(countdownToday()) + "</p></section>" : "") +
+      '<section class="card note"><span class="note-pin" aria-hidden="true">💌</span><p class="sub">Note of the day from ' + esc(LOVE.me) + '</p><p class="note-text">' + esc(fill(note)) + '</p></section>' +
+      '<a class="card us-teaser" href="#/us"><span class="ut-emoji" aria-hidden="true">💕</span><div><b>Just us</b><span>How are you feeling? Open-when letters, a hug, and a 25-minute study date with me</span></div><span class="ut-go" aria-hidden="true">→</span></a>' +
       '<section class="card jar">' +
         '<div class="jar-icon" aria-hidden="true">🫙<span>💋</span></div>' +
         '<div class="jar-body"><p class="sub">Kiss jar</p><p class="jar-count"><b data-kisses>' + stats.kisses + '</b> kisses earned</p>' +
@@ -342,7 +422,15 @@
   }
   function quizCard(k) {
     const Q = QUIZ[k], s = stats.quiz[k];
-    return '<a class="quiz-card q-' + k + '" href="#/quiz/' + k + '"><span class="qc-emoji" aria-hidden="true">' + Q.emoji + '</span><b>' + esc(Q.title) + ' quiz</b><span class="small">' + esc(Q.blurb) + '</span><span class="qc-best">' + (s ? "Best " + s.best + "/10 · played " + s.plays + "×" : "Not played yet") + "</span></a>";
+    return '<a class="quiz-card q-' + k + '" href="#/quiz/' + k + '"><span class="qc-emoji" aria-hidden="true">' + Q.emoji + '</span><b>' + esc(Q.title) + ' quiz</b><span class="small">' + esc(Q.blurb) + '</span><span class="qc-best">' + (s ? "Best " + s.best + "/10 · played " + s.plays + "×" : Q.questions.length + " questions · not played yet") + "</span></a>";
+  }
+  function notesHub() {
+    return '' +
+      '<header class="page-head"><p class="eyebrow">Free-time revision 🌷</p><h1>Notes</h1><p class="lede">Short, sweet revision for VARC and LRDI. Read one section with your chai ☕</p></header>' +
+      '<section class="quiz-row two">' +
+        '<a class="quiz-card q-varc" href="#/varc"><span class="qc-emoji" aria-hidden="true">📖</span><b>VARC notes</b><span class="small">RC question types, option traps, PJ, summary, tone words</span><span class="qc-best">Target ' + T.targets.varc + ' correct' + (stats.revised.varc ? " · revised 💗" : "") + "</span></a>" +
+        '<a class="quiz-card q-lrdi" href="#/lrdi"><span class="qc-emoji" aria-hidden="true">🧩</span><b>LRDI notes</b><span class="small">Set selection, how to start each set type, formulas, traps</span><span class="qc-best">Target ' + T.targets.lrdi + ' correct' + (stats.revised.lrdi ? " · revised 💗" : "") + "</span></a>" +
+      "</section>";
   }
 
   function revisedBox(key, label) {
@@ -413,28 +501,50 @@
       '<section class="card traps"><h2>Traps to avoid ⚠️</h2><ul class="dots">' + m.traps.map(t => "<li>" + esc(t) + "</li>").join("") + "</ul></section>" +
       revisedBox(m.id, m.name) +
       (test
-        ? '<section class="card cta"><div><h2>' + esc(test.title) + ' ⏱️</h2><p class="muted">' + test.questions.length + " questions · about " + Math.round(test.questions.reduce((a, q) => a + q.target, 0) / 60) + " min · one timer per question</p>" +
+        ? '<section class="card cta"><div><h2>' + esc(test.title) + ' ⏱️</h2><p class="muted">' + test.questions.length + " questions · about " + Math.round(test.questions.reduce((a, q) => a + qTarget(q), 0) / 60) + " min · 3 levels · one timer per question</p>" +
             (hist.length ? '<p class="small muted">Last: ' + hist.map(h => h.score + "/" + h.total).join(", ") + "</p>" : "") +
           '</div><a class="btn primary" href="#/test/' + test.id + '">' + (store.get("test:" + test.id, null) ? "Continue test" : "Start test") + "</a></section>"
         : '<section class="card cta muted-cta"><p>The timed test for this topic arrives when we reach it in the plan. Meanwhile, try the <a href="#/quiz/math">math quick quiz</a> 💕</p></section>');
   }
 
   // ---------- quick quiz ----------
+  const MATH_DECK = { arithmetic: "arithmetic", algebra: "algebra", geometry: "geometry", number: "number", modern: "number" };
+  function deckQuestions(key, deck) {
+    const Q = QUIZ[key];
+    return Q.questions.filter(q => {
+      if (deck === "all") return !q.set;
+      if (key === "math") { const t = byId(MATH, q.topic); return t && MATH_DECK[t.block] === deck; }
+      return q.d === deck;
+    });
+  }
   function quizHub() {
     return '' +
-      '<header class="page-head"><p class="eyebrow">Quick quiz 🎀</p><h1>Pick a quiz</h1><p class="lede">10 quick questions each round, picked at random. Every right answer puts a kiss in your jar 💋</p></header>' +
-      '<section class="quiz-row big">' + ["math", "varc", "lrdi"].map(k => quizCard(k)).join("") + "</section>";
+      '<header class="page-head"><p class="eyebrow">Quick quiz 🎀</p><h1>Pick a quiz</h1><p class="lede">10 quick questions each round, picked at random. Pick a whole subject or one deck. Every right answer puts a kiss in your jar 💋</p></header>' +
+      ["math", "varc", "lrdi"].map(k => {
+        const Q = QUIZ[k], s = stats.quiz[k];
+        return '<section class="card deck-box q-' + k + '"><div class="deck-head"><span class="qc-emoji" aria-hidden="true">' + Q.emoji + '</span><div><h2>' + esc(Q.title) + '</h2><p class="small muted">' + esc(Q.blurb) + " · " + Q.questions.length + " questions" + (s ? " · best " + s.best + "/10" : "") + "</p></div></div>" +
+          '<div class="decks">' + Q.decks.map(d => '<a class="deck" href="#/quiz/' + k + "/" + d.id + '"><span aria-hidden="true">' + d.emoji + "</span>" + esc(d.name) + '<small>' + deckQuestions(k, d.id).length + "</small></a>").join("") + "</div></section>";
+      }).join("");
   }
-  function quizPage(key) {
+  function quizPage(key, deckId) {
     const Q = QUIZ[key];
     if (!Q) return { html: notFound() };
-    const round = shuffle(Q.questions).slice(0, 10).map(q => {
+    const deck = Q.decks.find(d => d.id === deckId) || Q.decks[0];
+    const pool = deckQuestions(key, deck.id);
+    let chosen;
+    if (deck.sets) {
+      // Keep each passage or puzzle's questions together, in order.
+      const groups = [];
+      pool.forEach(q => { let g = groups.find(x => x.set === q.set); if (!g) groups.push(g = { set: q.set, qs: [] }); g.qs.push(q); });
+      chosen = shuffle(groups).flatMap(g => g.qs).slice(0, 10);
+    } else chosen = shuffle(pool).slice(0, 10);
+    const round = chosen.map(q => {
       const order = shuffle(q.o.map((_, i) => i));
-      return { q: q.q, o: order.map(i => q.o[i]), a: order.indexOf(q.a), why: q.why, topic: q.topic, picked: null };
+      return { q: q.q, o: order.map(i => q.o[i]), a: order.indexOf(q.a), why: q.why, topic: q.topic, set: q.set, picked: null };
     });
     let i = 0, right = 0;
     const html = '<a class="back" href="#/quiz">← All quizzes</a>' +
-      '<header class="page-head"><p class="eyebrow">' + esc(Q.emoji + " " + Q.title) + ' quick quiz</p><h1>' + esc(Q.title) + ' quiz</h1></header>' +
+      '<header class="page-head"><p class="eyebrow">' + esc(Q.emoji + " " + Q.title) + ' quick quiz · ' + esc(deck.emoji + " " + deck.name) + '</p><h1>' + esc(Q.title) + ' quiz</h1></header>' +
       '<div class="dots-row" id="qDots" aria-hidden="true">' + round.map(() => "<span></span>").join("") + "</div>" +
       '<div id="quizBox"></div>';
 
@@ -443,7 +553,7 @@
       function show() {
         const q = round[i];
         [...dots].forEach((d, k) => { d.className = k < i ? (round[k].picked === round[k].a ? "r" : "w") : k === i ? "now" : ""; });
-        box.innerHTML = '<article class="card quiz-q"><p class="sub">Question ' + (i + 1) + " of " + round.length + '</p><h2 class="qq">' + esc(q.q) + '</h2><div class="qopts">' +
+        box.innerHTML = '<article class="card quiz-q">' + (q.set ? '<div class="passage"><p class="sub">' + (key === "varc" ? "Read the passage" : "The set") + "</p><p>" + esc(q.set) + "</p></div>" : "") + '<p class="sub">Question ' + (i + 1) + " of " + round.length + '</p><h2 class="qq">' + esc(q.q) + '</h2><div class="qopts">' +
           q.o.map((o, k) => '<button class="qopt" type="button" data-k="' + k + '"><span class="qletter">' + "ABCD"[k] + "</span>" + esc(o) + "</button>").join("") +
           '</div><div id="qFeedback" aria-live="polite"></div></article>';
         box.querySelectorAll(".qopt").forEach(b => b.addEventListener("click", () => answer(+b.dataset.k, b)));
@@ -470,14 +580,15 @@
         const s = stats.quiz[key] || { best: 0, plays: 0, last: 0 };
         s.plays++; s.last = right; s.best = Math.max(s.best, right); s.at = todayISO();
         stats.quiz[key] = s; saveStats();
-        const tier = right >= 8 ? "finishGreat" : right >= 5 ? "finishGood" : "finishLow";
-        const msg = fill(pick(LOVE[tier], tier));
+        const n = round.length;
+        const tier = right >= Math.ceil(n * 0.8) ? "finishGreat" : right >= Math.ceil(n * 0.5) ? "finishGood" : "finishLow";
+        const msg = right === n ? fill(LOVE.perfect) : fill(pick(LOVE[tier], tier));
         const wrongs = round.filter(q => q.picked !== q.a);
         box.innerHTML = '<section class="card quiz-end ' + tier + '"><div class="end-score"><b>' + right + "</b><span>/ " + round.length + '</span></div><p class="end-msg">' + esc(msg) + '</p><p class="muted small">+' + right + " kisses this round · total " + stats.kisses + " 💋 · best " + s.best + "/10</p>" +
-          '<div class="row center"><button class="btn primary" id="again" type="button">Play again 🔁</button><a class="btn" href="#/quiz">Other quizzes</a></div></section>' +
+          '<div class="row center"><button class="btn primary" id="again" type="button">Play again 🔁</button><a class="btn" href="#/quiz">Other decks</a></div></section>' +
           (wrongs.length ? '<section class="card"><h2>Ones to look at again</h2><ul class="review-list">' + wrongs.map(q => { const t = q.topic && byId(MATH, q.topic); return "<li><b>" + esc(q.q) + "</b><span>Answer: " + esc(q.o[q.a]) + " · " + esc(q.why) + "</span>" + (t ? '<a href="#/math/' + t.id + '">Revise ' + esc(t.name) + " →</a>" : "") + "</li>"; }).join("") + "</ul></section>" : "");
         document.getElementById("again").addEventListener("click", route);
-        if (tier === "finishGreat") setTimeout(() => kissScene(msg, right === round.length ? "Perfect score!! 😍" : "Muah! 😘"), 500);
+        if (tier === "finishGreat") setTimeout(() => kissScene(msg, right === n ? "Perfect score!! 😍" : "Muah! 😘"), 500);
         window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
       }
       show();
@@ -487,7 +598,8 @@
 
   // ---------- answer checking (timed tests) ----------
   function numbersIn(s) {
-    const clean = String(s).replace(/,/g, "").replace(/−/g, "-");
+    const clean = String(s).replace(/,/g, "").replace(/−/g, "-")
+      .replace(/(\d*\.?\d*)\s*√\s*(\d+\.?\d*)/g, (m, k, r) => String((k ? Number(k) : 1) * Math.sqrt(Number(r))));
     return (clean.match(/-?\d*\.?\d+(?:\/\d*\.?\d+)?/g) || []).map(t => {
       if (t.includes("/")) { const [a, b] = t.split("/").map(Number); return b ? a / b : NaN; }
       return Number(t);
@@ -530,14 +642,15 @@
 
     if (st.result) return { html: resultsView(test, topic, st.result), after: () => wireResults(test, st) };
 
-    const targetTotal = test.questions.reduce((a, q) => a + q.target, 0);
+    const targetTotal = test.questions.reduce((a, q) => a + qTarget(q), 0);
     const html = '' +
       '<a class="back" href="#/math/' + topic.id + '">← ' + esc(topic.name) + "</a>" +
       '<header class="page-head"><p class="eyebrow">Timed test · ' + test.questions.length + ' questions · target ' + fmt(targetTotal) + '</p><h1>' + esc(test.title) + '</h1><p class="lede">Press Start when you begin reading a question and Done when you have your answer. Starting another question pauses the one that is running, just like moving on in the exam. 화이팅! 💪</p></header>' +
       '<div class="test-bar" role="status"><div><span class="sub">Done</span><b id="tbDone">0/' + test.questions.length + '</b></div><div><span class="sub">Time</span><b id="tbTime">0:00</b></div><div><span class="sub">Target</span><b>' + fmt(targetTotal) + '</b></div><div class="tb-prog"><span id="tbProg"></span></div></div>' +
       test.questions.map((q, i) => '' +
+        (i === 0 || test.questions[i - 1].lv !== q.lv ? '<h2 class="lv-head lv' + q.lv + '">' + esc(LV[q.lv].name) + ' <small>target ' + fmt(LV[q.lv].target) + " each</small></h2>" : "") +
         '<article class="card q" id="q' + i + '">' +
-          '<div class="q-head"><span class="q-num">Q' + (i + 1) + "</span>" + chip(q.fmt, q.fmt === "MCQ" ? "warn" : "muted") + '<span class="q-target">target ' + fmt(q.target) + '</span><span class="q-time">0:00</span></div>' +
+          '<div class="q-head"><span class="q-num">Q' + (i + 1) + "</span>" + chip("L" + q.lv, "lv" + q.lv) + chip(q.fmt, q.fmt === "MCQ" ? "warn" : "muted") + '<span class="q-target">target ' + fmt(qTarget(q)) + '</span><span class="q-time">0:00</span></div>' +
           '<p class="q-text">' + esc(q.text) + "</p>" +
           (q.fmt === "MCQ"
             ? '<div class="opts" role="radiogroup" aria-label="Options for Q' + (i + 1) + '">' + q.opts.map((o, k) => { const v = "abcd"[k]; return '<label class="opt"><input type="radio" name="o' + i + '" value="' + v + '" data-ans="' + i + '"><span>' + esc(o) + "</span></label>"; }).join("") + "</div>"
@@ -562,7 +675,7 @@
           card.querySelector(".q-time").textContent = fmt(t);
           card.classList.toggle("running", !!r.startedAt);
           card.classList.toggle("finished", r.done);
-          card.classList.toggle("over", t > q.target);
+          card.classList.toggle("over", t > qTarget(q));
           const tb = card.querySelector('[data-act="toggle"]');
           tb.textContent = r.startedAt ? "Pause" : (r.elapsed > 0 ? "Resume" : "Start");
           tb.classList.toggle("primary", !r.startedAt && !r.done);
@@ -585,7 +698,15 @@
           if (b.dataset.act === "toggle") { if (r.startedAt) pauseAll(); else startQ(i); }
           if (b.dataset.act === "done") {
             if (r.done) r.done = false;
-            else { if (r.startedAt) { r.elapsed = elapsed(r); r.startedAt = null; } r.done = true; }
+            else {
+              if (r.startedAt) { r.elapsed = elapsed(r); r.startedAt = null; }
+              r.done = true;
+              const lv = test.questions[i].lv;
+              st.lvDone = st.lvDone || [];
+              if (!st.lvDone.includes(lv) && test.questions.every((q, k) => q.lv !== lv || st.q[k].done)) {
+                st.lvDone.push(lv); burstAt(b, 14); toast(fill(LOVE.levelDone[lv]));
+              }
+            }
           }
           save(); paint(); return;
         }
@@ -618,7 +739,7 @@
         route();
         addKisses(res.score + (res.level === "good" ? 5 : 0));
         const tier = res.level === "good" ? "finishGreat" : res.level === "accent" ? "finishGood" : "finishLow";
-        const msg = fill(pick(LOVE[tier], tier));
+        const msg = res.score === test.questions.length ? fill(LOVE.perfect) : fill(pick(LOVE[tier], tier));
         if (res.level === "good") setTimeout(() => kissScene(msg + " (+5 bonus kisses 💋)", "Topic conquered! 🏆"), 500);
         else toast(msg);
       }
@@ -642,7 +763,7 @@
     const rows = test.questions.map((q, i) => {
       const r = st.q[i], secs = Math.round(elapsed(r));
       const status = !r.answer ? "skip" : isRight(q, r.answer) ? "right" : "wrong";
-      return { n: i + 1, status, answer: r.answer, secs, target: q.target, over: secs > q.target, type: q.type, fmt: q.fmt };
+      return { n: i + 1, lv: q.lv, status, answer: r.answer, secs, target: qTarget(q), over: secs > qTarget(q), type: q.type, fmt: q.fmt };
     });
     const right = rows.filter(r => r.status === "right").length;
     const wrong = rows.filter(r => r.status === "wrong");
@@ -659,7 +780,11 @@
     if (right >= Math.ceil(n * 0.8) && acc >= 0.85) { level = "good"; verdict = "Strong. You can move on; retest this topic in about a week to keep it fresh."; }
     else if (right >= Math.ceil(n * 0.6)) { level = "accent"; verdict = "Close. Practise the weak types below, then retake the test in a day or two."; }
     else { level = "bad"; verdict = "Re-read the revision notes and the examples first, then retake the test."; }
-    return { at: Date.now(), rows, score: right, attempted, acc, secs, target, weakTypes, slowTypes, marks, verdict, level,
+    const byLevel = [1, 2, 3].map(lv => {
+      const rs = rows.filter(r => r.lv === lv);
+      return { lv, total: rs.length, right: rs.filter(r => r.status === "right").length, secs: rs.reduce((a, r) => a + r.secs, 0), target: rs.reduce((a, r) => a + r.target, 0) };
+    }).filter(x => x.total);
+    return { at: Date.now(), rows, byLevel, score: right, attempted, acc, secs, target, weakTypes, slowTypes, marks, verdict, level,
       overList: rows.filter(r => r.over).map(r => "Q" + r.n) };
   }
 
@@ -672,13 +797,14 @@
     L.push("Taken: " + when);
     L.push("Score: " + res.score + "/" + test.questions.length + " · attempted " + res.attempted + " · accuracy " + Math.round(res.acc * 100) + "% · CAT marks " + res.marks);
     L.push("Time: " + fmt(res.secs) + " vs target " + fmt(res.target) + (res.overList.length ? " · over target: " + res.overList.join(", ") : " · none over target"));
+    if (res.byLevel) L.push("By level: " + res.byLevel.map(x => "L" + x.lv + " " + x.right + "/" + x.total + " in " + fmt(x.secs) + " (target " + fmt(x.target) + ")").join(" · "));
     L.push("Weak types: " + (res.weakTypes.join("; ") || "none"));
     if (res.slowTypes.length) L.push("Right but slow: " + res.slowTypes.join("; "));
     L.push("");
     res.rows.forEach(r => {
       const q = test.questions[r.n - 1];
       const mark = r.status === "right" ? "RIGHT" : r.status === "wrong" ? "WRONG" : "SKIPPED";
-      L.push("Q" + r.n + " " + mark + " | yours: " + (r.answer || "-") + " | key: " + q.show + " | " + fmt(r.secs) + "/" + fmt(r.target) + " | " + r.type);
+      L.push("Q" + r.n + (r.lv ? " L" + r.lv : "") + " " + mark + " | yours: " + (r.answer || "-") + " | key: " + q.show + " | " + fmt(r.secs) + "/" + fmt(r.target) + " | " + r.type);
     });
     return L.join("\n");
   }
@@ -699,6 +825,8 @@
         "</div>" +
         '<p class="verdict">' + esc(res.verdict) + "</p>" +
       "</section>" +
+      (res.byLevel ? '<section class="card"><h2>By level 🎀</h2><div class="lv-grid">' + res.byLevel.map(x =>
+        '<div class="lv-card lv' + x.lv + '"><span class="sub">' + esc(LV[x.lv].name) + '</span><b>' + x.right + "<small>/" + x.total + '</small></b><span class="small' + (x.secs > x.target ? " over" : "") + '">' + fmt(x.secs) + " vs " + fmt(x.target) + "</span></div>").join("") + "</div></section>" : "") +
       '<section class="card"><h2>What to work on 🧸</h2>' +
         (res.weakTypes.length ? '<p class="sub">Got wrong or skipped</p><div class="tags">' + res.weakTypes.map(t => chip(t, "bad")).join("") + "</div>" : '<p class="muted">No weak types in this test. 😍</p>') +
         (res.slowTypes.length ? '<p class="sub">Right, but slower than target</p><div class="tags">' + res.slowTypes.map(t => chip(t, "warn")).join("") + "</div>" : "") +
@@ -779,6 +907,77 @@
   }
   function wireTracker() {
     document.getElementById("progBtn").addEventListener("click", () => copyText(progressText(), document.getElementById("progMsg"), document.getElementById("progBox")));
+  }
+
+  // ---------- us ----------
+  function usPage() {
+    const mood = stats.mood && stats.mood.day === todayISO() ? LOVE.moods.find(m => m.id === stats.mood.id) : null;
+    const unlocked = LOVE.milestones.filter(m => stats.milestones.includes(m.at));
+    const nm = nextMilestone();
+    return '' +
+      '<header class="page-head"><p class="eyebrow">Just ' + esc(LOVE.me) + ' & ' + esc(LOVE.her) + ' 💕</p><h1>Us</h1><p class="lede">A little corner for the two of us. Check in, open a letter, or study together for 25 minutes.</p></header>' +
+      '<section class="card mood"><h2>How are you feeling today?</h2><div class="moods">' +
+        LOVE.moods.map(m => '<button class="mood-btn' + (mood && mood.id === m.id ? " on" : "") + '" type="button" data-mood="' + m.id + '"><span aria-hidden="true">' + m.emoji + "</span>" + esc(m.label) + "</button>").join("") +
+      '</div><p class="mood-reply" id="moodReply" aria-live="polite">' + (mood ? '<span class="toast-av sm" aria-hidden="true">' + miniFace() + "</span>" + esc(fill(mood.reply)) : "") + "</p></section>" +
+      '<section class="card cuddle"><div class="cuddle-art">' + couple("loop") + '</div><div class="cuddle-body"><h2>Need some love?</h2><p class="muted">Tap for a hug or a kiss from ' + esc(LOVE.me) + '. Unlimited refills 💞</p><div class="row"><button class="btn primary" id="hugBtn" type="button">Get a hug 🤗</button><button class="btn" id="kissBtn" type="button">Get a kiss 😘</button></div></div></section>' +
+      '<section class="card focus"><div class="focus-ring" id="focusRing" style="--p:0"><div><b id="focusTime">25:00</b><span id="focusLabel">Ready when you are</span></div></div><div class="focus-body"><h2>Study date 📚</h2><p class="muted">25 minutes of focus with me, then a 5-minute break. Phone face down. You get 3 kisses for every round 💋</p><div class="row"><button class="btn primary" id="focusStart" type="button">Start study date</button><button class="btn" id="focusStop" type="button" hidden>Stop</button></div></div></section>' +
+      '<section><h2 class="sec">Open when… 💌</h2><div class="letters">' +
+        LOVE.letters.map(l => { const locked = l.unlock && todayISO() < l.unlock; const read = (stats.lettersRead || []).includes(l.id);
+          return '<button class="letter' + (locked ? " locked" : "") + (read ? " read" : "") + '" type="button" data-letter="' + l.id + '"><span class="env" aria-hidden="true">' + (locked ? "🔒" : read ? "💌" : "✉️") + '</span><span class="lt-emoji" aria-hidden="true">' + l.emoji + "</span><b>" + esc(l.title) + "</b>" + (locked ? '<small>Opens ' + esc(shortDate(l.unlock)) + "</small>" : read ? "<small>Read again</small>" : "<small>Tap to open</small>") + "</button>"; }).join("") +
+      "</div></section>" +
+      '<section class="card reasons"><h2>Reasons I’m proud of you 🥹</h2><p class="reason" id="reasonText">' + esc(LOVE.reasons[Math.floor(Math.random() * LOVE.reasons.length)]) + '</p><button class="btn" id="reasonBtn" type="button">Another reason 💗</button></section>' +
+      '<section class="card"><h2>Kiss jar rewards 🫙</h2><p class="muted">You have <b data-kisses>' + stats.kisses + "</b> kisses." + (nm ? " Next reward at " + nm.at + "." : " Every reward unlocked!") + "</p>" +
+        '<ul class="rewards">' + LOVE.milestones.map(m => { const got = unlocked.includes(m); return '<li class="' + (got ? "got" : "") + '"><span aria-hidden="true">' + (got ? "💝" : "🔒") + "</span><b>" + m.at + "</b><span>" + (got ? esc(m.text) : "A surprise from " + esc(LOVE.me) + "…") + "</span></li>"; }).join("") + "</ul></section>";
+  }
+  function letterScene(l) {
+    if (sceneOpen) return;
+    sceneOpen = true;
+    const prev = document.activeElement;
+    const wrap = document.createElement("div");
+    wrap.className = "scene";
+    wrap.setAttribute("role", "dialog");
+    wrap.setAttribute("aria-modal", "true");
+    wrap.setAttribute("aria-label", l.title);
+    wrap.innerHTML = '<div class="scene-card letter-card"><span class="lc-emoji" aria-hidden="true">' + l.emoji + "</span><h2>" + esc(l.title) + '</h2><p class="lc-text">' + esc(fill(l.text)) + '</p><span class="toast-from">With all my love, ' + esc(LOVE.me) + ' 💌</span><button class="btn primary" type="button">Close 💗</button></div>';
+    document.body.appendChild(wrap);
+    requestAnimationFrame(() => wrap.classList.add("in"));
+    const btn = wrap.querySelector("button");
+    btn.focus();
+    const close = () => {
+      wrap.classList.remove("in");
+      document.removeEventListener("keydown", onKey);
+      setTimeout(() => { wrap.remove(); sceneOpen = false; if (prev && prev.focus) prev.focus(); }, 250);
+    };
+    const onKey = e => { if (e.key === "Escape") close(); };
+    document.addEventListener("keydown", onKey);
+    btn.addEventListener("click", close);
+    wrap.addEventListener("click", e => { if (e.target === wrap) close(); });
+  }
+  function wireUs() {
+    app.querySelectorAll("[data-mood]").forEach(b => b.addEventListener("click", () => {
+      const m = LOVE.moods.find(x => x.id === b.dataset.mood);
+      stats.mood = { id: m.id, day: todayISO() }; saveStats();
+      app.querySelectorAll("[data-mood]").forEach(x => x.classList.toggle("on", x === b));
+      document.getElementById("moodReply").innerHTML = '<span class="toast-av sm" aria-hidden="true">' + miniFace() + "</span>" + esc(fill(m.reply));
+      burstAt(b, 8);
+    }));
+    document.getElementById("hugBtn").addEventListener("click", () => kissScene(fill(pick(LOVE.hug, "hug")), "Hug! 🤗", "hug"));
+    document.getElementById("kissBtn").addEventListener("click", () => kissScene(fill(pick(LOVE.kiss, "kiss")), "Muah! 😘"));
+    document.getElementById("focusStart").addEventListener("click", () => startFocus("focus"));
+    document.getElementById("focusStop").addEventListener("click", () => { stopFocus(); toast("Stopped. It's okay, even 10 minutes counts 💗"); });
+    app.querySelectorAll("[data-letter]").forEach(b => b.addEventListener("click", () => {
+      const l = LOVE.letters.find(x => x.id === b.dataset.letter);
+      if (l.unlock && todayISO() < l.unlock) { toast("Not yet, cutie! This one opens on " + shortDate(l.unlock) + " 🔒💗"); return; }
+      stats.lettersRead = stats.lettersRead || [];
+      if (!stats.lettersRead.includes(l.id)) { stats.lettersRead.push(l.id); saveStats(); b.classList.add("read"); b.querySelector(".env").textContent = "💌"; b.querySelector("small").textContent = "Read again"; }
+      letterScene(l);
+    }));
+    const rt = document.getElementById("reasonText");
+    document.getElementById("reasonBtn").addEventListener("click", e => {
+      let next; do { next = LOVE.reasons[Math.floor(Math.random() * LOVE.reasons.length)]; } while (LOVE.reasons.length > 1 && next === rt.textContent);
+      rt.textContent = next; burstAt(e.currentTarget, 8);
+    });
+    paintFocus();
   }
 
   function notFound() {
