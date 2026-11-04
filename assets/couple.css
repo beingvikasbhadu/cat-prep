@@ -1,12 +1,12 @@
-/* The couple, drawn from their photo.
+/* The couple: two 24-year-olds drawn from their photo, with soft 3D-style shading.
    Kiss story: Vikas kisses Khushi's cheek, gets shy, turns and walks away; she grabs his hand, pulls him back, and they kiss.
-   Hug: they step together and wrap their arms around each other. */
-.couple .boy { transform-origin: 100px 232px; }
-.couple .girl { transform-origin: 168px 228px; }
-.couple .pop { transform-origin: 139px 54px; opacity: 0; }
-.couple .hughearts { transform-origin: 134px 40px; }
-.couple .smooch { transform-box: view-box; transform-origin: 135px 86px; }
-.couple .lips, .couple .glips, .couple .smooch, .couple .boyshy, .couple .reach, .couple .hugarms, .couple .hughearts { opacity: 0; }
+   Hug: they step together and wrap their arms around each other. Eyes close for the kisses and the hug. */
+.couple .boy { transform-origin: 98px 232px; }
+.couple .girl { transform-origin: 166px 228px; }
+.couple .pop { transform-origin: 140px 52px; opacity: 0; }
+.couple .smooch { transform-box: view-box; transform-origin: 132px 79px; }
+.couple .hughearts { transform-origin: 132px 34px; }
+.couple .lips, .couple .glips, .couple .smooch, .couple .boyshy, .couple .reach, .couple .hugarms, .couple .hughearts, .couple .ec { opacity: 0; }
 
 @media (prefers-reduced-motion: no-preference) {
   /* Home page: the story repeats every 10 s. Pop-ups: it plays once and ends on the kiss. */
@@ -17,34 +17,39 @@
   .couple.loop .pop, .couple.once:not(.hug) .pop { animation: k-pop 10s ease-out infinite; }
   .couple.loop .boyshy, .couple.once:not(.hug) .boyshy { animation: k-shy 10s ease-in-out infinite; }
   .couple.loop .reach, .couple.once:not(.hug) .reach { animation: k-reach 10s ease-in-out infinite; }
-  .couple.loop .girl .arm, .couple.once:not(.hug) .girl .arm { animation: k-noarm 10s ease-in-out infinite; }
+  .couple.loop .larm, .couple.once:not(.hug) .larm { animation: k-noarm 10s ease-in-out infinite; }
   .couple.loop .hughearts, .couple.once:not(.hug) .hughearts { animation: k-hearts 10s ease-out infinite; }
   .couple.loop .smooch, .couple.once:not(.hug) .smooch { animation: k-smooch 10s ease-out infinite; }
   .couple.loop .blush, .couple.once:not(.hug) .blush { animation: k-blush 10s ease-in-out infinite; }
+  .couple.loop .boy .eo, .couple.once:not(.hug) .boy .eo { animation: k-boy-open 10s linear infinite; }
+  .couple.loop .boy .ec, .couple.once:not(.hug) .boy .ec { animation: k-boy-closed 10s linear infinite; }
+  .couple.loop .girl .eo, .couple.once:not(.hug) .girl .eo { animation: k-girl-open 10s linear infinite; }
+  .couple.loop .girl .ec, .couple.once:not(.hug) .girl .ec { animation: k-girl-closed 10s linear infinite; }
   .couple.once:not(.hug) .boy, .couple.once:not(.hug) .girl, .couple.once:not(.hug) .lips, .couple.once:not(.hug) .glips,
-  .couple.once:not(.hug) .pop, .couple.once:not(.hug) .boyshy, .couple.once:not(.hug) .reach, .couple.once:not(.hug) .girl .arm,
-  .couple.once:not(.hug) .hughearts, .couple.once:not(.hug) .smooch, .couple.once:not(.hug) .blush { animation-duration: 9.4s; animation-iteration-count: 1; animation-fill-mode: forwards; }
+  .couple.once:not(.hug) .pop, .couple.once:not(.hug) .boyshy, .couple.once:not(.hug) .reach, .couple.once:not(.hug) .larm,
+  .couple.once:not(.hug) .hughearts, .couple.once:not(.hug) .smooch, .couple.once:not(.hug) .blush,
+  .couple.once:not(.hug) .eo, .couple.once:not(.hug) .ec { animation-duration: 9.4s; animation-iteration-count: 1; animation-fill-mode: forwards; }
 
-  /* 0-6 stand · 10-20 cheek kiss · 26-34 shy, turns away · 34-46 walks off · 48-56 she grabs his hand · 56-64 pulled back · 66-94 kiss */
+  /* 0-6 stand · 10-20 cheek kiss · 26-34 shy, turns away · 34-46 walks off · 48-56 she grabs his hand · 56-64 pulled back · 66-100 kiss */
   @keyframes k-boy {
     0%, 6% { transform: none; }
-    10%, 20% { transform: translateX(2px) rotate(5deg); }
+    10%, 20% { transform: rotate(8deg); }
     26% { transform: none; }
     32% { transform: translateX(-6px) rotate(-5deg); }
     37% { transform: translateX(-16px) translateY(-3px) rotate(-5deg); }
     41% { transform: translateX(-24px) rotate(-5deg); }
-    46%, 50% { transform: translateX(-32px) translateY(-2px) rotate(-5deg); }
-    54% { transform: translateX(-30px) rotate(-8deg); }
+    46%, 50% { transform: translateX(-34px) translateY(-2px) rotate(-5deg); }
+    54% { transform: translateX(-31px) rotate(-8deg); }
     62% { transform: translateX(-4px) rotate(0deg); }
-    68%, 100% { transform: rotate(4deg); }
+    68%, 100% { transform: rotate(5.2deg); }
   }
   @keyframes k-girl {
-    0%, 10% { transform: none; }
-    14%, 20% { transform: rotate(-2deg); }
+    0%, 8% { transform: none; }
+    12%, 20% { transform: rotate(-3deg); }
     28%, 44% { transform: none; }
     50%, 56% { transform: translateX(-4px) rotate(-6deg); }
     62% { transform: rotate(-2deg); }
-    68%, 100% { transform: rotate(-4deg); }
+    68%, 100% { transform: rotate(-5.9deg); }
   }
   @keyframes k-lips { 0%, 9% { opacity: 0; } 12%, 20% { opacity: 1; } 23%, 66% { opacity: 0; } 70%, 100% { opacity: 1; } }
   @keyframes k-glips { 0%, 66% { opacity: 0; } 70%, 100% { opacity: 1; } }
@@ -55,19 +60,29 @@
   @keyframes k-hearts { 0%, 68% { opacity: 0; transform: scale(.3); } 74% { opacity: 1; transform: scale(1.2); } 80%, 100% { opacity: 1; transform: translateY(-4px) scale(1); } }
   @keyframes k-smooch { 0%, 68% { opacity: 0; transform: scale(.2); } 72% { opacity: 1; transform: scale(1.35); } 76%, 100% { opacity: 1; transform: scale(1); } }
   @keyframes k-blush { 0%, 10% { opacity: .7; } 14%, 30% { opacity: 1; } 40%, 64% { opacity: .75; } 70%, 100% { opacity: 1; } }
+  /* he closes his eyes for the cheek kiss and while shy, opens them when she pulls him, closes them for the kiss */
+  @keyframes k-boy-open { 0%, 8% { opacity: 1; } 9%, 57% { opacity: 0; } 58%, 66% { opacity: 1; } 67%, 100% { opacity: 0; } }
+  @keyframes k-boy-closed { 0%, 8% { opacity: 0; } 9%, 57% { opacity: 1; } 58%, 66% { opacity: 0; } 67%, 100% { opacity: 1; } }
+  /* her eyes stay open (surprised, then reaching for him) until the kiss */
+  @keyframes k-girl-open { 0%, 66% { opacity: 1; } 67%, 100% { opacity: 0; } }
+  @keyframes k-girl-closed { 0%, 66% { opacity: 0; } 67%, 100% { opacity: 1; } }
 
   /* hug */
   .couple.once.hug .boy { animation: h-boy 5.2s ease-in-out 1 forwards; }
   .couple.once.hug .girl { animation: h-girl 5.2s ease-in-out 1 forwards; }
   .couple.once.hug .hugarms { animation: h-arms 5.2s ease-in-out 1 forwards; }
-  .couple.once.hug .boy .arm, .couple.once.hug .girl .arm { animation: h-unarms 5.2s ease-in-out 1 forwards; }
+  .couple.once.hug .arm { animation: h-unarms 5.2s ease-in-out 1 forwards; }
   .couple.once.hug .hughearts { animation: h-hearts 5.2s ease-out 1 forwards; }
   .couple.once.hug .blush { animation: k-blush 5.2s ease-in-out 1 forwards; }
+  .couple.once.hug .eo { animation: h-open 5.2s linear 1 forwards; }
+  .couple.once.hug .ec { animation: h-closed 5.2s linear 1 forwards; }
   @keyframes h-boy { 0%, 12% { transform: none; } 30%, 100% { transform: translateX(10px) rotate(3deg); } }
   @keyframes h-girl { 0%, 12% { transform: none; } 30%, 100% { transform: translateX(-10px) rotate(-3deg); } }
   @keyframes h-arms { 0%, 26% { opacity: 0; } 34%, 100% { opacity: 1; } }
   @keyframes h-unarms { 0%, 26% { opacity: 1; } 34%, 100% { opacity: 0; } }
   @keyframes h-hearts { 0%, 34% { opacity: 0; transform: scale(.3); } 44% { opacity: 1; transform: scale(1.15); } 54%, 100% { opacity: 1; transform: translateY(-4px) scale(1); } }
+  @keyframes h-open { 0%, 31% { opacity: 1; } 32%, 100% { opacity: 0; } }
+  @keyframes h-closed { 0%, 31% { opacity: 0; } 32%, 100% { opacity: 1; } }
 }
 @media (prefers-reduced-motion: reduce) {
   .couple .pop { opacity: 1; }
