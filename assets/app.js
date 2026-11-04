@@ -956,9 +956,9 @@
       '<section class="card"><h2>Kiss jar rewards 🫙</h2><p class="muted">You have <b data-kisses>' + stats.kisses + "</b> kisses." + (nm ? " Next reward at " + nm.at + "." : " Every reward unlocked!") + "</p>" +
         '<ul class="rewards">' + LOVE.milestones.map(m => { const got = unlocked.includes(m); return '<li class="' + (got ? "got" : "") + '"><span aria-hidden="true">' + (got ? "💝" : "🔒") + "</span><b>" + m.at + "</b><span>" + (got ? esc(m.text) : "A surprise from " + esc(LOVE.me) + "…") + "</span></li>"; }).join("") + "</ul></section>";
   }
+  const ytUrl = s => s.yt ? "https://www.youtube.com/watch?v=" + s.yt : "https://www.youtube.com/results?search_query=" + encodeURIComponent(s.title + " " + s.film + " song");
   function songLink(s, label) {
-    const q = encodeURIComponent(s.title + " " + s.film + " song");
-    return '<a class="song" href="https://www.youtube.com/results?search_query=' + q + '" target="_blank" rel="noopener noreferrer"><span class="song-disc" aria-hidden="true">💿</span><span><small>' + esc(label) + "</small><b>" + esc(s.title) + "</b><em>" + esc(s.film) + " (" + s.year + ")</em></span></a>";
+    return '<a class="song" href="' + ytUrl(s) + '" target="_blank" rel="noopener noreferrer"><span class="song-disc" aria-hidden="true">💿</span><span><small>' + esc(label) + "</small><b>" + esc(s.title) + "</b><em>" + esc(s.film) + " (" + s.year + ")</em></span></a>";
   }
   function letterScene(l) {
     if (sceneOpen) return;
@@ -972,9 +972,7 @@
     wrap.innerHTML = '<div class="scene-card letter-card"><span class="lc-emoji" aria-hidden="true">' + l.emoji + "</span><h2>" + esc(l.title) + '</h2><p class="lc-text">' + esc(fill(l.text)) + "</p>" +
       (l.shayari ? '<blockquote class="shayari"><span class="sub">✍️ Shayari, sirf tumhare liye</span>' + l.shayari.map(x => '<span class="sh-line' + (x.startsWith("—") ? " sh-note" : "") + '">' + esc(fill(x)) + "</span>").join("") + "</blockquote>" : "") +
       (l.filmy ? '<p class="filmy"><span class="sub">🎬 Filmy moment</span>' + esc(fill(l.filmy)) + "</p>" : "") +
-      (l.song ? (songIdx(l.song.title) >= 0 && LOVE.playlist[songIdx(l.song.title)].yt
-        ? '<button class="song" type="button" data-playsong="' + songIdx(l.song.title) + '"><span class="song-disc" aria-hidden="true">💿</span><span><small>🎵 Song for you · tap to play here</small><b>' + esc(l.song.title) + "</b><em>" + esc(l.song.film) + " (" + l.song.year + ")</em></span></button>"
-        : songLink(l.song, "🎵 Song for you")) : "") +
+      (l.song ? songLink(Object.assign({}, l.song, LOVE.playlist.find(p => p.title === l.song.title) || {}), "🎵 Song for you · opens on YouTube") : "") +
       (l.end ? '<p class="lc-end">' + esc(fill(l.end)) + "</p>" : "") +
       '<span class="toast-from">With all my love, ' + esc(LOVE.me) + ' 💌</span><button class="btn primary" type="button">Close 💗</button></div>';
     document.body.appendChild(wrap);
@@ -991,170 +989,19 @@
     document.addEventListener("keydown", onKey);
     btn.addEventListener("click", close);
     wrap.addEventListener("click", e => { if (e.target === wrap) close(); });
-    const ps = wrap.querySelector("[data-playsong]");
-    if (ps) ps.addEventListener("click", () => {
-      close();
-      setTimeout(() => { const mr = document.getElementById("musicRoom"); if (mr) mr.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" }); playSong(+ps.dataset.playsong); }, 260);
-    });
   }
 
-  // ---------- music room (official YouTube uploads, played through YouTube's own player) ----------
-  const songIdx = title => LOVE.playlist.findIndex(s => s.title === title);
-  const music = { player: null, cur: -1, shuffle: false, playing: false, timer: null, ready: null };
+  // ---------- our songs: each one opens its official YouTube video ----------
   function musicRoom() {
-    const playable = LOVE.playlist.filter(s => s.yt || s.apple).length;
     return '<section class="card music" id="musicRoom">' +
-      '<div class="music-head"><div><h2>Our music room 🎧</h2><p class="muted">' + playable + ' old Bollywood songs I dedicate to you. Pick one and study with it 💗</p></div></div>' +
-      '<div class="music-main">' +
-        '<div class="music-screen"><div class="yt-frame"><div id="ytPlayer"></div><div class="tap-hint" id="tapHint" hidden>👆 Tap the video once to start it</div><div class="apple-box" id="appleBox" hidden></div><div class="yt-cover" id="ytCover"><div class="vinyl" aria-hidden="true"><span></span></div><p>Tap a song to start 💿</p></div></div></div>' +
-        '<div class="now"><span class="sub" id="nowLabel">Now playing</span><b id="nowTitle">Pick a song for us</b><em id="nowFilm">Old Bollywood, only for you</em><p class="now-note" id="nowNote">Every song here comes with a note from ' + esc(LOVE.me) + ' 💌</p>' +
-          '<div class="bar seek" id="seekBar" role="slider" aria-label="Song position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0"><span id="seekFill"></span></div><div class="times"><span id="tNow">0:00</span><span id="tDur">0:00</span></div>' +
-          '<div class="controls"><button class="cbtn" id="mPrev" type="button" aria-label="Previous song">⏮</button><button class="cbtn big" id="mPlay" type="button" aria-label="Play">▶</button><button class="cbtn" id="mNext" type="button" aria-label="Next song">⏭</button><button class="cbtn" id="mShuffle" type="button" aria-pressed="false" aria-label="Shuffle">🔀</button></div>' +
-        "</div>" +
-      "</div>" +
-      '<ol class="tracks">' + LOVE.playlist.map((s, i) => (s.yt || s.apple)
-        ? '<li><button class="track" type="button" data-track="' + i + '"><span class="tr-n">' + (i + 1) + '</span><span class="tr-eq" aria-hidden="true"><i></i><i></i><i></i></span><span class="tr-body"><b>' + esc(s.title) + "</b><em>" + esc(s.film) + " · " + s.year + (s.apple ? " · Apple Music" : "") + '</em><small>' + esc(s.note) + "</small></span></button></li>"
-        : '<li><a class="track ext" href="https://www.youtube.com/results?search_query=' + encodeURIComponent(s.title + " " + s.film + " song") + '" target="_blank" rel="noopener noreferrer"><span class="tr-n">↗</span><span class="tr-body"><b>' + esc(s.title) + "</b><em>" + esc(s.film) + " · " + s.year + ' · opens on YouTube</em><small>' + esc(s.note) + "</small></span></a></li>").join("") +
+      '<div class="music-head"><div><h2>Our songs 🎧</h2><p class="muted">' + LOVE.playlist.length + ' old Bollywood songs I dedicate to you. Tap one and it opens on YouTube 💗</p></div></div>' +
+      '<ol class="tracks">' + LOVE.playlist.map((x, i) =>
+        '<li><a class="track" href="' + ytUrl(x) + '" target="_blank" rel="noopener noreferrer"><span class="tr-n">' + (i + 1) + '</span><span class="tr-body"><b>' + esc(x.title) + "</b><em>" + esc(x.film) + " · " + x.year + "</em><small>" + esc(x.note) + '</small></span><span class="tr-play" aria-hidden="true">▶</span></a></li>').join("") +
       "</ol>" +
-      '<p class="small muted music-foot">Songs play from the official label channels on YouTube. Keep this page open while they play; most phones pause YouTube when the screen locks.</p>' +
+      '<p class="small muted music-foot">On a phone, songs open in the YouTube app. Come back here when you’re done 💗</p>' +
       "</section>";
   }
-  function loadYT() {
-    if (music.ready) return music.ready;
-    music.ready = new Promise((resolve, reject) => {
-      if (window.YT && window.YT.Player) return resolve();
-      const prev = window.onYouTubeIframeAPIReady;
-      window.onYouTubeIframeAPIReady = () => { if (prev) prev(); resolve(); };
-      const s = document.createElement("script");
-      s.src = "https://www.youtube.com/iframe_api";
-      s.onerror = () => { music.ready = null; reject(new Error("YouTube player could not load")); };
-      document.head.appendChild(s);
-    });
-    return music.ready;
-  }
-  const playableList = () => LOVE.playlist.map((s, i) => (s.yt || s.apple) ? i : -1).filter(i => i >= 0);
-  function paintMusic() {
-    const s = LOVE.playlist[music.cur];
-    const el = id => document.getElementById(id);
-    if (!el("musicRoom")) return;
-    app.querySelectorAll("[data-track]").forEach(b => { const on = +b.dataset.track === music.cur; b.classList.toggle("on", on); b.classList.toggle("playing", on && music.playing); });
-    el("mPlay").textContent = music.playing ? "⏸" : "▶";
-    el("mPlay").setAttribute("aria-label", music.playing ? "Pause" : "Play");
-    el("mShuffle").classList.toggle("on", music.shuffle);
-    el("mShuffle").setAttribute("aria-pressed", music.shuffle ? "true" : "false");
-    el("musicRoom").classList.toggle("is-playing", music.playing);
-    if (s) {
-      el("nowTitle").textContent = s.title;
-      el("nowFilm").textContent = s.film + " (" + s.year + ")";
-      el("nowNote").textContent = s.note + " — " + LOVE.me + " 💌" + (s.apple ? " (plays in Apple Music's player)" : "");
-      el("ytCover").hidden = true;
-    }
-  }
-  function tickMusic() {
-    const p = music.player, cur = LOVE.playlist[music.cur];
-    if (!p || !p.getDuration || !document.getElementById("seekFill") || (cur && cur.apple)) return;
-    const d = p.getDuration() || 0, t = p.getCurrentTime() || 0;
-    document.getElementById("seekFill").style.width = (d ? t / d * 100 : 0) + "%";
-    document.getElementById("seekBar").setAttribute("aria-valuenow", d ? Math.round(t / d * 100) : 0);
-    document.getElementById("tNow").textContent = fmt(t);
-    document.getElementById("tDur").textContent = fmt(d);
-  }
-  async function playSong(i) {
-    const s = LOVE.playlist[i];
-    if (!s || !(s.yt || s.apple) || !document.getElementById("musicRoom")) return;
-    music.cur = i;
-    const ab = document.getElementById("appleBox");
-    if (s.apple) {
-      // Apple Music's own embed player (a preview, or the full song when signed in to Apple Music).
-      if (music.player && music.player.pauseVideo) music.player.pauseVideo();
-      music.playing = false;
-      ab.innerHTML = '<iframe title="' + esc(s.title) + ' on Apple Music" allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation" src="https://embed.music.apple.com/in/album/' + s.apple + '"></iframe>' +
-        '<p class="apple-links">Not loading? <a href="https://music.apple.com/in/album/' + s.apple + '" target="_blank" rel="noopener noreferrer">Open in Apple Music</a> · <a href="https://www.youtube.com/results?search_query=' + encodeURIComponent(s.title + " " + s.film + " song") + '" target="_blank" rel="noopener noreferrer">Open on YouTube</a></p>';
-      ab.hidden = false;
-      paintMusic();
-      ["seekFill"].forEach(id => { const x = document.getElementById(id); if (x) x.style.width = "0%"; });
-      document.getElementById("tNow").textContent = "—"; document.getElementById("tDur").textContent = "—";
-      toast("“" + s.title + "” for my pari 🧚‍♀️💗 Tap play in the Apple Music player.");
-      return;
-    }
-    if (ab) { ab.hidden = true; ab.innerHTML = ""; }
-    ownAudio.pause();
-    paintMusic();
-    clearTimeout(music.hintTimer);
-    const hint = document.getElementById("tapHint"); if (hint) hint.hidden = true;
-    // Phones block a website from starting a video by itself; after 3 s with no sound, ask for one tap on the video.
-    music.hintTimer = setTimeout(() => { const h = document.getElementById("tapHint"); if (h && !music.playing) h.hidden = false; }, 3000);
-    try { await loadYT(); } catch (e) { toast("The music player couldn't load. Check the internet and try again 💗"); return; }
-    if (!document.getElementById("musicRoom")) return;
-    if (music.player && music.player.loadVideoById) { music.player.loadVideoById(s.yt); }
-    else {
-      music.player = new YT.Player("ytPlayer", {
-        videoId: s.yt, width: "100%", height: "100%",
-        playerVars: { autoplay: 1, playsinline: 1, rel: 0, modestbranding: 1 },
-        events: {
-          onReady: e => { if (/[?&]mute\b/.test(location.search)) e.target.mute(); e.target.playVideo(); },
-          onStateChange: e => {
-            music.playing = e.data === YT.PlayerState.PLAYING;
-            if (music.playing) { music.errors = 0; const h = document.getElementById("tapHint"); if (h) h.hidden = true; ownAudio.pause(); }
-            if (e.data === YT.PlayerState.ENDED) nextSong();
-            paintMusic(); tickMusic();
-          },
-          onError: e => {
-            const bad = LOVE.playlist[music.cur], mr = document.getElementById("musicRoom");
-            if (mr) mr.dataset.err = e.data;
-            music.errors = (music.errors || 0) + 1;
-            // 100 = removed, 101/150 = the owner blocked embedding: skip it. Anything else is the browser or network: stop.
-            if ([100, 101, 150].includes(e.data) && music.errors < 4) {
-              toast("“" + bad.title + "” can't play here right now. Next one 💗");
-              setTimeout(nextSong, 1200);
-            } else {
-              toast("This song won't play in this browser right now. Try again, or open it on YouTube 💗");
-            }
-          }
-        }
-      });
-    }
-    if (!music.timer) music.timer = setInterval(tickMusic, 500);
-    if (!music.greeted) { music.greeted = true; toast("Now playing “" + s.title + "”, dedicated to you 🎶💗"); }
-  }
-  function nextSong(step) {
-    const list = playableList();
-    if (!list.length) return;
-    if (music.shuffle && list.length > 1) { let n; do { n = list[Math.floor(Math.random() * list.length)]; } while (n === music.cur); return playSong(n); }
-    const pos = list.indexOf(music.cur);
-    playSong(list[pos < 0 ? 0 : (pos + (step || 1) + list.length) % list.length]);
-  }
-  function wireMusic() {
-    loadYT().catch(() => {});
-    wireOwnSongs();
-    app.querySelectorAll("[data-track]").forEach(b => b.addEventListener("click", () => {
-      if (+b.dataset.track === music.cur && music.player && music.player.getPlayerState) {
-        if (music.playing) music.player.pauseVideo(); else music.player.playVideo();
-      } else playSong(+b.dataset.track);
-    }));
-    document.getElementById("mPlay").addEventListener("click", () => {
-      if (!music.player || music.cur < 0) return playSong(music.cur >= 0 ? music.cur : playableList()[0]);
-      if (music.playing) music.player.pauseVideo(); else music.player.playVideo();
-    });
-    document.getElementById("mNext").addEventListener("click", () => nextSong(1));
-    document.getElementById("mPrev").addEventListener("click", () => nextSong(-1));
-    document.getElementById("mShuffle").addEventListener("click", () => { music.shuffle = !music.shuffle; paintMusic(); toast(music.shuffle ? "Shuffle on: surprise me 🔀💕" : "Shuffle off 💗"); });
-    const bar = document.getElementById("seekBar");
-    const seekTo = frac => { const p = music.player; if (p && p.getDuration) { p.seekTo(Math.max(0, Math.min(1, frac)) * p.getDuration(), true); tickMusic(); } };
-    bar.addEventListener("click", e => { const r = bar.getBoundingClientRect(); seekTo((e.clientX - r.left) / r.width); });
-    bar.addEventListener("keydown", e => {
-      const p = music.player; if (!p || !p.getDuration) return;
-      const d = p.getDuration() || 1, t = p.getCurrentTime() || 0;
-      if (e.key === "ArrowRight") { e.preventDefault(); seekTo((t + 10) / d); }
-      if (e.key === "ArrowLeft") { e.preventDefault(); seekTo((t - 10) / d); }
-    });
-    // The player lives inside this page; leaving the page stops the music.
-    leaveHook = () => {
-      if (music.timer) { clearInterval(music.timer); music.timer = null; }
-      if (music.player && music.player.destroy) { try { music.player.destroy(); } catch (e) {} }
-      music.player = null; music.playing = false; music.cur = -1;
-    };
-  }
+
   // ---------- songs from her own phone (stored only in this browser, never uploaded) ----------
   const ownAudio = document.getElementById("ownAudio");
   const own = { list: [], cur: null, url: null };
@@ -1223,7 +1070,6 @@
     own.url = URL.createObjectURL(rec.blob);
     own.cur = id;
     ownAudio.src = own.url;
-    if (music.player && music.player.pauseVideo) music.player.pauseVideo();
     try { await ownAudio.play(); } catch (e) { toast("Tap ▶ to start the song 💗"); }
     if ("mediaSession" in navigator && window.MediaMetadata) {
       try { navigator.mediaSession.metadata = new MediaMetadata({ title: rec.name, artist: "For " + LOVE.her + ", from " + LOVE.me + " 💗" }); } catch (e) {}
@@ -1295,7 +1141,7 @@
     return LOVE.shayari[day % LOVE.shayari.length];
   }
   function wireUs() {
-    wireMusic();
+    wireOwnSongs();
     let shIdx = LOVE.shayari.indexOf(dailyShayari());
     document.getElementById("shayariBtn").addEventListener("click", e => {
       shIdx = (shIdx + 1) % LOVE.shayari.length;

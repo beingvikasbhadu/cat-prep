@@ -92,3 +92,8 @@ button.song { font: inherit; cursor: pointer; text-align: left; }
 .own-del:hover, .own-del[data-armed="1"] { color: var(--bad); border-color: var(--bad); }
 .own-empty { margin: 0; }
 .music-pill { max-width: 46vw; overflow: hidden; text-overflow: ellipsis; }
+
+/* song rows are YouTube links */
+.tr-play { flex: none; margin-left: auto; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; color: #fff; background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+.track .tr-body { flex: 1; }
+@media (max-width: 720px) { .music .tracks { max-height: none; overflow: visible; } }

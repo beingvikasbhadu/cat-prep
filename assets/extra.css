@@ -132,3 +132,18 @@
 .recap-grid > div { background: var(--surface-2); border-radius: 16px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
 .recap-grid b { font-weight: 800; color: var(--accent); }
 .recap-grid span { font-size: 14.5px; color: var(--ink-2); }
+
+/* Phone and older-Safari safety */
+@supports not (color: color-mix(in srgb, red, blue)) {
+  .topbar { background: var(--bg); }
+  .tabbar, .test-bar { background: var(--surface); }
+  .scene { background: rgba(255, 227, 238, .9); }
+  .q.finished { background: var(--good-soft); }
+}
+.scene-card { max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overflow-y: auto; }
+.letter-card { max-height: calc(100dvh - 32px); }
+@media (hover: none) {
+  .btn:hover, .target:hover, .topic:hover, .quiz-card:hover, .deck:hover, .letter:hover, .track:hover, .us-teaser:hover, .mood-btn:hover, .qopt:hover:not(:disabled), .cbtn:hover, .song:hover { transform: none; }
+}
+html { -webkit-tap-highlight-color: transparent; }
+button, a, label { touch-action: manipulation; }
