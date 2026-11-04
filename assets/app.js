@@ -342,6 +342,7 @@
     app.innerHTML = '<div class="page">' + html + "</div>";
     document.querySelectorAll("[data-nav]").forEach(a => a.classList.toggle("on", a.dataset.nav === nav || (a.dataset.nav === "notes" && (nav === "varc" || nav === "lrdi"))));
     paintFocus();
+    paintOwn();
     const target = anchor && document.getElementById(anchor);
     if (target) target.scrollIntoView(); else window.scrollTo(0, 0);
     if (after) after();
@@ -945,6 +946,7 @@
       '<section class="card cuddle"><div class="cuddle-art">' + couple("loop") + '</div><div class="cuddle-body"><h2>Need some love?</h2><p class="muted">Tap for a hug or a kiss from ' + esc(LOVE.me) + '. Unlimited refills 💞</p><div class="row"><button class="btn primary" id="hugBtn" type="button">Get a hug 🤗</button><button class="btn" id="kissBtn" type="button">Get a kiss 😘</button></div></div></section>' +
       '<section class="card focus"><div class="focus-ring" id="focusRing" style="--p:0"><div><b id="focusTime">25:00</b><span id="focusLabel">Ready when you are</span></div></div><div class="focus-body"><h2>Study date 📚</h2><p class="muted">25 minutes of focus with me, then a 5-minute break. Phone face down. You get 3 kisses for every round 💋</p><div class="row"><button class="btn primary" id="focusStart" type="button">Start study date</button><button class="btn" id="focusStop" type="button" hidden>Stop</button></div></div></section>' +
       musicRoom() +
+      ownSongsBox() +
       '<section><h2 class="sec">Open when… 💌</h2><div class="letters">' +
         LOVE.letters.map(l => { const locked = l.unlock && todayISO() < l.unlock; const read = (stats.lettersRead || []).includes(l.id);
           return '<button class="letter' + (locked ? " locked" : "") + (read ? " read" : "") + '" type="button" data-letter="' + l.id + '"><span class="env" aria-hidden="true">' + (locked ? "🔒" : read ? "💌" : "✉️") + '</span><span class="lt-emoji" aria-hidden="true">' + l.emoji + "</span><b>" + esc(l.title) + "</b>" + (locked ? '<small>Opens ' + esc(shortDate(l.unlock)) + "</small>" : read ? "<small>Read again</small>" : "<small>Tap to open</small>") + "</button>"; }).join("") +
@@ -1004,7 +1006,7 @@
     return '<section class="card music" id="musicRoom">' +
       '<div class="music-head"><div><h2>Our music room 🎧</h2><p class="muted">' + playable + ' old Bollywood songs I dedicate to you. Pick one and study with it 💗</p></div></div>' +
       '<div class="music-main">' +
-        '<div class="music-screen"><div class="yt-frame"><div id="ytPlayer"></div><div class="apple-box" id="appleBox" hidden></div><div class="yt-cover" id="ytCover"><div class="vinyl" aria-hidden="true"><span></span></div><p>Tap a song to start 💿</p></div></div></div>' +
+        '<div class="music-screen"><div class="yt-frame"><div id="ytPlayer"></div><div class="tap-hint" id="tapHint" hidden>👆 Tap the video once to start it</div><div class="apple-box" id="appleBox" hidden></div><div class="yt-cover" id="ytCover"><div class="vinyl" aria-hidden="true"><span></span></div><p>Tap a song to start 💿</p></div></div></div>' +
         '<div class="now"><span class="sub" id="nowLabel">Now playing</span><b id="nowTitle">Pick a song for us</b><em id="nowFilm">Old Bollywood, only for you</em><p class="now-note" id="nowNote">Every song here comes with a note from ' + esc(LOVE.me) + ' 💌</p>' +
           '<div class="bar seek" id="seekBar" role="slider" aria-label="Song position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0"><span id="seekFill"></span></div><div class="times"><span id="tNow">0:00</span><span id="tDur">0:00</span></div>' +
           '<div class="controls"><button class="cbtn" id="mPrev" type="button" aria-label="Previous song">⏮</button><button class="cbtn big" id="mPlay" type="button" aria-label="Play">▶</button><button class="cbtn" id="mNext" type="button" aria-label="Next song">⏭</button><button class="cbtn" id="mShuffle" type="button" aria-pressed="false" aria-label="Shuffle">🔀</button></div>' +
@@ -1076,7 +1078,12 @@
       return;
     }
     if (ab) { ab.hidden = true; ab.innerHTML = ""; }
+    ownAudio.pause();
     paintMusic();
+    clearTimeout(music.hintTimer);
+    const hint = document.getElementById("tapHint"); if (hint) hint.hidden = true;
+    // Phones block a website from starting a video by itself; after 3 s with no sound, ask for one tap on the video.
+    music.hintTimer = setTimeout(() => { const h = document.getElementById("tapHint"); if (h && !music.playing) h.hidden = false; }, 3000);
     try { await loadYT(); } catch (e) { toast("The music player couldn't load. Check the internet and try again 💗"); return; }
     if (!document.getElementById("musicRoom")) return;
     if (music.player && music.player.loadVideoById) { music.player.loadVideoById(s.yt); }
@@ -1088,7 +1095,7 @@
           onReady: e => { if (/[?&]mute\b/.test(location.search)) e.target.mute(); e.target.playVideo(); },
           onStateChange: e => {
             music.playing = e.data === YT.PlayerState.PLAYING;
-            if (music.playing) music.errors = 0;
+            if (music.playing) { music.errors = 0; const h = document.getElementById("tapHint"); if (h) h.hidden = true; ownAudio.pause(); }
             if (e.data === YT.PlayerState.ENDED) nextSong();
             paintMusic(); tickMusic();
           },
@@ -1118,6 +1125,8 @@
     playSong(list[pos < 0 ? 0 : (pos + (step || 1) + list.length) % list.length]);
   }
   function wireMusic() {
+    loadYT().catch(() => {});
+    wireOwnSongs();
     app.querySelectorAll("[data-track]").forEach(b => b.addEventListener("click", () => {
       if (+b.dataset.track === music.cur && music.player && music.player.getPlayerState) {
         if (music.playing) music.player.pauseVideo(); else music.player.playVideo();
@@ -1146,6 +1155,140 @@
       music.player = null; music.playing = false; music.cur = -1;
     };
   }
+  // ---------- songs from her own phone (stored only in this browser, never uploaded) ----------
+  const ownAudio = document.getElementById("ownAudio");
+  const own = { list: [], cur: null, url: null };
+  const songDB = {
+    open() {
+      return new Promise((res, rej) => {
+        if (!window.indexedDB) return rej(new Error("no indexedDB"));
+        const r = indexedDB.open("catprep-music", 1);
+        r.onupgradeneeded = () => r.result.createObjectStore("songs", { keyPath: "id" });
+        r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+      });
+    },
+    async run(mode, fn) {
+      const db = await this.open();
+      return new Promise((res, rej) => {
+        const tx = db.transaction("songs", mode), req = fn(tx.objectStore("songs"));
+        tx.oncomplete = () => res(req && req.result); tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error);
+      });
+    },
+    all() { return this.run("readonly", st => st.getAll()); },
+    put(rec) { return this.run("readwrite", st => st.put(rec)); },
+    del(id) { return this.run("readwrite", st => st.delete(id)); }
+  };
+  const songName = f => f.name.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ").trim();
+  function ownSongsBox() {
+    return '<section class="card own" id="ownSongs"><div class="own-head"><div><h2>Songs from your phone 📱💗</h2>' +
+      '<p class="muted">Have the MP3 already, like Pari Pari? Add it here. It is saved only in this phone’s browser, never uploaded, and keeps playing while you move around the site.</p></div>' +
+      '<label class="btn primary own-add"><input type="file" id="ownFile" accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg" multiple hidden>Add songs 🎵</label></div>' +
+      '<div class="own-player" id="ownPlayer" hidden><div class="vinyl small" aria-hidden="true"><span></span></div><div class="own-now"><span class="sub">Playing from your phone</span><b id="ownTitle">—</b>' +
+        '<div class="bar seek" id="ownSeek" role="slider" aria-label="Song position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0"><span id="ownFill"></span></div><div class="times"><span id="ownNow">0:00</span><span id="ownDur">0:00</span></div></div>' +
+        '<div class="controls"><button class="cbtn" id="ownPrev" type="button" aria-label="Previous song">⏮</button><button class="cbtn big" id="ownPlay" type="button" aria-label="Play">▶</button><button class="cbtn" id="ownNext" type="button" aria-label="Next song">⏭</button></div></div>' +
+      '<ol class="tracks own-list" id="ownList"></ol><p class="small muted own-empty" id="ownEmpty">No songs yet. Tap “Add songs” and pick MP3s from this phone.</p></section>';
+  }
+  function paintOwn() {
+    const list = document.getElementById("ownList"), playing = !ownAudio.paused, cur = own.list.find(x => x.id === own.cur);
+    if (list) {
+      document.getElementById("ownSongs").classList.toggle("is-own-playing", playing);
+      document.getElementById("ownEmpty").hidden = own.list.length > 0;
+      list.innerHTML = own.list.map((x, i) => '<li class="own-row"><button class="track' + (x.id === own.cur ? " on" : "") + (x.id === own.cur && playing ? " playing" : "") + '" type="button" data-own="' + x.id + '"><span class="tr-n">' + (i + 1) + '</span><span class="tr-eq" aria-hidden="true"><i></i><i></i><i></i></span><span class="tr-body"><b>' + esc(x.name) + "</b><em>" + (x.size / 1048576).toFixed(1) + ' MB · on this phone</em></span></button><button class="own-del" type="button" data-owndel="' + x.id + '" aria-label="Remove ' + esc(x.name) + '">✕</button></li>').join("");
+      document.getElementById("ownPlayer").hidden = !cur;
+      if (cur) {
+        document.getElementById("ownTitle").textContent = cur.name;
+        document.getElementById("ownPlay").textContent = playing ? "⏸" : "▶";
+        document.getElementById("ownPlay").setAttribute("aria-label", playing ? "Pause" : "Play");
+      }
+    }
+    const pill = document.getElementById("musicPill");
+    if (pill) {
+      pill.hidden = !cur || !!document.getElementById("ownSongs");
+      if (cur) pill.textContent = (playing ? "⏸ " : "▶ ") + cur.name.slice(0, 18);
+    }
+  }
+  function tickOwn() {
+    const f = document.getElementById("ownFill"); if (!f) return;
+    const d = ownAudio.duration || 0, t = ownAudio.currentTime || 0;
+    f.style.width = (d ? t / d * 100 : 0) + "%";
+    document.getElementById("ownSeek").setAttribute("aria-valuenow", d ? Math.round(t / d * 100) : 0);
+    document.getElementById("ownNow").textContent = fmt(t);
+    document.getElementById("ownDur").textContent = fmt(d);
+  }
+  async function playOwn(id) {
+    let rec;
+    try { rec = (await songDB.all()).find(x => x.id === id); } catch (e) { rec = null; }
+    if (!rec) return;
+    if (own.url) URL.revokeObjectURL(own.url);
+    own.url = URL.createObjectURL(rec.blob);
+    own.cur = id;
+    ownAudio.src = own.url;
+    if (music.player && music.player.pauseVideo) music.player.pauseVideo();
+    try { await ownAudio.play(); } catch (e) { toast("Tap ▶ to start the song 💗"); }
+    if ("mediaSession" in navigator && window.MediaMetadata) {
+      try { navigator.mediaSession.metadata = new MediaMetadata({ title: rec.name, artist: "For " + LOVE.her + ", from " + LOVE.me + " 💗" }); } catch (e) {}
+    }
+    paintOwn();
+  }
+  function stepOwn(step) {
+    if (!own.list.length) return;
+    const i = own.list.findIndex(x => x.id === own.cur);
+    playOwn(own.list[(i + step + own.list.length) % own.list.length].id);
+  }
+  async function loadOwn() {
+    try { own.list = (await songDB.all()).map(x => ({ id: x.id, name: x.name, size: x.size, added: x.added })).sort((a, b) => a.added - b.added); }
+    catch (e) { own.list = []; }
+    paintOwn();
+  }
+  ["play", "pause", "ended", "loadedmetadata"].forEach(ev => ownAudio.addEventListener(ev, () => { paintOwn(); tickOwn(); }));
+  ownAudio.addEventListener("timeupdate", tickOwn);
+  ownAudio.addEventListener("ended", () => stepOwn(1));
+  if ("mediaSession" in navigator) {
+    try {
+      navigator.mediaSession.setActionHandler("play", () => ownAudio.play());
+      navigator.mediaSession.setActionHandler("pause", () => ownAudio.pause());
+      navigator.mediaSession.setActionHandler("nexttrack", () => stepOwn(1));
+      navigator.mediaSession.setActionHandler("previoustrack", () => stepOwn(-1));
+    } catch (e) {}
+  }
+  document.getElementById("musicPill").addEventListener("click", () => { if (ownAudio.paused) ownAudio.play(); else ownAudio.pause(); });
+  function wireOwnSongs() {
+    const box = document.getElementById("ownSongs"); if (!box) return;
+    document.getElementById("ownFile").addEventListener("change", async e => {
+      const files = [...e.target.files].filter(f => (f.type || "").startsWith("audio/") || /\.(mp3|m4a|aac|wav|ogg)$/i.test(f.name));
+      e.target.value = "";
+      if (!files.length) return;
+      let added = 0;
+      for (const f of files) {
+        try { await songDB.put({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), name: songName(f), size: f.size, added: Date.now() + added, blob: f }); added++; }
+        catch (err) { toast("Couldn't save “" + songName(f) + "”. The phone may be out of space 🥺"); }
+      }
+      await loadOwn();
+      if (added) { toast(added + " song" + (added > 1 ? "s" : "") + " added to your music 🎶💗"); burstAt(document.querySelector(".own-add"), 10); }
+    });
+    box.addEventListener("click", async e => {
+      const p = e.target.closest("[data-own]"), d = e.target.closest("[data-owndel]");
+      if (p) {
+        if (p.dataset.own === own.cur) { if (ownAudio.paused) ownAudio.play(); else ownAudio.pause(); }
+        else playOwn(p.dataset.own);
+      }
+      if (d) {
+        if (d.dataset.armed !== "1") { d.dataset.armed = "1"; d.textContent = "Remove?"; setTimeout(() => { if (d.isConnected) { d.dataset.armed = ""; d.textContent = "✕"; } }, 3000); return; }
+        const id = d.dataset.owndel;
+        if (id === own.cur) { ownAudio.pause(); ownAudio.removeAttribute("src"); own.cur = null; }
+        try { await songDB.del(id); } catch (err) {}
+        await loadOwn();
+      }
+    });
+    document.getElementById("ownPlay").addEventListener("click", () => { if (ownAudio.paused) ownAudio.play(); else ownAudio.pause(); });
+    document.getElementById("ownNext").addEventListener("click", () => stepOwn(1));
+    document.getElementById("ownPrev").addEventListener("click", () => stepOwn(-1));
+    const bar = document.getElementById("ownSeek");
+    bar.addEventListener("click", e => { const r = bar.getBoundingClientRect(); if (ownAudio.duration) ownAudio.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * ownAudio.duration; });
+    bar.addEventListener("keydown", e => { if (e.key === "ArrowRight") ownAudio.currentTime += 10; if (e.key === "ArrowLeft") ownAudio.currentTime -= 10; });
+    loadOwn().then(tickOwn);
+  }
+
   const shayariHTML = pair => pair.map(x => '<span class="sh-line">' + esc(fill(x)) + "</span>").join("");
   function dailyShayari() {
     const day = Math.floor(new Date(todayISO() + "T00:00:00").getTime() / 86400000);
@@ -1189,6 +1332,7 @@
     return '<header class="page-head"><h1>Page not found 🥺</h1><p class="lede"><a href="#/">Go home</a></p></header>';
   }
 
+  loadOwn();
   const arrival = countVisit();
   route();
   greet(arrival);

@@ -66,3 +66,29 @@ button.song { font: inherit; cursor: pointer; text-align: left; }
 .apple-links { margin: 0; font-size: 12.5px; font-weight: 800; color: #6e2a4c; text-align: center; }
 .apple-links a { color: #b8185a; }
 .apple-box iframe { height: 160px; }
+
+/* "tap the video once" hint: taps pass through to the video underneath */
+.tap-hint { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 2; pointer-events: none; background: rgba(255, 79, 139, .95); color: #fff; font-weight: 800; font-size: 14px; padding: 8px 14px; border-radius: 999px; white-space: nowrap; box-shadow: 0 8px 20px rgba(255, 79, 139, .35); }
+@media (prefers-reduced-motion: no-preference) { .tap-hint:not([hidden]) { animation: nudge 1.2s ease-in-out infinite; } @keyframes nudge { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -5px); } } }
+
+/* songs from her own phone */
+.own { display: flex; flex-direction: column; gap: 14px; background: linear-gradient(160deg, var(--surface), var(--accent-soft)); }
+.own-head { display: flex; gap: 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.own-head > div { flex: 1; min-width: 240px; display: flex; flex-direction: column; gap: 4px; }
+.own-add { cursor: pointer; }
+.own-player { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 16px; align-items: center; background: var(--surface); border: 2px solid var(--line); border-radius: 22px; padding: 14px 16px; }
+.own-player .controls { margin-top: 0; }
+.own-now { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.own-now .sub { margin: 0; }
+.own-now b { font-family: var(--display); font-weight: 400; font-size: 22px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vinyl.small { width: 64px; height: 64px; }
+.vinyl.small span { width: 22px; height: 22px; }
+@media (prefers-reduced-motion: no-preference) { .own-player .vinyl.small { animation: spin 6s linear infinite; animation-play-state: paused; } .own.is-own-playing .vinyl.small { animation-play-state: running; } }
+@media (max-width: 560px) { .own-player { grid-template-columns: auto minmax(0, 1fr); } .own-player .controls { grid-column: 1 / -1; justify-content: center; } }
+.own-list { max-height: 360px; }
+.own-row { display: flex; gap: 6px; align-items: stretch; }
+.own-row .track { flex: 1; min-width: 0; }
+.own-del { flex: none; border: 2px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 16px; padding: 0 12px; font: inherit; font-weight: 800; cursor: pointer; }
+.own-del:hover, .own-del[data-armed="1"] { color: var(--bad); border-color: var(--bad); }
+.own-empty { margin: 0; }
+.music-pill { max-width: 46vw; overflow: hidden; text-overflow: ellipsis; }
