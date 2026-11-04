@@ -395,19 +395,19 @@ window.LOVE = {
   // crawl = how far the story keeps moving while the line is said (0 = everyone pauses).
   talk: {
     kiss: [
-      { who: "v", at: 0, dur: 2.8, text: "Baby, ek baat bolun? 🙈" },
-      { who: "k", at: 0, dur: 2.6, text: "Haan bolo na 🥰" },
-      { who: "k", at: 2.75, dur: 2.8, text: "Ye kya tha?! 😳💗" },
-      { who: "v", at: 2.75, dur: 2.8, text: "Kuch nahi… bas aise hi 🙈" },
-      { who: "k", at: 4.95, dur: 3.0, text: "Ruko na… kahan ja rahe ho? 🥺" },
-      { who: "v", at: 5.6, dur: 3.2, text: "Tumhare paas hi toh aa raha hoon, baby 💗" },
-      { who: "v", at: 7.2, dur: 3.0, crawl: 0.5, text: "I love you, baby 💖" },
-      { who: "k", at: 7.7, dur: 3.2, crawl: 0.6, text: "I love you too, meri jaan 🥰" }
+      { who: "v", at: 0, dur: 2, text: "Baby, ek baat bolun? 🙈" },
+      { who: "k", at: 0, dur: 1.6, text: "Haan bolo na 🥰" },
+      { who: "k", at: 2.75, dur: 1.8, text: "Ye kya tha?! 😳💗" },
+      { who: "v", at: 2.75, dur: 2, text: "Kuch nahi… bas aise hi 🙈" },
+      { who: "k", at: 4.95, dur: 2.1, text: "Ruko na… kahan ja rahe ho? 🥺" },
+      { who: "v", at: 5.6, dur: 2.4, text: "Tumhare paas hi toh aa raha hoon, baby 💗" },
+      { who: "v", at: 7.2, dur: 2, crawl: 0.5, text: "I love you, baby 💖" },
+      { who: "k", at: 7.7, dur: 2.2, crawl: 0.6, text: "I love you too, meri jaan 🥰" }
     ],
     hug: [
-      { who: "v", at: 0.2, dur: 2.8, text: "Idhar aao, baby 🤗" },
-      { who: "k", at: 2.3, dur: 3.2, crawl: 0.3, text: "Bas aise hi pakad ke rakhna 🥺💗" },
-      { who: "v", at: 2.6, dur: 3.2, crawl: 0.4, text: "Hamesha, baby. Promise 💖" }
+      { who: "v", at: 0.2, dur: 1.9, text: "Idhar aao, baby 🤗" },
+      { who: "k", at: 2.3, dur: 2.3, crawl: 0.3, text: "Bas aise hi pakad ke rakhna 🥺💗" },
+      { who: "v", at: 2.6, dur: 2.3, crawl: 0.4, text: "Hamesha, baby. Promise 💖" }
     ]
   },
 

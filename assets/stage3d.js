@@ -205,7 +205,7 @@
     bubbles.v.className = "bubble from-v"; bubbles.k.className = "bubble from-k";
     talk.append(bubbles.v, bubbles.k);
     const headPos = new THREE.Vector3();
-    const SPEED = 1.5; // real seconds per story unit while moving
+    const SPEED = 1.0; // real seconds per story unit while moving
     function timeline(lines, end, tail) {
       const segs = []; let cur = 0, r = 0;
       lines.slice().sort((a, b) => a.at - b.at).forEach(l => {
@@ -220,7 +220,7 @@
       for (const g of tl.segs) if (r < g.r1) { const k = (r - g.r0) / ((g.r1 - g.r0) || 1); return { s: g.s0 + (g.s1 - g.s0) * k, line: g.line || null, hold: !!g.hold }; }
       const g = tl.segs[tl.segs.length - 1]; return { s: g ? g.s1 : 0, line: null, hold: true };
     }
-    const TL = mode === "hug" ? timeline(talkLines, 4.6, 0) : mode === "kiss" ? timeline(talkLines, 9.3, 0) : timeline(talkLines, 10, 1.2);
+    const TL = mode === "hug" ? timeline(talkLines, 4.6, 0) : mode === "kiss" ? timeline(talkLines, 9.3, 0) : timeline(talkLines, 10, 0.6);
     function speak(current) {
       ["v", "k"].forEach(who => {
         const line = current && current.who === who ? current : null;

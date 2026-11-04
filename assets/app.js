@@ -268,7 +268,7 @@
     if (g && g.textContent !== greeting()) g.textContent = greeting();
     const d = document.querySelector("[data-day]");
     if (d && d.dataset.day !== todayISO() && !sceneOpen) route();
-  }, 30000);
+  }, 25000);
 
   // ---------- drawings ----------
   // Vikas (left) leans in and kisses Khushi (right) on the cheek.
@@ -454,7 +454,7 @@
           '<p class="lede">Target: <b>' + total + ' correct</b> across three sections. Revise a little, play a quiz, collect kisses. I’m cheering for you every single day 💗</p>' +
           '<div class="hero-btns"><a class="btn primary" href="#/quiz">Play a quick quiz ✨</a><a class="btn" href="#/math">Revise a topic</a></div>' +
         '</div>' +
-        '<div class="hero-art">' + couple("loop") + '<p class="love-quote" id="loveQuote">' + esc(fill(LOVE.quotes[Math.floor(Date.now() / 30000) % LOVE.quotes.length])) + '</p></div>' +
+        '<div class="hero-art">' + couple("loop") + '<p class="love-quote" id="loveQuote">' + esc(fill(LOVE.quotes[Math.floor(Date.now() / 25000) % LOVE.quotes.length])) + '</p></div>' +
       '</section>' +
       (countdownToday() ? '<section class="banner"><span aria-hidden="true">⏳</span><p>' + esc(countdownToday()) + "</p></section>" : "") +
       '<section class="card note"><span class="note-pin" aria-hidden="true">💌</span><p class="sub">Note of the day from ' + esc(LOVE.me) + '</p><p class="note-text">' + esc(fill(note)) + '</p></section>' +
@@ -497,8 +497,8 @@
       const timer = setInterval(() => {
         if (!q.isConnected) return clearInterval(timer);
         q.classList.add("fade");
-        setTimeout(() => { q.textContent = fill(LOVE.quotes[Math.floor(Date.now() / 30000) % LOVE.quotes.length]); q.classList.remove("fade"); }, 400);
-      }, 30000);
+        setTimeout(() => { q.textContent = fill(LOVE.quotes[Math.floor(Date.now() / 25000) % LOVE.quotes.length]); q.classList.remove("fade"); }, 400);
+      }, 25000);
     }
     const art = app.querySelector(".hero-art");
     if (art) art.addEventListener("click", e => { heartBurst(e.clientX, e.clientY, 10); toast(fill(pick(LOVE.correct, "tap"))); });
