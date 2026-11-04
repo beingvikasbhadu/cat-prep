@@ -390,7 +390,11 @@ window.LOVE = {
   ],
 
   // Our songs: old Bollywood dedications. yt = the official YouTube video (opens on YouTube); without it, a YouTube search opens.
+  // Our special song: featured on the home page and at the top of the songs
+  specialSong: { title: "Humko Pyar Hua", film: "Ready", year: 2011, yt: "EB25MOJIHRQ", note: "Hamara gaana 💖 Jab bhi ye suno, bas itna yaad rakhna: main hamesha tumhare saath hoon." },
+
   playlist: [
+    { title: "Humko Pyar Hua", film: "Ready", year: 2011, note: "Our special song 💖", yt: "EB25MOJIHRQ", special: true },
     { title: "Tujhe Dekha To Ye Jaana Sanam", film: "Dilwale Dulhania Le Jayenge", year: 1995, note: "Hamara forever song 💛", yt: "cNV5hLSa9H8" },
     { title: "Pehla Nasha", film: "Jo Jeeta Wohi Sikandar", year: 1992, note: "Jab pehli baar tumhe dekha tha, bilkul aisa laga tha", yt: "Ki41AKu0iHc" },
     { title: "Lag Ja Gale", film: "Woh Kaun Thi?", year: 1964, note: "Jab miss karo, ye suno", yt: "br6C4U3Dyfo" },

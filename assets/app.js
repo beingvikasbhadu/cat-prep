@@ -390,6 +390,7 @@
       '</section>' +
       (countdownToday() ? '<section class="banner"><span aria-hidden="true">⏳</span><p>' + esc(countdownToday()) + "</p></section>" : "") +
       '<section class="card note"><span class="note-pin" aria-hidden="true">💌</span><p class="sub">Note of the day from ' + esc(LOVE.me) + '</p><p class="note-text">' + esc(fill(note)) + '</p></section>' +
+      specialSongCard(true) +
       '<a class="card us-teaser" href="#/us"><span class="ut-emoji" aria-hidden="true">💕</span><div><b>Just us</b><span>How are you feeling? Open-when letters, a hug, and a 25-minute study date with me</span></div><span class="ut-go" aria-hidden="true">→</span></a>' +
       '<section class="card jar">' +
         '<div class="jar-icon" aria-hidden="true">🫙<span>💋</span></div>' +
@@ -991,12 +992,23 @@
     wrap.addEventListener("click", e => { if (e.target === wrap) close(); });
   }
 
+  // ---------- our special song ----------
+  function specialSongCard(compact) {
+    const s = LOVE.specialSong;
+    if (!s) return "";
+    return '<a class="card special-song' + (compact ? " compact" : "") + '" href="' + ytUrl(s) + '" target="_blank" rel="noopener noreferrer">' +
+      '<span class="ss-disc" aria-hidden="true"><span>💖</span></span>' +
+      '<span class="ss-body"><span class="sub">Our special song 💖</span><b>' + esc(s.title) + "</b><em>" + esc(s.film) + " (" + s.year + ")</em>" +
+      (compact ? "" : '<span class="ss-note">' + esc(fill(s.note)) + " — " + esc(LOVE.me) + " 💌</span>") + "</span>" +
+      '<span class="ss-play" aria-hidden="true">▶</span></a>';
+  }
+
   // ---------- our songs: each one opens its official YouTube video ----------
   function musicRoom() {
-    return '<section class="card music" id="musicRoom">' +
-      '<div class="music-head"><div><h2>Our songs 🎧</h2><p class="muted">' + LOVE.playlist.length + ' old Bollywood songs I dedicate to you. Tap one and it opens on YouTube 💗</p></div></div>' +
+    return specialSongCard() + '<section class="card music" id="musicRoom">' +
+      '<div class="music-head"><div><h2>Our songs 🎧</h2><p class="muted">' + LOVE.playlist.length + ' Bollywood songs I dedicate to you. Tap one and it opens on YouTube 💗</p></div></div>' +
       '<ol class="tracks">' + LOVE.playlist.map((x, i) =>
-        '<li><a class="track" href="' + ytUrl(x) + '" target="_blank" rel="noopener noreferrer"><span class="tr-n">' + (i + 1) + '</span><span class="tr-body"><b>' + esc(x.title) + "</b><em>" + esc(x.film) + " · " + x.year + "</em><small>" + esc(x.note) + '</small></span><span class="tr-play" aria-hidden="true">▶</span></a></li>').join("") +
+        '<li><a class="track' + (x.special ? " special" : "") + '" href="' + ytUrl(x) + '" target="_blank" rel="noopener noreferrer"><span class="tr-n">' + (x.special ? "💖" : i + 1) + '</span><span class="tr-body"><b>' + esc(x.title) + "</b><em>" + esc(x.film) + " · " + x.year + "</em><small>" + esc(x.note) + '</small></span><span class="tr-play" aria-hidden="true">▶</span></a></li>').join("") +
       "</ol>" +
       '<p class="small muted music-foot">On a phone, songs open in the YouTube app. Come back here when you’re done 💗</p>' +
       "</section>";
