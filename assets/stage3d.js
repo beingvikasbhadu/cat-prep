@@ -205,9 +205,25 @@
     bubbles.v.className = "bubble from-v"; bubbles.k.className = "bubble from-k";
     talk.append(bubbles.v, bubbles.k);
     const headPos = new THREE.Vector3();
-    function speak(t) {
+    const SPEED = 1.5; // real seconds per story unit while moving
+    function timeline(lines, end, tail) {
+      const segs = []; let cur = 0, r = 0;
+      lines.slice().sort((a, b) => a.at - b.at).forEach(l => {
+        if (l.at > cur) { const d = (l.at - cur) * SPEED; segs.push({ r0: r, r1: r + d, s0: cur, s1: l.at }); r += d; cur = l.at; }
+        const c = l.crawl || 0; segs.push({ r0: r, r1: r + l.dur, s0: cur, s1: cur + c, line: l, hold: true }); r += l.dur; cur += c;
+      });
+      if (end > cur) { const d = (end - cur) * SPEED; segs.push({ r0: r, r1: r + d, s0: cur, s1: end }); r += d; cur = end; }
+      if (tail) { segs.push({ r0: r, r1: r + tail, s0: cur, s1: cur, hold: true }); r += tail; }
+      return { segs, total: r };
+    }
+    function storyAt(tl, r) {
+      for (const g of tl.segs) if (r < g.r1) { const k = (r - g.r0) / ((g.r1 - g.r0) || 1); return { s: g.s0 + (g.s1 - g.s0) * k, line: g.line || null, hold: !!g.hold }; }
+      const g = tl.segs[tl.segs.length - 1]; return { s: g ? g.s1 : 0, line: null, hold: true };
+    }
+    const TL = mode === "hug" ? timeline(talkLines, 4.6, 0) : mode === "kiss" ? timeline(talkLines, 9.3, 0) : timeline(talkLines, 10, 1.2);
+    function speak(current) {
       ["v", "k"].forEach(who => {
-        const line = talkLines.find(l => l.who === who && t >= l.from && t < l.to);
+        const line = current && current.who === who ? current : null;
         const el = bubbles[who];
         const text = line ? line.text.replace(/\{name\}/g, (window.LOVE && LOVE.her) || "") : "";
         if (el.dataset.text !== text) { el.dataset.text = text; el.textContent = text; el.classList.toggle("on", !!text); }
@@ -275,7 +291,7 @@
       tM.y -= Math.max(0.08, Math.sqrt(Math.max(0, L * L - (d / 2) * (d / 2))));
       aim(V.armR, tM, amt); aim(K.armR, tM, amt);
     }
-    function kissStory(t, loop) {
+    function kissStory(t, loop, rt, paused) {
       resetLimbs(V); resetLimbs(K);
       // positions and turns through the story
       let vx = -0.45, vz = 0, vry = 0, kx = 0.45, kry = 0, vLean = 0, vPitch = 0, kPitch = 0, kTilt = 0, vTilt = 0, kUp = 0;
@@ -309,9 +325,9 @@
       K.root.position.y = kUp;
       // walking legs
       const moving = (t > 0.6 && t < 1.6) || (t > 2.7 && t < 4.4) || (t > 5.2 && t < 6.4) || (loop && t > 9.2);
-      if (moving) walk(V, t * 9, 1);
-      if (t > 4.4 && t < 5.2) walk(K, t * 8, 0.5);
-      if (loop && t > 9.2) walk(K, t * 8, 0.6);
+      if (moving && !paused) walk(V, rt * 6.5, 1);
+      if (t > 4.4 && t < 5.2 && !paused) walk(K, rt * 6, 0.5);
+      if (loop && t > 9.2 && !paused) walk(K, rt * 6, 0.6);
       if (kUp > 0) { K.legs.forEach(l => (l.rotation.x = 0)); }
       // her reaching arm (right arm, toward him), then holding hands while she pulls
       // she reaches out and catches his hand, holds it while pulling him back, then lets go for the kiss
@@ -328,32 +344,32 @@
         eyes: within(t, 1.35, 2.25) || within(t, 2.4, 4.45) || (t > 6.5 && !afterKiss) ? "closed" : "open",
         mouth: within(t, 1.45, 2.25) || lipKiss ? "kiss" : within(t, 4.55, 5.35) ? "ooh" : within(t, 2.4, 3.6) ? "big" : "smile",
         brow: within(t, 4.5, 5.4) ? 1 : 0, tilt: within(t, 2.3, 4.45) ? 1 : 0
-      }, t, 0.3);
+      }, rt, 0.3);
       // Khushi: surprised by the cheek kiss, giggles, a little worried as he walks off, then the kiss
       face(K, {
         eyes: within(t, 1.9, 3.05) || (t > 6.55 && !afterKiss) ? "closed" : "open",
         mouth: lipKiss ? "kiss" : within(t, 1.5, 1.9) ? "ooh" : within(t, 1.9, 3.1) || afterKiss ? "big" : "smile",
         brow: within(t, 1.45, 1.95) ? 1 : 0, tilt: within(t, 3.3, 4.5) ? 0.7 : 0
-      }, t, 1.7);
+      }, rt, 1.7);
       const giggle = seg(t, 1.85, 2.1) * (1 - seg(t, 2.9, 3.2));
-      K.head.rotation.z += 0.14 * giggle * (1 + 0.25 * Math.sin(t * 18)); K.body.rotation.z = -0.05 * giggle;
+      K.head.rotation.z += 0.14 * giggle * (1 + 0.25 * Math.sin(rt * 14)); K.body.rotation.z = -0.05 * giggle;
       V.head.rotation.x += 0.12 * seg(t, 2.35, 2.6) * (1 - seg(t, 4.3, 4.6));
       setBlush(V, seg(t, 2.1, 2.5) * (1 - seg(t, 4.6, 5.2)) + 0.6 * seg(t, 6.5, 7));
       setBlush(K, seg(t, 1.5, 2.0) * (1 - seg(t, 3, 4)) + seg(t, 6.5, 7) * (loop ? 1 - seg(t, 9.3, 10) : 1));
       V.sweat.visible = t > 2.3 && t < 5.0;
-      if (V.sweat.visible) V.sweat.position.y = 0.12 - ((t * 0.12) % 0.06);
-      idle(V, t, 0); idle(K, t, 1.3);
+      if (V.sweat.visible) V.sweat.position.y = 0.12 - ((rt * 0.05) % 0.06);
+      idle(V, rt, 0); idle(K, rt, 1.3);
       // hearts: one at her cheek, then a little burst above the kiss
       popHeart(cheekHeart, 0.33, 1.68, 0.2, (t - 1.6) / 1.2, 0.09);
       hearts.forEach((h, i) => popHeart(h, -0.02 + (i - 2.5) * 0.1, 2.02 + (i % 2) * 0.06, 0.1, (t - 6.9 - i * 0.22) / 2.2, 0.06 + (i % 3) * 0.015));
     }
 
-    function hugStory(t) {
+    function hugStory(t, rt, paused) {
       resetLimbs(V); resetLimbs(K);
       const s = seg(t, 0.4, 1.5);
       V.root.position.x = lerp(-0.45, -0.165, s); K.root.position.x = lerp(0.45, 0.165, s);
       V.root.rotation.y = lerp(0, 1.05, s); K.root.rotation.y = lerp(0, -1.05, s);
-      if (t > 0.4 && t < 1.5) { walk(V, t * 9, 0.8); walk(K, t * 9, 0.6); }
+      if (t > 0.4 && t < 1.5 && !paused) { walk(V, rt * 6.5, 0.8); walk(K, rt * 6.5, 0.6); }
       const h = seg(t, 1.3, 2.0);
       // arms wrap around each other
       // arms on the -x side curl toward +x, arms on the +x side toward -x
@@ -363,20 +379,21 @@
       });
       V.head.rotation.y = 0.35 * h; K.head.rotation.y = -0.35 * h; V.head.rotation.x = 0.18 * h; K.head.rotation.z = 0.12 * h; V.head.rotation.z = -0.08 * h;
       K.root.position.y = 0.03 * h;
-      face(V, { eyes: h > 0.5 ? "closed" : "open", mouth: "smile" }, t, 0.4);
-      face(K, { eyes: h > 0.5 ? "closed" : "open", mouth: h > 0.5 ? "big" : "smile" }, t, 1.1);
+      face(V, { eyes: h > 0.5 ? "closed" : "open", mouth: "smile" }, rt, 0.4);
+      face(K, { eyes: h > 0.5 ? "closed" : "open", mouth: h > 0.5 ? "big" : "smile" }, rt, 1.1);
       setBlush(V, 0.5 * h); setBlush(K, h);
       V.sweat.visible = false;
-      idle(V, t, 0); idle(K, t, 1.3);
+      idle(V, rt, 0); idle(K, rt, 1.3);
       cheekHeart.visible = false;
       hearts.forEach((ht, i) => popHeart(ht, (i - 2.5) * 0.11, 2.02 + (i % 2) * 0.06, 0.1, (t - 2.0 - i * 0.25) / 2.4, 0.06 + (i % 3) * 0.015));
     }
 
     function frame(t) {
-      const st = mode === "hug" ? Math.min(t / 1.3, 4.6) : mode === "kiss" ? Math.min(t / 1.4, 9.3) : (t / 1.4) % 10;
-      if (mode === "hug") hugStory(st); else kissStory(st, mode !== "kiss");
+      const r = mode === "loop" ? t % TL.total : Math.min(t, TL.total);
+      const p = storyAt(TL, r), st = p.s;
+      if (mode === "hug") hugStory(st, t, p.hold); else kissStory(st, mode !== "kiss", t, p.hold);
       scene.updateMatrixWorld(true);
-      speak(st);
+      speak(p.line);
       shadows[0].position.set(V.root.position.x, 0.002, V.root.position.z);
       shadows[1].position.set(K.root.position.x, 0.002, K.root.position.z);
       renderer.render(scene, camera);

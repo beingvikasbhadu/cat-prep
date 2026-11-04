@@ -390,23 +390,24 @@ window.LOVE = {
   ],
 
   // Our songs: old Bollywood dedications. yt = the official YouTube video (opens on YouTube); without it, a YouTube search opens.
-  // What they say in the 3D animation. who: "v" = Vikas, "k" = Khushi. from/to are story seconds
-  // (kiss story runs 0–10 and plays at 1.4× slower; hug runs 0–4.6 at 1.3× slower).
+  // What they say in the 3D animation, one line at a time. who: "v" = Vikas, "k" = Khushi.
+  // at = the moment in the story where it's said (kiss story 0–10, hug 0–4.6); dur = seconds the line stays on screen.
+  // crawl = how far the story keeps moving while the line is said (0 = everyone pauses).
   talk: {
     kiss: [
-      { who: "v", from: 0.05, to: 1.25, text: "Baby, ek baat bolun? 🙈" },
-      { who: "k", from: 0.75, to: 1.45, text: "Haan bolo na 🥰" },
-      { who: "k", from: 2.2, to: 3.2, text: "Ye kya tha?! 😳💗" },
-      { who: "v", from: 2.8, to: 4.3, text: "Kuch nahi… bas aise hi 🙈" },
-      { who: "k", from: 4.4, to: 5.5, text: "Ruko na… kahan ja rahe ho? 🥺" },
-      { who: "v", from: 5.45, to: 6.5, text: "Tumhare paas hi toh aa raha hoon, baby 💗" },
-      { who: "v", from: 7.0, to: 8.3, text: "I love you, baby 💖" },
-      { who: "k", from: 8.2, to: 9.6, text: "I love you too, meri jaan 🥰" }
+      { who: "v", at: 0, dur: 2.8, text: "Baby, ek baat bolun? 🙈" },
+      { who: "k", at: 0, dur: 2.6, text: "Haan bolo na 🥰" },
+      { who: "k", at: 2.75, dur: 2.8, text: "Ye kya tha?! 😳💗" },
+      { who: "v", at: 2.75, dur: 2.8, text: "Kuch nahi… bas aise hi 🙈" },
+      { who: "k", at: 4.95, dur: 3.0, text: "Ruko na… kahan ja rahe ho? 🥺" },
+      { who: "v", at: 5.6, dur: 3.2, text: "Tumhare paas hi toh aa raha hoon, baby 💗" },
+      { who: "v", at: 7.2, dur: 3.0, crawl: 0.5, text: "I love you, baby 💖" },
+      { who: "k", at: 7.7, dur: 3.2, crawl: 0.6, text: "I love you too, meri jaan 🥰" }
     ],
     hug: [
-      { who: "v", from: 0, to: 1.3, text: "Idhar aao, baby 🤗" },
-      { who: "k", from: 1.4, to: 2.9, text: "Bas aise hi pakad ke rakhna 🥺💗" },
-      { who: "v", from: 2.9, to: 4.6, text: "Hamesha, baby. Promise 💖" }
+      { who: "v", at: 0.2, dur: 2.8, text: "Idhar aao, baby 🤗" },
+      { who: "k", at: 2.3, dur: 3.2, crawl: 0.3, text: "Bas aise hi pakad ke rakhna 🥺💗" },
+      { who: "v", at: 2.6, dur: 3.2, crawl: 0.4, text: "Hamesha, baby. Promise 💖" }
     ]
   },
 
