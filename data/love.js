@@ -157,6 +157,11 @@ window.LOVE = {
     "Our love is like CI: it keeps growing every year 📈💗",
     "You're my favourite variable. I can't solve life without you ✨",
     "Even without a calculator, I know you're priceless 💎",
+    "Kabhi Khushi Kabhie Gham? Nahi. Mere liye hamesha sirf Khushi 💗",
+    "DDLJ mein Raj ne train se haath badha ke Simran ko pakda tha. Main tumhara haath poore CAT tak pakad ke rakhunga 🚂😌",
+    "Tujhe dekha toh ye jaana sanam… ki tum TITA ho: no negative, only positive 💞",
+    "Mere paas formula sheet hai, mock tests hain… tumhare paas kya hai? 'Mere paas tum ho' 🥹",
+    "Pehla Nasha vibes: pehla sawaal, pehli chai, aur tum. Perfect combo 😍",
     "Tap again for more love. (Warning: infinite supply 💘)"
   ],
 
@@ -231,16 +236,175 @@ window.LOVE = {
     "You're my favourite person to be proud of."
   ],
 
-  // "Open when…" letters on the Us page
+  // "Open when…" letters on the Us page.
+  // Each has an original shayari, a filmy moment and a song dedication (title, film, year: tapping it searches YouTube).
   letters: [
-    { id: "stressed", emoji: "😣", title: "Open when you're stressed", text: "Hey {name}. Put the pen down for one minute. Breathe in for 4, hold for 4, out for 4. Stress means you care, and caring is your superpower. You don't have to finish everything today, just the next small thing. I believe in you more than you know. 💗" },
-    { id: "giveup", emoji: "🏳️", title: "Open when you want to give up", text: "Remember why you started. Remember the IIM hoodie you're going to wear. Bad days are part of every success story; they don't erase how far you've come. Take a break if you need to, but don't quit. I'm holding your hand the whole way. 🤝" },
-    { id: "scored", emoji: "🏆", title: "Open when you score really well", text: "YESSS!!! I knew it. I always knew it. Screenshot that score and send it to me right now 📸 Then do a little dance. You earned every mark. So, so proud of you, {name}. 😘" },
-    { id: "lowscore", emoji: "📉", title: "Open when a mock goes badly", text: "One mock is one data point, not your destiny. Look at the mistakes, add them to the error log, and let them teach you. The best scores come after the worst analysis sessions. I love you the same at 20 marks and at 99 percentile. 🤍" },
-    { id: "miss", emoji: "🥺", title: "Open when you miss me", text: "I miss you too, probably more 🥺 Close your eyes and imagine me sitting next to you, stealing your snacks while you solve questions. Now go solve one, and then call me. I'll be waiting. 📞💕" },
-    { id: "sleep", emoji: "🌙", title: "Open when you can't sleep", text: "Hey night owl. Put the phone down soon, okay? Your brain needs sleep to remember everything you studied. Think of one happy memory of us and drift off. Good night, my love. 🌙💤" },
-    { id: "bored", emoji: "🥱", title: "Open when you're bored of studying", text: "Bored? Let's make it a game: do 5 quick questions, and for each right one, pick a song for our next car ride 🚗🎶 Deal? Also, you're cute when you're bored. 😌" },
-    { id: "exam", emoji: "🐯", title: "Open on exam morning", unlock: "2026-11-29", text: "Today's the day, {name}! Eat something light, reach early, and walk in like you own the place. In the section: easy ones first, leave anything over 3 minutes, and trust your preparation. Whatever happens, I'm proud of you today and every day. Go get it. 화이팅!! 사랑해 💗" }
+    {
+      id: "stressed", emoji: "😣", title: "Open when you're stressed",
+      text: "Meri pyaari {name}, ek minute ke liye pen neeche rakh do. Aankhein band karo, 4 tak saans andar, 4 tak roko, 4 tak bahar. Stress ka matlab hai ki tumhe fark padta hai, aur yahi tumhari sabse badi taakat hai. Aaj sab kuch khatam nahi karna hai, bas agla ek chhota sa kadam.",
+      shayari: ["Kitaabon ke bojh se jo thak jaaye nazar,", "toh meri baahon ko samajh lena apna ghar.", "Ek saans, ek muskaan, phir se shuru karna,", "teri mehnat ka hi toh hai ye saara safar."],
+      filmy: "Yaad hai 'Anand' (1971) mein Rajesh Khanna kehte hain: zindagi badi honi chahiye, lambi nahi. Waise hi padhai gehri honi chahiye, ghanton lambi nahi. Toh 10 minute ka break lo, Babumoshai… I mean, Khushi 😄",
+      song: { title: "Zindagi Ek Safar Hai Suhana", film: "Andaz", year: 1971 },
+      end: "Chai banao, ek gaana suno, aur phir wapas aao. Main yahin hoon. 💗"
+    },
+    {
+      id: "giveup", emoji: "🏳️", title: "Open when you want to give up",
+      text: "{name}, yaad karo tumne shuru kyun kiya tha. Woh IIM hoodie, woh campus, woh call jab tum mujhe apna result bataogi. Bure din har success story ka hissa hote hain; woh tumhari mehnat ko mitaa nahi sakte. Break lo, ro lo, mujhe call karo… par haar mat maano.",
+      shayari: ["Girte hain shahsawar hi maidan-e-jung mein,", "woh tifl kya gire jo ghutnon ke bal chale.", "— an old 19th-century sher: only riders fall in battle; a child who only crawls never does.", "Thak jao toh mere kandhe pe sar rakh lena,", "par sapna IIM ka, aankhon mein bhar rakh lena."],
+      filmy: "Fun fact: 1974 mein ek film aayi thi jiska naam hi 'Imtihan' tha, matlab exam 😄 Aur uska gaana 'Ruk Jana Nahin' jaise tumhare liye hi bana tha. Kishore Kumar bhi keh rahe hain, rukna nahi hai!",
+      song: { title: "Ruk Jana Nahin", film: "Imtihan", year: 1974 },
+      end: "Main tumhara haath pakad ke chal raha hoon. Har kadam, har mock, har din. 🤝"
+    },
+    {
+      id: "scored", emoji: "🏆", title: "Open when you score really well",
+      text: "YESSSS!!! Maine kaha tha na? Mujhe pata tha! Abhi ke abhi us score ka screenshot bhejo 📸 Phir ek chhota sa dance karo. Har ek mark tumne kamaaya hai, {name}. I'm SO proud of you.",
+      shayari: ["Number dekh ke tere, dil ne ek baat kahi,", "meri Khushi jaisi koi topper nahi.", "Aaj chaand bhi thoda jal raha hai tujhse,", "ki uski roshni teri muskaan jitni nahi."],
+      filmy: "Sholay style mein: 'Kitne sawaal the?' '22, Sardar!' 'Aur kitne sahi kiye?' 'Sab ke sab!' 😎 Gabbar bhi aaj tumse darr gaya.",
+      song: { title: "Aaj Main Upar Aasman Neeche", film: "Khamoshi: The Musical", year: 1996 },
+      end: "Aaj ka treat mere taraf se. Tum bas jagah choose karo. 😘🍰"
+    },
+    {
+      id: "lowscore", emoji: "📉", title: "Open when a mock goes badly",
+      text: "Ek mock sirf ek data point hai, tumhari kismat nahi. Galtiyan dekho, error log mein likho, aur unhe tumhe sikhane do. Sabse ache score hamesha sabse bure analysis ke baad aate hain. Aur haan, main tumse utna hi pyaar karta hoon 20 marks pe bhi aur 99 percentile pe bhi. 🤍",
+      shayari: ["Ek mock ne kya bigaada, ek din ki hi toh baat hai,", "teri kahaani lambi hai, abhi toh shuruaat hai.", "Jo aaj galti hui, kal woh sabak banegi,", "meri Khushi ki jeet toh bas waqt ki baat hai."],
+      filmy: "DDLJ ke Raj ki tarah: 'Bade bade exams mein, Senorita, aisi chhoti chhoti galtiyan hoti rehti hain.' 😌",
+      song: { title: "Jab Koi Baat Bigad Jaaye", film: "Jurm", year: 1990 },
+      end: "Aaj ka mock gaya, kal ka abhi baaki hai. Aur main hamesha tumhari side pe hoon. 💪"
+    },
+    {
+      id: "miss", emoji: "🥺", title: "Open when you miss me",
+      text: "Main bhi tumhe miss kar raha hoon, shayad tumse bhi zyada 🥺 Aankhein band karo aur socho main tumhare bagal mein baitha hoon, tumhare snacks chura raha hoon jab tum sawaal solve kar rahi ho. Ab ek sawaal solve karo, aur phir mujhe call karo. Main wait kar raha hoon.",
+      shayari: ["Door ho kar bhi tu paas lagti hai,", "har dhadkan mein teri aawaz lagti hai.", "Phone utha, ek baar 'hi' keh de bas,", "meri shaam phir se khaas lagti hai."],
+      filmy: "Purane gaane wala pyaar: 'Lag Ja Gale' (1964) chalao aur imagine karo main tumhare saath besura gaa raha hoon 🎶 Lata ji maaf karna 🙏",
+      song: { title: "Lag Ja Gale", film: "Woh Kaun Thi?", year: 1964 },
+      end: "Distance sirf kilometres mein hota hai, dil mein nahi. 📞💕"
+    },
+    {
+      id: "sleep", emoji: "🌙", title: "Open when you can't sleep",
+      text: "Hey night owl 🦉 Phone jaldi rakh do, theek hai? Tumhare dimaag ko neend chahiye taaki jo aaj padha woh yaad rahe. Hamari ek pyaari si memory socho, aur dheere dheere so jao.",
+      shayari: ["Chaand ne kaha, so ja ab meri jaan,", "kal phir likhni hai tujhe jeet ki daastaan.", "Aankhein band kar, mujhe sapne mein bula le,", "main wahin milunga, tere khwaabon ke darmiyaan."],
+      filmy: "Aradhana (1969) ki lori 'Chanda Hai Tu' yaad hai? Aaj woh main tumhare liye gaa raha hoon. Chupchaap so jao, warna kal ki DILR tumse naraz ho jaayegi 😄",
+      song: { title: "Chanda Hai Tu", film: "Aradhana", year: 1969 },
+      end: "Good night, meri jaan. Sapne mein milte hain. 🌙💤"
+    },
+    {
+      id: "bored", emoji: "🥱", title: "Open when you're bored of studying",
+      text: "Bore ho gayi? Chalo ek game khelte hain: 5 quick sawaal karo, aur har sahi jawab pe hamari agli long drive ke liye ek gaana choose karo 🚗🎶 Deal? Waise, bore hoti hui bhi tum bahut cute lagti ho. 😌",
+      shayari: ["Formule bhi bore hain, sawaal bhi bore,", "par tu muskura de toh sab lagein 'adore'.", "Ek do teen, gin gin ke sawaal kar,", "phir karenge chai pe ek lambi mulaqaat, pakka yaar."],
+      filmy: "Madhuri ne 'Ek Do Teen' (Tezaab, 1988) mein 13 tak gina tha. Tum 13 sawaal gino, phir humari video call pakki 😉",
+      song: { title: "Ek Do Teen", film: "Tezaab", year: 1988 },
+      end: "Dance break allowed. Bas 2 minute. Phir padhai. 💃"
+    },
+    {
+      id: "notenough", emoji: "🪞", title: "Open when you feel you're not good enough",
+      text: "Ruko. Jo bhi tumhare dimaag mein abhi chal raha hai, woh sach nahi hai. Tum smart ho, mehnati ho, aur sabse zaroori, tum kabhi haar nahi maanti. Main tumhe roz dekhta hoon, aur roz thoda aur proud hota hoon.",
+      shayari: ["Tu khud ko kam na samajh, ae meri jaan,", "tujhse hi roshan hai mera saara jahaan.", "Duniya jo bhi kahe, ek baat yaad rakhna,", "tu kal bhi thi, aaj bhi hai, meri pehchaan."],
+      filmy: "Jab We Met (2007) ki Geet ki tarah bolo: 'Main apni favourite hoon!' Aur haan, tum meri bhi favourite ho 🥰",
+      song: { title: "Tujhe Dekha To Ye Jaana Sanam", film: "Dilwale Dulhania Le Jayenge", year: 1995 },
+      end: "Aaine mein dekho aur bolo: 'IIM, I'm coming.' 💗"
+    },
+    {
+      id: "angry", emoji: "😤", title: "Open when you're angry with me",
+      text: "Okay okay, kaan pakad liye 🙉 Galti meri thi. (Agar meri nahi bhi thi, tab bhi meri thi 😌) Gussa karna tumhara haq hai, bas zyada der mat karna, kyunki tumhare bina mera din adhoora lagta hai.",
+      shayari: ["Gussa bhi tera kitna pyaara lagta hai,", "naak pe jo baitha, woh sitaara lagta hai.", "Maaf kar de is baar, kaan pakadta hoon,", "tere bina har pal adhoora lagta hai."],
+      filmy: "DDLJ mein Simran train ke peeche bhaagi thi aur Raj ne haath badhaya tha 🚂 Main bhi haath badha raha hoon, ek sorry aur tumhari favourite chocolate ke saath.",
+      song: { title: "Tujhse Naraz Nahi Zindagi", film: "Masoom", year: 1983 },
+      end: "Ab ek smile? Bas ek. Please? 🥺👉👈"
+    },
+    {
+      id: "mockdone", emoji: "📝", title: "Open when you finish a full mock",
+      text: "Do ghante ka full mock khatam! 🎉 Score jo bhi ho, sabse pehle khud ko shabaashi do. Itni der focus karna aasaan nahi hota. Ab 15 minute ka break, phir analysis. Main tumhare liye chai virtually bana raha hoon ☕",
+      shayari: ["Do ghante ka imtehaan, tune hans ke paar kiya,", "har sawaal se ladi, aur khud se pyaar kiya.", "Ab chai pi, thoda aaram kar le,", "tune aaj phir apne sapne ko saakar kiya."],
+      filmy: "Jaise 'Sholay' (1975) mein Jai-Veeru ki dosti, waise hi tumhari aur mock tests ki. Thodi nok-jhok, par end mein jeet hamesha tumhari 😄",
+      song: { title: "Yeh Dosti", film: "Sholay", year: 1975 },
+      end: "Mistakes error log mein, aur tension dustbin mein. 🗑️💗"
+    },
+    {
+      id: "rain", emoji: "🌧️", title: "Open when it's raining",
+      text: "Baarish ho rahi hai? Ek cup chai banao, khidki khol do, aur 10 minute sirf baarish suno. Main bhi wahi kar raha hoon, tumhare baare mein sochte hue. Phir ek topic revise karna, perfect mausam hai.",
+      shayari: ["Baarish ki boondon mein teri yaad aayi,", "bheegi hawa ne teri hi baat sunaayi.", "Ek chai, ek kitaab, aur khidki pe tu,", "is mausam ne bhi teri hi tasveer banaayi."],
+      filmy: "Shree 420 (1955) ka woh chhatri wala scene yaad hai? Raj Kapoor aur Nargis, ek chhatri, poori baarish. Hamari bhi ek chhatri wali walk pakki hai, CAT ke baad ☔",
+      song: { title: "Rim Jhim Gire Saawan", film: "Manzil", year: 1979 },
+      end: "Baarish ke saath saath pyaar bhi barse. ☔💕"
+    },
+    {
+      id: "focus", emoji: "🎯", title: "Open when you can't focus",
+      text: "Dimaag idhar udhar bhaag raha hai? Normal hai. Ek kaam karo: phone ulta rakho, Us page pe 25 minute ki study date shuru karo, aur sirf ek topic pakdo. Bas ek. Main bhi saath mein padh raha hoon.",
+      shayari: ["Mann bhatke toh bas itna kar lena,", "25 minute ka mujhse waada kar lena.", "Phone ulta, kitaab seedhi, dil mere paas,", "phir dekhna, har sawaal ko apna kar lena."],
+      filmy: "'Pal Pal Dil Ke Paas' (Blackmail, 1973)… haan, main pal pal dil ke paas hoon, par phone ko dil se door rakho 😄📵",
+      song: { title: "Pal Pal Dil Ke Paas", film: "Blackmail", year: 1973 },
+      end: "25 minute baad 3 kisses milenge. Deal? 💋"
+    },
+    {
+      id: "hug", emoji: "🫂", title: "Open when you need a hug",
+      text: "Koi wajah nahi chahiye. Bas aa jao. Ye ek lambi, tight, kabhi na khatam hone wali jhappi hai, sirf tumhare liye. Saari thakaan, saara darr, sab yahin chhod do.",
+      shayari: ["Aa, ek jhappi le le, bina kisi wajah,", "tere liye hi toh dhadakti hai ye jagah.", "Duniya ki fikr chhod, bas itna yaad rakh,", "main hoon na, har subah, har shaam, har jagah."],
+      filmy: "Shah Rukh ne 'Main Hoon Na' (2004) bola tha, aur main bhi wahi bolunga, har din: main hoon na. 🤗",
+      song: { title: "Tere Bina Zindagi Se Koi", film: "Aandhi", year: 1975 },
+      end: "Jhappi refill unlimited hai. Jab chahe, yahan aa jaana. 💞"
+    },
+    {
+      id: "exam", emoji: "🐯", title: "Open on exam morning", unlock: "2026-11-29",
+      text: "Aaj ka din aa gaya, {name}! Halka kuch khao, time se pahuncho, aur andar aise jao jaise centre tumhara hai. Section mein: pehle aasaan sawaal, 3 minute se zyada kisi pe mat ruko, aur apni preparation pe bharosa rakho. Jo bhi ho, main aaj bhi tumpe proud hoon aur hamesha rahunga.",
+      shayari: ["Aaj ka din tera hai, har sawaal tera hai,", "jo raat bhar jaga, woh sawera tera hai.", "Jaa, likh de apni kismat apne haathon se,", "duniya dekhegi, ye IIM ka darwaza tera hai."],
+      filmy: "Om Shanti Om (2007) mein kaha tha na, kisi cheez ko dil se chaho toh poori kaynaat use tumse milaane mein lag jaati hai. Aaj poori kaynaat tumhare saath hai. Aur main bhi. ✨",
+      song: { title: "Aaj Phir Jeene Ki Tamanna Hai", film: "Guide", year: 1965 },
+      end: "Jaao, cheer jaao. 화이팅!! 사랑해, meri jaan. 💗🐯"
+    },
+    {
+      id: "afterexam", emoji: "🎉", title: "Open after the exam", unlock: "2026-11-29",
+      text: "KHATAM!!! 🎉🎉 Tumne kar dikhaya. Mahino ki mehnat, raaton ki padhai, aur aaj ka din. Paper kaisa bhi gaya ho, aaj sirf celebrate karna hai. Aaj na koi analysis, na koi tension. Aaj sirf hum.",
+      shayari: ["Imtehaan khatam, ab sirf hum aur tum,", "na koi formula, na koi gham.", "Jo bhi result aaye, ek baat pakki hai,", "meri zindagi ka sabse sahi jawab ho tum."],
+      filmy: "Kabhi Khushi Kabhie Gham (2001)? Na na. Mere liye toh hamesha sirf Khushi. Aaj ki date meri taraf se, aur dessert bhi 🍨",
+      song: { title: "Dekha Ek Khwaab", film: "Silsila", year: 1981 },
+      end: "I'm so, so proud of you. Ab phone uthao aur mujhe call karo! 📞💗"
+    },
+    {
+      id: "result", emoji: "📜", title: "Open on result day",
+      text: "Result ka din. Dil zor se dhadak raha hoga, mera bhi dhadak raha hai. Ek baat yaad rakhna: ye number tumhari mehnat ka ek hissa batata hai, poori kahaani nahi. Jo bhi aaye, hum saath mein dekhenge, saath mein celebrate karenge, aur zaroorat pade toh saath mein agla plan banayenge.",
+      shayari: ["Number jo bhi aaye, tu meri topper rahegi,", "har kahaani mein tu meri heroine rahegi.", "IIM ka darwaaza toh bas ek padaav hai,", "tu meri manzil thi, hai, aur hamesha rahegi."],
+      filmy: "Guide (1965) ka gaana 'Gaata Rahe Mera Dil' sunna. Mera dil aaj bhi tumhare liye hi gaata hai, result chahe jo bhi ho. 🎶",
+      song: { title: "Gaata Rahe Mera Dil", film: "Guide", year: 1965 },
+      end: "Result se pehle ek jhappi, result ke baad do. 🤗🤗"
+    }
+  ],
+
+  // Shayari of the day (original two-liners), shown on the Us page
+  shayari: [
+    ["Tere saath har mushkil aasaan lagti hai,", "tu muskuraye toh duniya meherbaan lagti hai."],
+    ["Sawaal kitne bhi mushkil hon, tu hal kar legi,", "meri Khushi hai, har sapna mukammal kar legi."],
+    ["Chaand ko dekha toh tera chehra yaad aaya,", "kitaab kholi toh tera pehla sawaal yaad aaya."],
+    ["Teri aankhon ke sapne sach hote dekhna hai,", "IIM ke gate pe tujhe muskurate dekhna hai."],
+    ["Na formula chahiye, na koi shortcut yaar,", "bas tu saath ho, toh har sawaal mein pyaar."],
+    ["Mehnat teri, dua meri,", "jeet humari, kahaani teri-meri."],
+    ["Kehte hain pyaar mein log deewane ho jaate hain,", "hum toh tere liye CAT ke formule tak ratt jaate hain."],
+    ["Har din thoda sa aur pyaar ho jaata hai,", "jaise compound interest, badhta hi jaata hai. 📈"],
+    ["Teri hasi meri subah ki chai jaisi hai,", "uske bina din shuru hi nahi hota."],
+    ["Duniya ke saare ratios fail ho gaye,", "jab se hum tum 1 : 1 ho gaye. 💞"],
+    ["Raat bhar jaagi hai tu sapnon ke liye,", "ab sapne jaagenge sirf tere liye."],
+    ["Teri ek muskaan pe main sab kuch haar doon,", "aur teri har jeet pe apni jaan vaar doon."],
+    ["Jab tu padhti hai, chaand khidki se jhaankta hai,", "sochta hai, itni pyaari ladki itna kaise padhti hai. 😄"],
+    ["Khushi naam hai tera, aur kaam bhi yahi hai,", "jahaan tu ho, wahaan gham ki koi jagah nahi hai."],
+    ["Tu TITA ki tarah hai, koi negative nahi,", "aur main tera woh jawab, jo kabhi galat nahi."],
+    ["Tere bina har formula adhoora lagta hai,", "aur tere saath har sawaal poora lagta hai."]
+  ],
+
+  // Our songs: old Bollywood dedications (tapping one searches YouTube)
+  playlist: [
+    { title: "Tujhe Dekha To Ye Jaana Sanam", film: "Dilwale Dulhania Le Jayenge", year: 1995, note: "Hamara forever song 💛" },
+    { title: "Pehla Nasha", film: "Jo Jeeta Wohi Sikandar", year: 1992, note: "Jab pehli baar tumhe dekha tha, bilkul aisa laga tha" },
+    { title: "Lag Ja Gale", film: "Woh Kaun Thi?", year: 1964, note: "Jab miss karo, ye suno" },
+    { title: "Pyar Hua Ikrar Hua", film: "Shree 420", year: 1955, note: "Baarish + chhatri + hum ☔" },
+    { title: "Ruk Jana Nahin", film: "Imtihan", year: 1974, note: "Exam wala gaana, literally 😄" },
+    { title: "Kabhi Kabhi Mere Dil Mein", film: "Kabhi Kabhie", year: 1976, note: "Kabhi kabhi nahi, hamesha 😌" },
+    { title: "Chura Liya Hai Tumne Jo Dil Ko", film: "Yaadon Ki Baaraat", year: 1973, note: "Haan, tumne hi churaaya hai" },
+    { title: "Ae Mere Humsafar", film: "Qayamat Se Qayamat Tak", year: 1988, note: "Mere humsafar, IIM tak aur uske baad bhi" },
+    { title: "Tum Paas Aaye", film: "Kuch Kuch Hota Hai", year: 1998, note: "Tum paas aati ho toh kuch kuch hota hai 🙈" },
+    { title: "Ek Ladki Ko Dekha", film: "1942: A Love Story", year: 1994, note: "Woh ladki tum ho" },
+    { title: "Mere Sapno Ki Rani", film: "Aradhana", year: 1969, note: "Sapno wali rani? Woh toh tum ho 😍" },
+    { title: "Aaj Phir Jeene Ki Tamanna Hai", film: "Guide", year: 1965, note: "Exam morning ka gaana" },
+    { title: "Pal Pal Dil Ke Paas", film: "Blackmail", year: 1973, note: "Har pal, har second" },
+    { title: "Jab Koi Baat Bigad Jaaye", film: "Jurm", year: 1990, note: "Bure din ka promise: main saath hoon" }
   ],
 
   // Study date (focus timer)

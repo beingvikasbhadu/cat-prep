@@ -119,7 +119,8 @@
     document.body.appendChild(wrap);
     requestAnimationFrame(() => wrap.classList.add("in"));
     const btn = wrap.querySelector("button");
-    btn.focus();
+    btn.focus({ preventScroll: true });
+    wrap.querySelector(".scene-card").scrollTop = 0;
     const close = () => {
       wrap.classList.remove("in");
       document.removeEventListener("keydown", onKey);
@@ -925,9 +926,16 @@
         LOVE.letters.map(l => { const locked = l.unlock && todayISO() < l.unlock; const read = (stats.lettersRead || []).includes(l.id);
           return '<button class="letter' + (locked ? " locked" : "") + (read ? " read" : "") + '" type="button" data-letter="' + l.id + '"><span class="env" aria-hidden="true">' + (locked ? "🔒" : read ? "💌" : "✉️") + '</span><span class="lt-emoji" aria-hidden="true">' + l.emoji + "</span><b>" + esc(l.title) + "</b>" + (locked ? '<small>Opens ' + esc(shortDate(l.unlock)) + "</small>" : read ? "<small>Read again</small>" : "<small>Tap to open</small>") + "</button>"; }).join("") +
       "</div></section>" +
+      '<section class="card shayari-card"><p class="sub">Main shayar toh nahin… par tumhare liye 🌹</p><blockquote class="shayari big" id="shayariBox">' + shayariHTML(dailyShayari()) + '</blockquote><button class="btn" id="shayariBtn" type="button">Ek aur shayari 💌</button></section>' +
+      '<section class="card"><h2>Our songs 🎶</h2><p class="muted">Old Bollywood songs I dedicate to you. Tap one to play it on YouTube.</p><div class="playlist">' +
+        LOVE.playlist.map(s => '<div class="pl-item">' + songLink(s, s.note) + "</div>").join("") + "</div></section>" +
       '<section class="card reasons"><h2>Reasons I’m proud of you 🥹</h2><p class="reason" id="reasonText">' + esc(LOVE.reasons[Math.floor(Math.random() * LOVE.reasons.length)]) + '</p><button class="btn" id="reasonBtn" type="button">Another reason 💗</button></section>' +
       '<section class="card"><h2>Kiss jar rewards 🫙</h2><p class="muted">You have <b data-kisses>' + stats.kisses + "</b> kisses." + (nm ? " Next reward at " + nm.at + "." : " Every reward unlocked!") + "</p>" +
         '<ul class="rewards">' + LOVE.milestones.map(m => { const got = unlocked.includes(m); return '<li class="' + (got ? "got" : "") + '"><span aria-hidden="true">' + (got ? "💝" : "🔒") + "</span><b>" + m.at + "</b><span>" + (got ? esc(m.text) : "A surprise from " + esc(LOVE.me) + "…") + "</span></li>"; }).join("") + "</ul></section>";
+  }
+  function songLink(s, label) {
+    const q = encodeURIComponent(s.title + " " + s.film + " song");
+    return '<a class="song" href="https://www.youtube.com/results?search_query=' + q + '" target="_blank" rel="noopener noreferrer"><span class="song-disc" aria-hidden="true">💿</span><span><small>' + esc(label) + "</small><b>" + esc(s.title) + "</b><em>" + esc(s.film) + " (" + s.year + ")</em></span></a>";
   }
   function letterScene(l) {
     if (sceneOpen) return;
@@ -938,11 +946,17 @@
     wrap.setAttribute("role", "dialog");
     wrap.setAttribute("aria-modal", "true");
     wrap.setAttribute("aria-label", l.title);
-    wrap.innerHTML = '<div class="scene-card letter-card"><span class="lc-emoji" aria-hidden="true">' + l.emoji + "</span><h2>" + esc(l.title) + '</h2><p class="lc-text">' + esc(fill(l.text)) + '</p><span class="toast-from">With all my love, ' + esc(LOVE.me) + ' 💌</span><button class="btn primary" type="button">Close 💗</button></div>';
+    wrap.innerHTML = '<div class="scene-card letter-card"><span class="lc-emoji" aria-hidden="true">' + l.emoji + "</span><h2>" + esc(l.title) + '</h2><p class="lc-text">' + esc(fill(l.text)) + "</p>" +
+      (l.shayari ? '<blockquote class="shayari"><span class="sub">✍️ Shayari, sirf tumhare liye</span>' + l.shayari.map(x => '<span class="sh-line' + (x.startsWith("—") ? " sh-note" : "") + '">' + esc(fill(x)) + "</span>").join("") + "</blockquote>" : "") +
+      (l.filmy ? '<p class="filmy"><span class="sub">🎬 Filmy moment</span>' + esc(fill(l.filmy)) + "</p>" : "") +
+      (l.song ? songLink(l.song, "🎵 Song for you") : "") +
+      (l.end ? '<p class="lc-end">' + esc(fill(l.end)) + "</p>" : "") +
+      '<span class="toast-from">With all my love, ' + esc(LOVE.me) + ' 💌</span><button class="btn primary" type="button">Close 💗</button></div>';
     document.body.appendChild(wrap);
     requestAnimationFrame(() => wrap.classList.add("in"));
     const btn = wrap.querySelector("button");
-    btn.focus();
+    btn.focus({ preventScroll: true });
+    wrap.querySelector(".scene-card").scrollTop = 0;
     const close = () => {
       wrap.classList.remove("in");
       document.removeEventListener("keydown", onKey);
@@ -953,7 +967,18 @@
     btn.addEventListener("click", close);
     wrap.addEventListener("click", e => { if (e.target === wrap) close(); });
   }
+  const shayariHTML = pair => pair.map(x => '<span class="sh-line">' + esc(fill(x)) + "</span>").join("");
+  function dailyShayari() {
+    const day = Math.floor(new Date(todayISO() + "T00:00:00").getTime() / 86400000);
+    return LOVE.shayari[day % LOVE.shayari.length];
+  }
   function wireUs() {
+    let shIdx = LOVE.shayari.indexOf(dailyShayari());
+    document.getElementById("shayariBtn").addEventListener("click", e => {
+      shIdx = (shIdx + 1) % LOVE.shayari.length;
+      document.getElementById("shayariBox").innerHTML = shayariHTML(LOVE.shayari[shIdx]);
+      burstAt(e.currentTarget, 8);
+    });
     app.querySelectorAll("[data-mood]").forEach(b => b.addEventListener("click", () => {
       const m = LOVE.moods.find(x => x.id === b.dataset.mood);
       stats.mood = { id: m.id, day: todayISO() }; saveStats();
