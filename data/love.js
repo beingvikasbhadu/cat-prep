@@ -389,21 +389,32 @@ window.LOVE = {
     ["Tere bina har formula adhoora lagta hai,", "aur tere saath har sawaal poora lagta hai."]
   ],
 
-  // Our songs: old Bollywood dedications (tapping one searches YouTube)
+  // Our songs: old Bollywood dedications. yt = the official upload's YouTube video id (plays inside the site).
+  // Songs without yt open on YouTube instead.
   playlist: [
-    { title: "Tujhe Dekha To Ye Jaana Sanam", film: "Dilwale Dulhania Le Jayenge", year: 1995, note: "Hamara forever song 💛" },
-    { title: "Pehla Nasha", film: "Jo Jeeta Wohi Sikandar", year: 1992, note: "Jab pehli baar tumhe dekha tha, bilkul aisa laga tha" },
-    { title: "Lag Ja Gale", film: "Woh Kaun Thi?", year: 1964, note: "Jab miss karo, ye suno" },
-    { title: "Pyar Hua Ikrar Hua", film: "Shree 420", year: 1955, note: "Baarish + chhatri + hum ☔" },
+    { title: "Tujhe Dekha To Ye Jaana Sanam", film: "Dilwale Dulhania Le Jayenge", year: 1995, note: "Hamara forever song 💛", yt: "cNV5hLSa9H8" },
+    { title: "Pehla Nasha", film: "Jo Jeeta Wohi Sikandar", year: 1992, note: "Jab pehli baar tumhe dekha tha, bilkul aisa laga tha", yt: "Ki41AKu0iHc" },
+    { title: "Lag Ja Gale", film: "Woh Kaun Thi?", year: 1964, note: "Jab miss karo, ye suno", yt: "3wAnXhoCBXQ" },
+    { title: "Pyar Hua Ikrar Hua", film: "Shree 420", year: 1955, note: "Baarish + chhatri + hum ☔", yt: "ydgapb13HEE" },
+    { title: "Kabhi Kabhi Mere Dil Mein", film: "Kabhi Kabhie", year: 1976, note: "Kabhi kabhi nahi, hamesha 😌", yt: "0S7uhEoxRbg" },
+    { title: "Kuch Kuch Hota Hai", film: "Kuch Kuch Hota Hai", year: 1998, note: "Tum paas aati ho toh kuch kuch hota hai 🙈", yt: "bKZTnnFU9HA" },
+    { title: "Ek Ladki Ko Dekha", film: "1942: A Love Story", year: 1994, note: "Woh ladki tum ho", yt: "H5sheEWfsOQ" },
+    { title: "Mere Sapno Ki Rani", film: "Aradhana", year: 1969, note: "Sapno wali rani? Woh toh tum ho 😍", yt: "Nw7lcCNSYy8" },
+    { title: "Pal Pal Dil Ke Paas", film: "Blackmail", year: 1973, note: "Har pal, har second", yt: "Qa-uVqnv-No" },
+    { title: "Zindagi Ek Safar Hai Suhana", film: "Andaz", year: 1971, note: "Jab stress ho, ye suno 🚗", yt: "zVIkOrnsbG0" },
+    { title: "Chanda Hai Tu", film: "Aradhana", year: 1969, note: "Neend na aaye toh 🌙", yt: "MZgMO4V8kEI" },
+    { title: "Tujhse Naraz Nahi Zindagi", film: "Masoom", year: 1983, note: "Jab mujhse naraz ho 🙉", yt: "tHK7f4VpJ48" },
+    { title: "Rim Jhim Gire Saawan", film: "Manzil", year: 1979, note: "Baarish wala gaana ☔", yt: "6C7R_CUJgHQ" },
+    { title: "Dekha Ek Khwaab", film: "Silsila", year: 1981, note: "CAT ke baad ka sapna ✨", yt: "7dO_MS9tZ5E" },
+    { title: "Gaata Rahe Mera Dil", film: "Guide", year: 1965, note: "Result day ka gaana 🎶", yt: "dbZW8Dral8o" },
     { title: "Ruk Jana Nahin", film: "Imtihan", year: 1974, note: "Exam wala gaana, literally 😄" },
-    { title: "Kabhi Kabhi Mere Dil Mein", film: "Kabhi Kabhie", year: 1976, note: "Kabhi kabhi nahi, hamesha 😌" },
-    { title: "Chura Liya Hai Tumne Jo Dil Ko", film: "Yaadon Ki Baaraat", year: 1973, note: "Haan, tumne hi churaaya hai" },
     { title: "Ae Mere Humsafar", film: "Qayamat Se Qayamat Tak", year: 1988, note: "Mere humsafar, IIM tak aur uske baad bhi" },
-    { title: "Tum Paas Aaye", film: "Kuch Kuch Hota Hai", year: 1998, note: "Tum paas aati ho toh kuch kuch hota hai 🙈" },
-    { title: "Ek Ladki Ko Dekha", film: "1942: A Love Story", year: 1994, note: "Woh ladki tum ho" },
-    { title: "Mere Sapno Ki Rani", film: "Aradhana", year: 1969, note: "Sapno wali rani? Woh toh tum ho 😍" },
     { title: "Aaj Phir Jeene Ki Tamanna Hai", film: "Guide", year: 1965, note: "Exam morning ka gaana" },
-    { title: "Pal Pal Dil Ke Paas", film: "Blackmail", year: 1973, note: "Har pal, har second" },
+    { title: "Aaj Main Upar Aasman Neeche", film: "Khamoshi: The Musical", year: 1996, note: "Jab score acha aaye 🏆" },
+    { title: "Ek Do Teen", film: "Tezaab", year: 1988, note: "Bore ho toh 2 minute ka dance break 💃" },
+    { title: "Yeh Dosti", film: "Sholay", year: 1975, note: "Tumhari aur mock tests ki dosti 😄" },
+    { title: "Tere Bina Zindagi Se Koi", film: "Aandhi", year: 1975, note: "Jab hug chahiye 🫂" },
+    { title: "Chura Liya Hai Tumne Jo Dil Ko", film: "Yaadon Ki Baaraat", year: 1973, note: "Haan, tumne hi churaaya hai" },
     { title: "Jab Koi Baat Bigad Jaaye", film: "Jurm", year: 1990, note: "Bure din ka promise: main saath hoon" }
   ],
 

@@ -922,13 +922,12 @@
       '</div><p class="mood-reply" id="moodReply" aria-live="polite">' + (mood ? '<span class="toast-av sm" aria-hidden="true">' + miniFace() + "</span>" + esc(fill(mood.reply)) : "") + "</p></section>" +
       '<section class="card cuddle"><div class="cuddle-art">' + couple("loop") + '</div><div class="cuddle-body"><h2>Need some love?</h2><p class="muted">Tap for a hug or a kiss from ' + esc(LOVE.me) + '. Unlimited refills 💞</p><div class="row"><button class="btn primary" id="hugBtn" type="button">Get a hug 🤗</button><button class="btn" id="kissBtn" type="button">Get a kiss 😘</button></div></div></section>' +
       '<section class="card focus"><div class="focus-ring" id="focusRing" style="--p:0"><div><b id="focusTime">25:00</b><span id="focusLabel">Ready when you are</span></div></div><div class="focus-body"><h2>Study date 📚</h2><p class="muted">25 minutes of focus with me, then a 5-minute break. Phone face down. You get 3 kisses for every round 💋</p><div class="row"><button class="btn primary" id="focusStart" type="button">Start study date</button><button class="btn" id="focusStop" type="button" hidden>Stop</button></div></div></section>' +
+      musicRoom() +
       '<section><h2 class="sec">Open when… 💌</h2><div class="letters">' +
         LOVE.letters.map(l => { const locked = l.unlock && todayISO() < l.unlock; const read = (stats.lettersRead || []).includes(l.id);
           return '<button class="letter' + (locked ? " locked" : "") + (read ? " read" : "") + '" type="button" data-letter="' + l.id + '"><span class="env" aria-hidden="true">' + (locked ? "🔒" : read ? "💌" : "✉️") + '</span><span class="lt-emoji" aria-hidden="true">' + l.emoji + "</span><b>" + esc(l.title) + "</b>" + (locked ? '<small>Opens ' + esc(shortDate(l.unlock)) + "</small>" : read ? "<small>Read again</small>" : "<small>Tap to open</small>") + "</button>"; }).join("") +
       "</div></section>" +
       '<section class="card shayari-card"><p class="sub">Main shayar toh nahin… par tumhare liye 🌹</p><blockquote class="shayari big" id="shayariBox">' + shayariHTML(dailyShayari()) + '</blockquote><button class="btn" id="shayariBtn" type="button">Ek aur shayari 💌</button></section>' +
-      '<section class="card"><h2>Our songs 🎶</h2><p class="muted">Old Bollywood songs I dedicate to you. Tap one to play it on YouTube.</p><div class="playlist">' +
-        LOVE.playlist.map(s => '<div class="pl-item">' + songLink(s, s.note) + "</div>").join("") + "</div></section>" +
       '<section class="card reasons"><h2>Reasons I’m proud of you 🥹</h2><p class="reason" id="reasonText">' + esc(LOVE.reasons[Math.floor(Math.random() * LOVE.reasons.length)]) + '</p><button class="btn" id="reasonBtn" type="button">Another reason 💗</button></section>' +
       '<section class="card"><h2>Kiss jar rewards 🫙</h2><p class="muted">You have <b data-kisses>' + stats.kisses + "</b> kisses." + (nm ? " Next reward at " + nm.at + "." : " Every reward unlocked!") + "</p>" +
         '<ul class="rewards">' + LOVE.milestones.map(m => { const got = unlocked.includes(m); return '<li class="' + (got ? "got" : "") + '"><span aria-hidden="true">' + (got ? "💝" : "🔒") + "</span><b>" + m.at + "</b><span>" + (got ? esc(m.text) : "A surprise from " + esc(LOVE.me) + "…") + "</span></li>"; }).join("") + "</ul></section>";
@@ -949,7 +948,9 @@
     wrap.innerHTML = '<div class="scene-card letter-card"><span class="lc-emoji" aria-hidden="true">' + l.emoji + "</span><h2>" + esc(l.title) + '</h2><p class="lc-text">' + esc(fill(l.text)) + "</p>" +
       (l.shayari ? '<blockquote class="shayari"><span class="sub">✍️ Shayari, sirf tumhare liye</span>' + l.shayari.map(x => '<span class="sh-line' + (x.startsWith("—") ? " sh-note" : "") + '">' + esc(fill(x)) + "</span>").join("") + "</blockquote>" : "") +
       (l.filmy ? '<p class="filmy"><span class="sub">🎬 Filmy moment</span>' + esc(fill(l.filmy)) + "</p>" : "") +
-      (l.song ? songLink(l.song, "🎵 Song for you") : "") +
+      (l.song ? (songIdx(l.song.title) >= 0 && LOVE.playlist[songIdx(l.song.title)].yt
+        ? '<button class="song" type="button" data-playsong="' + songIdx(l.song.title) + '"><span class="song-disc" aria-hidden="true">💿</span><span><small>🎵 Song for you · tap to play here</small><b>' + esc(l.song.title) + "</b><em>" + esc(l.song.film) + " (" + l.song.year + ")</em></span></button>"
+        : songLink(l.song, "🎵 Song for you")) : "") +
       (l.end ? '<p class="lc-end">' + esc(fill(l.end)) + "</p>" : "") +
       '<span class="toast-from">With all my love, ' + esc(LOVE.me) + ' 💌</span><button class="btn primary" type="button">Close 💗</button></div>';
     document.body.appendChild(wrap);
@@ -966,6 +967,147 @@
     document.addEventListener("keydown", onKey);
     btn.addEventListener("click", close);
     wrap.addEventListener("click", e => { if (e.target === wrap) close(); });
+    const ps = wrap.querySelector("[data-playsong]");
+    if (ps) ps.addEventListener("click", () => {
+      close();
+      setTimeout(() => { const mr = document.getElementById("musicRoom"); if (mr) mr.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" }); playSong(+ps.dataset.playsong); }, 260);
+    });
+  }
+
+  // ---------- music room (official YouTube uploads, played through YouTube's own player) ----------
+  const songIdx = title => LOVE.playlist.findIndex(s => s.title === title);
+  const music = { player: null, cur: -1, shuffle: false, playing: false, timer: null, ready: null };
+  function musicRoom() {
+    const playable = LOVE.playlist.filter(s => s.yt).length;
+    return '<section class="card music" id="musicRoom">' +
+      '<div class="music-head"><div><h2>Our music room 🎧</h2><p class="muted">' + playable + ' old Bollywood songs I dedicate to you. Pick one and study with it 💗</p></div></div>' +
+      '<div class="music-main">' +
+        '<div class="music-screen"><div class="yt-frame"><div id="ytPlayer"></div><div class="yt-cover" id="ytCover"><div class="vinyl" aria-hidden="true"><span></span></div><p>Tap a song to start 💿</p></div></div></div>' +
+        '<div class="now"><span class="sub" id="nowLabel">Now playing</span><b id="nowTitle">Pick a song for us</b><em id="nowFilm">Old Bollywood, only for you</em><p class="now-note" id="nowNote">Every song here comes with a note from ' + esc(LOVE.me) + ' 💌</p>' +
+          '<div class="bar seek" id="seekBar" role="slider" aria-label="Song position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0"><span id="seekFill"></span></div><div class="times"><span id="tNow">0:00</span><span id="tDur">0:00</span></div>' +
+          '<div class="controls"><button class="cbtn" id="mPrev" type="button" aria-label="Previous song">⏮</button><button class="cbtn big" id="mPlay" type="button" aria-label="Play">▶</button><button class="cbtn" id="mNext" type="button" aria-label="Next song">⏭</button><button class="cbtn" id="mShuffle" type="button" aria-pressed="false" aria-label="Shuffle">🔀</button></div>' +
+        "</div>" +
+      "</div>" +
+      '<ol class="tracks">' + LOVE.playlist.map((s, i) => s.yt
+        ? '<li><button class="track" type="button" data-track="' + i + '"><span class="tr-n">' + (i + 1) + '</span><span class="tr-eq" aria-hidden="true"><i></i><i></i><i></i></span><span class="tr-body"><b>' + esc(s.title) + "</b><em>" + esc(s.film) + " · " + s.year + '</em><small>' + esc(s.note) + "</small></span></button></li>"
+        : '<li><a class="track ext" href="https://www.youtube.com/results?search_query=' + encodeURIComponent(s.title + " " + s.film + " song") + '" target="_blank" rel="noopener noreferrer"><span class="tr-n">↗</span><span class="tr-body"><b>' + esc(s.title) + "</b><em>" + esc(s.film) + " · " + s.year + ' · opens on YouTube</em><small>' + esc(s.note) + "</small></span></a></li>").join("") +
+      "</ol>" +
+      '<p class="small muted music-foot">Songs play from the official label channels on YouTube. Keep this page open while they play; most phones pause YouTube when the screen locks.</p>' +
+      "</section>";
+  }
+  function loadYT() {
+    if (music.ready) return music.ready;
+    music.ready = new Promise((resolve, reject) => {
+      if (window.YT && window.YT.Player) return resolve();
+      const prev = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => { if (prev) prev(); resolve(); };
+      const s = document.createElement("script");
+      s.src = "https://www.youtube.com/iframe_api";
+      s.onerror = () => { music.ready = null; reject(new Error("YouTube player could not load")); };
+      document.head.appendChild(s);
+    });
+    return music.ready;
+  }
+  const playableList = () => LOVE.playlist.map((s, i) => s.yt ? i : -1).filter(i => i >= 0);
+  function paintMusic() {
+    const s = LOVE.playlist[music.cur];
+    const el = id => document.getElementById(id);
+    if (!el("musicRoom")) return;
+    app.querySelectorAll("[data-track]").forEach(b => { const on = +b.dataset.track === music.cur; b.classList.toggle("on", on); b.classList.toggle("playing", on && music.playing); });
+    el("mPlay").textContent = music.playing ? "⏸" : "▶";
+    el("mPlay").setAttribute("aria-label", music.playing ? "Pause" : "Play");
+    el("mShuffle").classList.toggle("on", music.shuffle);
+    el("mShuffle").setAttribute("aria-pressed", music.shuffle ? "true" : "false");
+    el("musicRoom").classList.toggle("is-playing", music.playing);
+    if (s) {
+      el("nowTitle").textContent = s.title;
+      el("nowFilm").textContent = s.film + " (" + s.year + ")";
+      el("nowNote").textContent = s.note + " — " + LOVE.me + " 💌";
+      el("ytCover").hidden = true;
+    }
+  }
+  function tickMusic() {
+    const p = music.player;
+    if (!p || !p.getDuration || !document.getElementById("seekFill")) return;
+    const d = p.getDuration() || 0, t = p.getCurrentTime() || 0;
+    document.getElementById("seekFill").style.width = (d ? t / d * 100 : 0) + "%";
+    document.getElementById("seekBar").setAttribute("aria-valuenow", d ? Math.round(t / d * 100) : 0);
+    document.getElementById("tNow").textContent = fmt(t);
+    document.getElementById("tDur").textContent = fmt(d);
+  }
+  async function playSong(i) {
+    const s = LOVE.playlist[i];
+    if (!s || !s.yt || !document.getElementById("musicRoom")) return;
+    music.cur = i;
+    paintMusic();
+    try { await loadYT(); } catch (e) { toast("The music player couldn't load. Check the internet and try again 💗"); return; }
+    if (!document.getElementById("musicRoom")) return;
+    if (music.player && music.player.loadVideoById) { music.player.loadVideoById(s.yt); }
+    else {
+      music.player = new YT.Player("ytPlayer", {
+        videoId: s.yt, width: "100%", height: "100%",
+        playerVars: { autoplay: 1, playsinline: 1, rel: 0, modestbranding: 1 },
+        events: {
+          onReady: e => { if (/[?&]mute\b/.test(location.search)) e.target.mute(); e.target.playVideo(); },
+          onStateChange: e => {
+            music.playing = e.data === YT.PlayerState.PLAYING;
+            if (music.playing) music.errors = 0;
+            if (e.data === YT.PlayerState.ENDED) nextSong();
+            paintMusic(); tickMusic();
+          },
+          onError: e => {
+            const bad = LOVE.playlist[music.cur], mr = document.getElementById("musicRoom");
+            if (mr) mr.dataset.err = e.data;
+            music.errors = (music.errors || 0) + 1;
+            // 100 = removed, 101/150 = the owner blocked embedding: skip it. Anything else is the browser or network: stop.
+            if ([100, 101, 150].includes(e.data) && music.errors < 4) {
+              toast("“" + bad.title + "” can't play here right now. Next one 💗");
+              setTimeout(nextSong, 1200);
+            } else {
+              toast("This song won't play in this browser right now. Try again, or open it on YouTube 💗");
+            }
+          }
+        }
+      });
+    }
+    if (!music.timer) music.timer = setInterval(tickMusic, 500);
+    if (!music.greeted) { music.greeted = true; toast("Now playing “" + s.title + "”, dedicated to you 🎶💗"); }
+  }
+  function nextSong(step) {
+    const list = playableList();
+    if (!list.length) return;
+    if (music.shuffle && list.length > 1) { let n; do { n = list[Math.floor(Math.random() * list.length)]; } while (n === music.cur); return playSong(n); }
+    const pos = list.indexOf(music.cur);
+    playSong(list[pos < 0 ? 0 : (pos + (step || 1) + list.length) % list.length]);
+  }
+  function wireMusic() {
+    app.querySelectorAll("[data-track]").forEach(b => b.addEventListener("click", () => {
+      if (+b.dataset.track === music.cur && music.player && music.player.getPlayerState) {
+        if (music.playing) music.player.pauseVideo(); else music.player.playVideo();
+      } else playSong(+b.dataset.track);
+    }));
+    document.getElementById("mPlay").addEventListener("click", () => {
+      if (!music.player || music.cur < 0) return playSong(music.cur >= 0 ? music.cur : playableList()[0]);
+      if (music.playing) music.player.pauseVideo(); else music.player.playVideo();
+    });
+    document.getElementById("mNext").addEventListener("click", () => nextSong(1));
+    document.getElementById("mPrev").addEventListener("click", () => nextSong(-1));
+    document.getElementById("mShuffle").addEventListener("click", () => { music.shuffle = !music.shuffle; paintMusic(); toast(music.shuffle ? "Shuffle on: surprise me 🔀💕" : "Shuffle off 💗"); });
+    const bar = document.getElementById("seekBar");
+    const seekTo = frac => { const p = music.player; if (p && p.getDuration) { p.seekTo(Math.max(0, Math.min(1, frac)) * p.getDuration(), true); tickMusic(); } };
+    bar.addEventListener("click", e => { const r = bar.getBoundingClientRect(); seekTo((e.clientX - r.left) / r.width); });
+    bar.addEventListener("keydown", e => {
+      const p = music.player; if (!p || !p.getDuration) return;
+      const d = p.getDuration() || 1, t = p.getCurrentTime() || 0;
+      if (e.key === "ArrowRight") { e.preventDefault(); seekTo((t + 10) / d); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); seekTo((t - 10) / d); }
+    });
+    // The player lives inside this page; leaving the page stops the music.
+    leaveHook = () => {
+      if (music.timer) { clearInterval(music.timer); music.timer = null; }
+      if (music.player && music.player.destroy) { try { music.player.destroy(); } catch (e) {} }
+      music.player = null; music.playing = false; music.cur = -1;
+    };
   }
   const shayariHTML = pair => pair.map(x => '<span class="sh-line">' + esc(fill(x)) + "</span>").join("");
   function dailyShayari() {
@@ -973,6 +1115,7 @@
     return LOVE.shayari[day % LOVE.shayari.length];
   }
   function wireUs() {
+    wireMusic();
     let shIdx = LOVE.shayari.indexOf(dailyShayari());
     document.getElementById("shayariBtn").addEventListener("click", e => {
       shIdx = (shIdx + 1) % LOVE.shayari.length;
