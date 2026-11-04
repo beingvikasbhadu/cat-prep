@@ -38,13 +38,15 @@
       gold: mat(0xe2b34b, 0.25, { metalness: 0.6 }), button: mat(0xefe2d4, 0.4),
       blush: keep(new THREE.MeshBasicMaterial({ color: 0xff7fa6, transparent: true, opacity: 0.35, depthWrite: false })),
       sweat: keep(new THREE.MeshStandardMaterial({ color: 0x9fd3ff, roughness: 0.1, transparent: true, opacity: 0.9 })),
-      heart: mat(0xff4d8d, 0.35, { emissive: 0xff2f6e, emissiveIntensity: 0.25 })
+      heart: mat(0xff4d8d, 0.35, { emissive: 0xff2f6e, emissiveIntensity: 0.25 }),
+      mouthG: mat(0xd76a80, 0.4), mouthIn: mat(0x8e3346, 0.6, { side: 2 }), kissB: mat(0xc96a78, 0.35), kissG: mat(0xe0607f, 0.3)
     };
 
     // shared shapes
     const G = {
       eyeW: sphere(1, 20, 14), iris: sphere(1, 16, 12), dot: sphere(1, 10, 8), blush: keep(new THREE.CircleGeometry(1, 20)),
-      torus: keep(new THREE.TorusGeometry(1, 0.22, 8, 24, Math.PI)), ring: keep(new THREE.TorusGeometry(1, 0.08, 6, 32))
+      torus: keep(new THREE.TorusGeometry(1, 0.22, 8, 24, Math.PI)), ring: keep(new THREE.TorusGeometry(1, 0.08, 6, 32)),
+      arc: keep(new THREE.TorusGeometry(1, 0.2, 6, 18, Math.PI)), halfDisc: keep(new THREE.CircleGeometry(1, 18, Math.PI, Math.PI))
     };
     const heartShape = new THREE.Shape();
     heartShape.moveTo(0, -0.5); heartShape.bezierCurveTo(-0.9, 0.1, -0.5, 0.75, 0, 0.35); heartShape.bezierCurveTo(0.5, 0.75, 0.9, 0.1, 0, -0.5);
@@ -53,15 +55,23 @@
 
     function eye(x, y, z, size, lashes) {
       const e = group(x, y, z);
-      const w = mesh(G.eyeW, M.eyeW); w.scale.set(size, size * 0.78, size * 0.45); e.add(w);
+      const w = mesh(G.eyeW, M.eyeW); w.scale.set(size, size * (lashes ? 0.9 : 0.78), size * 0.45); e.add(w);
       const ir = mesh(G.iris, M.iris, 0, -size * 0.04, size * 0.3); ir.scale.set(size * 0.62, size * 0.66, size * 0.3); e.add(ir);
       const sh = mesh(G.dot, M.shine, size * 0.25, size * 0.25, size * 0.5); sh.scale.setScalar(size * 0.2); e.add(sh);
       if (lashes) {
-        const lg = keep(new THREE.BoxGeometry(size * 2.1, size * 0.16, size * 0.2));
-        const top = mesh(lg, M.lash, 0, size * 0.72, size * 0.25); e.add(top);
-        [-1, 1].forEach(sx => { const f = mesh(keep(new THREE.BoxGeometry(size * 0.5, size * 0.12, size * 0.12)), M.lash, sx * size * 1.05, size * 0.85, size * 0.2); f.rotation.z = sx * 0.6; e.add(f); });
+        // thin upper lash line just above the eye, with flicks curling up and out
+        const top = mesh(G.arc, M.lash, 0, size * 0.18, size * 0.28); top.scale.set(size * 1.02, size * 0.82, size * 0.3); e.add(top);
+        [-1, 1].forEach(sx => { const f = mesh(keep(new THREE.BoxGeometry(size * 0.42, size * 0.09, size * 0.1)), M.lash, sx * size * 1.02, size * 0.78, size * 0.22); f.rotation.z = sx * 0.95; e.add(f); });
       }
       return e;
+    }
+    function faceKit(head, o) {
+      const closed = o.eyePos.map(([x, y, z]) => { const a = mesh(G.arc, M.lash, x, y, z); a.scale.set(o.eyeR, o.eyeR * 0.75, o.eyeR * 0.4); a.visible = false; head.add(a); return a; });
+      const smile = mesh(G.arc, o.mouthMat, 0, o.my, o.mz); smile.rotation.z = Math.PI; smile.scale.set(o.mw, o.mw * 0.7, o.mw * 0.4); head.add(smile);
+      const big = mesh(G.halfDisc, M.mouthIn, 0, o.my + 0.003, o.mz + 0.003); big.scale.set(o.mw * 1.1, o.mw * 0.85, 1); big.visible = false; head.add(big);
+      const ooh = mesh(G.dot, M.mouthIn, 0, o.my - 0.003, o.mz); ooh.scale.set(o.mw * 0.32, o.mw * 0.42, o.mw * 0.2); ooh.visible = false; head.add(ooh);
+      const kiss = mesh(G.dot, o.kissMat, 0, o.my, o.mz + 0.003); kiss.scale.set(o.mw * 0.4, o.mw * 0.34, o.mw * 0.38); kiss.visible = false; head.add(kiss);
+      return { closed, mouths: { smile, big, ooh, kiss } };
     }
     function arm(parent, side, x, y, upperMat, lowerMat, handMat, rUpper, rLower) {
       const sh = group(x, y, 0); parent.add(sh);
@@ -104,13 +114,12 @@
       const sweep = mesh(sphere(0.08), M.hairB, 0.1, 0.16, 0.06); sweep.scale.set(1.1, 0.5, 0.8); sweep.rotation.z = -0.4; head.add(sweep);
       [-1, 1].forEach(sx => { const side = mesh(sphere(0.07), M.hairB, sx * 0.16, 0.06, -0.01); side.scale.set(0.45, 1, 0.9); head.add(side); });
       const eyes = [eye(-0.066, 0.008, 0.168, 0.034, false), eye(0.066, 0.008, 0.168, 0.034, false)]; eyes.forEach(e => head.add(e));
-      [-1, 1].forEach(sx => { const br = mesh(keep(new THREE.BoxGeometry(0.06, 0.012, 0.012)), M.brow, sx * 0.066, 0.058, 0.172); br.rotation.z = sx * -0.12; head.add(br); });
+      const brows = [-1, 1].map(sx => { const br = mesh(keep(new THREE.BoxGeometry(0.06, 0.012, 0.012)), M.brow, sx * 0.066, 0.058, 0.172); br.rotation.z = sx * -0.12; head.add(br); return br; });
       const nose = mesh(G.dot, M.skinShade, 0, -0.035, 0.182); nose.scale.set(0.018, 0.024, 0.016); head.add(nose);
-      const mouth = mesh(G.torus, M.mouthB, 0, -0.085, 0.168); mouth.scale.setScalar(0.03); mouth.rotation.z = Math.PI; head.add(mouth);
-      const lips = mesh(G.dot, M.kiss, 0, -0.088, 0.172); lips.scale.set(0.022, 0.018, 0.02); lips.visible = false; head.add(lips);
+      const kit = faceKit(head, { eyePos: [[-0.066, 0.006, 0.172], [0.066, 0.006, 0.172]], eyeR: 0.026, mouthMat: M.mouthB, kissMat: M.kissB, mw: 0.021, my: -0.086, mz: 0.17 });
       const blush = [-1, 1].map(sx => { const b = mesh(G.blush, M.blush.clone(), sx * 0.105, -0.045, 0.158); keep(b.material); b.scale.setScalar(0.034); b.rotation.y = sx * 0.55; head.add(b); return b; });
       const sweat = mesh(G.dot, M.sweat, 0.15, 0.12, 0.08); sweat.scale.set(0.018, 0.028, 0.015); sweat.visible = false; head.add(sweat);
-      return { root, hips, body, head, legs, armL, armR, eyes, mouth, lips, blush, sweat, baseY: 0 };
+      return { root, hips, body, head, legs, armL, armR, eyes, kit, brows, browY: 0.058, browRot: [0.06, -0.06], blush, sweat, baseY: 0 };
     }
 
     // ---------- Khushi ----------
@@ -152,12 +161,11 @@
         const ear = mesh(G.dot, M.gold, sx * 0.168, -0.06, 0.03); ear.scale.setScalar(0.012); head.add(ear);
       });
       const eyes = [eye(-0.062, -0.002, 0.158, 0.039, true), eye(0.062, -0.002, 0.158, 0.039, true)]; eyes.forEach(e => head.add(e));
-      [-1, 1].forEach(sx => { const br = mesh(keep(new THREE.BoxGeometry(0.05, 0.008, 0.01)), M.brow, sx * 0.062, 0.058, 0.165); br.rotation.z = sx * -0.18; head.add(br); });
+      const brows = [-1, 1].map(sx => { const br = mesh(keep(new THREE.BoxGeometry(0.05, 0.008, 0.01)), M.brow, sx * 0.062, 0.06, 0.165); br.rotation.z = sx * -0.18; head.add(br); return br; });
       const nose = mesh(G.dot, M.skinShade, 0, -0.035, 0.172); nose.scale.set(0.013, 0.018, 0.012); head.add(nose);
-      const mouth = mesh(G.dot, M.lipsG, 0, -0.082, 0.163); mouth.scale.set(0.026, 0.012, 0.012); head.add(mouth);
-      const lips = mesh(G.dot, M.kiss, 0, -0.082, 0.166); lips.scale.set(0.02, 0.016, 0.018); lips.visible = false; head.add(lips);
+      const kit = faceKit(head, { eyePos: [[-0.062, -0.004, 0.162], [0.062, -0.004, 0.162]], eyeR: 0.03, mouthMat: M.mouthG, kissMat: M.kissG, mw: 0.017, my: -0.081, mz: 0.163 });
       const blush = [-1, 1].map(sx => { const b = mesh(G.blush, M.blush.clone(), sx * 0.1, -0.04, 0.15); keep(b.material); b.scale.setScalar(0.034); b.rotation.y = sx * 0.55; head.add(b); return b; });
-      return { root, hips, body, head, legs, armL, armR, eyes, mouth, lips, blush, baseY: 0 };
+      return { root, hips, body, head, legs, armL, armR, eyes, kit, brows, browY: 0.068, browRot: [0.08, -0.08], blush, baseY: 0 };
     }
 
     // ---------- scene ----------
@@ -195,7 +203,16 @@
 
     // ---------- poses ----------
     const blink = (t, seed) => { const p = (t + seed) % 3.7; return p < 0.12 ? 0.15 : 1; };
-    function eyes(c, open) { c.eyes.forEach(e => (e.scale.y = open)); }
+    // st: eyes "open" | "closed" (smiling arcs), mouth "smile" | "big" | "ooh" | "kiss", brow 0..1 raise, tilt 0..1 inner ends up (shy/worried)
+    function face(c, st, t, seed) {
+      const closed = st.eyes === "closed";
+      const b = closed ? 1 : blink(t, seed);
+      c.eyes.forEach(e => { e.visible = !closed; e.scale.y = b; });
+      c.kit.closed.forEach(a => (a.visible = closed));
+      Object.keys(c.kit.mouths).forEach(k => (c.kit.mouths[k].visible = k === (st.mouth || "smile")));
+      c.brows.forEach((br, i) => { br.position.y = c.browY + 0.014 * (st.brow || 0) + 0.004 * (st.tilt || 0); br.rotation.z = c.browRot[i] + (i ? -1 : 1) * 0.3 * (st.tilt || 0); });
+    }
+    const within = (t, a, b) => t >= a && t < b;
     function setBlush(c, k) { c.blush.forEach(b => (b.material.opacity = 0.3 + 0.5 * k)); }
     function resetLimbs(c) {
       c.legs.forEach(l => (l.rotation.x = 0));
@@ -216,7 +233,7 @@
       h.visible = k > 0 && k < 1;
       if (!h.visible) return;
       const s = (k < 0.2 ? k / 0.2 * 1.2 : 1.2 - 0.2 * Math.min(1, (k - 0.2) / 0.2)) * size;
-      h.scale.setScalar(s); h.position.set(x, y + k * 0.22, z); h.rotation.y = Math.sin(k * 6) * 0.4;
+      h.scale.setScalar(s); h.position.set(x, y + k * 0.15, z); h.rotation.y = Math.sin(k * 6) * 0.4;
     }
 
     function kissStory(t, loop) {
@@ -266,13 +283,22 @@
       V.armR.sh.rotation.x += -0.45 * hold; V.armR.el.rotation.x = -0.6 * hold;
       K.armR.sh.rotation.x += -0.4 * hold; K.armR.el.rotation.x = -0.5 * hold;
       // faces
-      const cheekKiss = t > 1.45 && t < 2.25, lipKiss = t > 6.7 && (!loop || t < 9.4);
-      V.lips.visible = cheekKiss || lipKiss; V.mouth.visible = !V.lips.visible;
-      K.lips.visible = lipKiss; K.mouth.visible = !lipKiss;
-      const vClosed = (t > 1.3 && t < 4.6) || t > 6.5;
-      const kClosed = t > 6.55 && (!loop || t < 9.5);
-      eyes(V, vClosed && !(loop && t > 9.5) ? 0.12 : blink(t, 0.3));
-      eyes(K, kClosed ? 0.12 : blink(t, 1.7));
+      const lipKiss = t > 6.7 && (!loop || t < 9.3), afterKiss = loop && t >= 9.3;
+      // Vikas: kisses her cheek, grins shyly with his eyes shut, looks back surprised when she grabs him, then the kiss
+      face(V, {
+        eyes: within(t, 1.35, 2.25) || within(t, 2.4, 4.45) || (t > 6.5 && !afterKiss) ? "closed" : "open",
+        mouth: within(t, 1.45, 2.25) || lipKiss ? "kiss" : within(t, 4.55, 5.35) ? "ooh" : within(t, 2.4, 3.6) ? "big" : "smile",
+        brow: within(t, 4.5, 5.4) ? 1 : 0, tilt: within(t, 2.3, 4.45) ? 1 : 0
+      }, t, 0.3);
+      // Khushi: surprised by the cheek kiss, giggles, a little worried as he walks off, then the kiss
+      face(K, {
+        eyes: within(t, 1.9, 3.05) || (t > 6.55 && !afterKiss) ? "closed" : "open",
+        mouth: lipKiss ? "kiss" : within(t, 1.5, 1.9) ? "ooh" : within(t, 1.9, 3.1) || afterKiss ? "big" : "smile",
+        brow: within(t, 1.45, 1.95) ? 1 : 0, tilt: within(t, 3.3, 4.5) ? 0.7 : 0
+      }, t, 1.7);
+      const giggle = seg(t, 1.85, 2.1) * (1 - seg(t, 2.9, 3.2));
+      K.head.rotation.z += 0.14 * giggle * (1 + 0.25 * Math.sin(t * 18)); K.body.rotation.z = -0.05 * giggle;
+      V.head.rotation.x += 0.12 * seg(t, 2.35, 2.6) * (1 - seg(t, 4.3, 4.6));
       setBlush(V, seg(t, 2.1, 2.5) * (1 - seg(t, 4.6, 5.2)) + 0.6 * seg(t, 6.5, 7));
       setBlush(K, seg(t, 1.5, 2.0) * (1 - seg(t, 3, 4)) + seg(t, 6.5, 7) * (loop ? 1 - seg(t, 9.3, 10) : 1));
       V.sweat.visible = t > 2.3 && t < 5.0;
@@ -280,7 +306,7 @@
       idle(V, t, 0); idle(K, t, 1.3);
       // hearts: one at her cheek, then a little burst above the kiss
       popHeart(cheekHeart, 0.33, 1.68, 0.2, (t - 1.6) / 1.2, 0.09);
-      hearts.forEach((h, i) => popHeart(h, -0.02 + (i - 2.5) * 0.09, 1.84 + (i % 2) * 0.07, 0.1, (t - 6.9 - i * 0.22) / 2.2, 0.06 + (i % 3) * 0.015));
+      hearts.forEach((h, i) => popHeart(h, -0.02 + (i - 2.5) * 0.1, 2.02 + (i % 2) * 0.06, 0.1, (t - 6.9 - i * 0.22) / 2.2, 0.06 + (i % 3) * 0.015));
     }
 
     function hugStory(t) {
@@ -298,18 +324,19 @@
       });
       V.head.rotation.y = 0.35 * h; K.head.rotation.y = -0.35 * h; V.head.rotation.x = 0.18 * h; K.head.rotation.z = 0.12 * h; V.head.rotation.z = -0.08 * h;
       K.root.position.y = 0.03 * h;
-      eyes(V, h > 0.5 ? 0.12 : blink(t, 0.4)); eyes(K, h > 0.5 ? 0.12 : blink(t, 1.1));
+      face(V, { eyes: h > 0.5 ? "closed" : "open", mouth: "smile" }, t, 0.4);
+      face(K, { eyes: h > 0.5 ? "closed" : "open", mouth: h > 0.5 ? "big" : "smile" }, t, 1.1);
       setBlush(V, 0.5 * h); setBlush(K, h);
-      V.sweat.visible = false; V.lips.visible = K.lips.visible = false; V.mouth.visible = K.mouth.visible = true;
+      V.sweat.visible = false;
       idle(V, t, 0); idle(K, t, 1.3);
       cheekHeart.visible = false;
-      hearts.forEach((ht, i) => popHeart(ht, (i - 2.5) * 0.1, 1.86 + (i % 2) * 0.08, 0.1, (t - 2.0 - i * 0.25) / 2.4, 0.06 + (i % 3) * 0.015));
+      hearts.forEach((ht, i) => popHeart(ht, (i - 2.5) * 0.11, 2.02 + (i % 2) * 0.06, 0.1, (t - 2.0 - i * 0.25) / 2.4, 0.06 + (i % 3) * 0.015));
     }
 
     function frame(t) {
-      if (mode === "hug") hugStory(Math.min(t, 4.6));
-      else if (mode === "kiss") kissStory(Math.min(t, 9.3), false);
-      else kissStory(t % 10, true);
+      if (mode === "hug") hugStory(Math.min(t / 1.3, 4.6));
+      else if (mode === "kiss") kissStory(Math.min(t / 1.4, 9.3), false);
+      else kissStory((t / 1.4) % 10, true);
       shadows[0].position.set(V.root.position.x, 0.002, V.root.position.z);
       shadows[1].position.set(K.root.position.x, 0.002, K.root.position.z);
       renderer.render(scene, camera);
