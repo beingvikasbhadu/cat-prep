@@ -58,3 +58,11 @@
   @keyframes note { 0% { opacity: 0; transform: translateY(20px) rotate(-10deg); } 20% { opacity: .8; } 100% { opacity: 0; transform: translateY(-120px) rotate(15deg); } }
 }
 button.song { font: inherit; cursor: pointer; text-align: left; }
+
+/* Apple Music embed (used for songs whose YouTube uploads block other websites) */
+.apple-box { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 6px; align-items: center; justify-content: center; padding: 10px; background: radial-gradient(circle at 50% 40%, #ffd6e4, #f3c3ff 70%); }
+.apple-box iframe { width: 100%; height: 175px; max-width: 660px; border: 0; border-radius: 12px; overflow: hidden; }
+
+.apple-links { margin: 0; font-size: 12.5px; font-weight: 800; color: #6e2a4c; text-align: center; }
+.apple-links a { color: #b8185a; }
+.apple-box iframe { height: 160px; }

@@ -121,3 +121,14 @@
 .song-disc { font-size: 26px; flex: none; }
 @media (prefers-reduced-motion: no-preference) { .song:hover .song-disc { animation: spin 1.6s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } } }
 .playlist { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; margin-top: 12px; }
+
+/* level timers and the recap */
+.lv-timer { margin-left: auto; font-family: var(--font); font-size: 14px; font-weight: 800; color: var(--muted); background: var(--surface); border: 2px solid var(--line); border-radius: 999px; padding: 3px 12px; font-variant-numeric: tabular-nums; }
+.lv-timer.live { color: var(--accent); border-color: var(--accent-2); }
+.lv-timer.over { color: var(--warn); border-color: var(--warn); }
+@media (max-width: 560px) { .lv-head { flex-direction: column; align-items: flex-start; gap: 4px; } .lv-timer { margin-left: 0; } }
+.recap > summary h2 { font-size: 19px; }
+.recap-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.recap-grid > div { background: var(--surface-2); border-radius: 16px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+.recap-grid b { font-weight: 800; color: var(--accent); }
+.recap-grid span { font-size: 14.5px; color: var(--ink-2); }

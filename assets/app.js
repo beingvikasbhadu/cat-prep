@@ -261,6 +261,13 @@
     if (tm) tm.textContent = min;
   }, 1000);
   window.addEventListener("pagehide", saveStats);
+  // Keep the greeting and the countdown right if the page stays open past noon, evening or midnight.
+  setInterval(() => {
+    const g = document.querySelector("[data-greet]");
+    if (g && g.textContent !== greeting()) g.textContent = greeting();
+    const d = document.querySelector("[data-day]");
+    if (d && d.dataset.day !== todayISO() && !sceneOpen) route();
+  }, 30000);
 
   // ---------- drawings ----------
   // Vikas (left) leans in and kisses Khushi (right) on the cheek.
@@ -373,8 +380,8 @@
     return '' +
       '<section class="hero">' +
         '<div class="hero-text">' +
-          '<p class="eyebrow">' + greeting() + ', ' + esc(LOVE.her) + ' 🌸</p>' +
-          '<h1>' + (dl > 0 ? '<span class="big">' + dl + '</span> days to CAT' : dl === 0 ? "Exam day! 화이팅 💪" : "CAT 2026 is done 🎉") + '</h1>' +
+          '<p class="eyebrow"><span data-greet>' + greeting() + '</span>, ' + esc(LOVE.her) + ' 🌸</p>' +
+          '<h1 data-day="' + t + '">' + (dl > 0 ? '<span class="big">' + dl + '</span> ' + (dl === 1 ? "day" : "days") + ' to CAT' : dl === 0 ? "Exam day! 화이팅 💪" : "CAT 2026 is done 🎉") + '</h1>' +
           '<p class="lede">Target: <b>' + total + ' correct</b> across three sections. Revise a little, play a quiz, collect kisses. I’m cheering for you every single day 💗</p>' +
           '<div class="hero-btns"><a class="btn primary" href="#/quiz">Play a quick quiz ✨</a><a class="btn" href="#/math">Revise a topic</a></div>' +
         '</div>' +
@@ -647,9 +654,10 @@
     const html = '' +
       '<a class="back" href="#/math/' + topic.id + '">← ' + esc(topic.name) + "</a>" +
       '<header class="page-head"><p class="eyebrow">Timed test · ' + test.questions.length + ' questions · target ' + fmt(targetTotal) + '</p><h1>' + esc(test.title) + '</h1><p class="lede">Press Start when you begin reading a question and Done when you have your answer. Starting another question pauses the one that is running, just like moving on in the exam. 화이팅! 💪</p></header>' +
+      recapBox(test) +
       '<div class="test-bar" role="status"><div><span class="sub">Done</span><b id="tbDone">0/' + test.questions.length + '</b></div><div><span class="sub">Time</span><b id="tbTime">0:00</b></div><div><span class="sub">Target</span><b>' + fmt(targetTotal) + '</b></div><div class="tb-prog"><span id="tbProg"></span></div></div>' +
       test.questions.map((q, i) => '' +
-        (i === 0 || test.questions[i - 1].lv !== q.lv ? '<h2 class="lv-head lv' + q.lv + '">' + esc(LV[q.lv].name) + ' <small>target ' + fmt(LV[q.lv].target) + " each</small></h2>" : "") +
+        (i === 0 || test.questions[i - 1].lv !== q.lv ? '<h2 class="lv-head lv' + q.lv + '">' + esc(LV[q.lv].name) + ' <small>' + test.questions.filter(z => z.lv === q.lv).length + " questions · target " + fmt(LV[q.lv].target) + ' each</small><span class="lv-timer" data-lvt="' + q.lv + '">⏱ 0:00 / ' + fmt(test.questions.filter(z => z.lv === q.lv).reduce((a, z) => a + qTarget(z), 0)) + "</span></h2>" : "") +
         '<article class="card q" id="q' + i + '">' +
           '<div class="q-head"><span class="q-num">Q' + (i + 1) + "</span>" + chip("L" + q.lv, "lv" + q.lv) + chip(q.fmt, q.fmt === "MCQ" ? "warn" : "muted") + '<span class="q-target">target ' + fmt(qTarget(q)) + '</span><span class="q-time">0:00</span></div>' +
           '<p class="q-text">' + esc(q.text) + "</p>" +
@@ -681,6 +689,14 @@
           tb.textContent = r.startedAt ? "Pause" : (r.elapsed > 0 ? "Resume" : "Start");
           tb.classList.toggle("primary", !r.startedAt && !r.done);
           card.querySelector('[data-act="done"]').textContent = r.done ? "Reopen" : "Done";
+        });
+        app.querySelectorAll("[data-lvt]").forEach(el => {
+          const lv = +el.dataset.lvt;
+          let used = 0, tgt = 0;
+          test.questions.forEach((z, k) => { if (z.lv === lv) { used += elapsed(st.q[k]); tgt += qTarget(z); } });
+          el.textContent = "⏱ " + fmt(used) + " / " + fmt(tgt);
+          el.classList.toggle("over", used > tgt);
+          el.classList.toggle("live", test.questions.some((z, k) => z.lv === lv && st.q[k].startedAt));
         });
         document.getElementById("tbDone").textContent = done + "/" + test.questions.length;
         document.getElementById("tbTime").textContent = fmt(total);
@@ -760,6 +776,12 @@
     return { html, after };
   }
 
+  function recapBox(test) {
+    const ids = test.topics || [test.topic];
+    const ideas = ids.flatMap(id => (byId(MATH, id) || { ideas: [] }).ideas);
+    return '<details class="card fold recap"><summary><h2>Quick recap before you start 📝</h2><span class="chev" aria-hidden="true"></span></summary><div class="fold-body"><div class="recap-grid">' +
+      ideas.map(x => '<div><b>' + esc(x.t) + "</b><span>" + esc(x.d) + "</span></div>").join("") + "</div></div></details>";
+  }
   function analyse(test, st) {
     const rows = test.questions.map((q, i) => {
       const r = st.q[i], secs = Math.round(elapsed(r));
@@ -978,18 +1000,18 @@
   const songIdx = title => LOVE.playlist.findIndex(s => s.title === title);
   const music = { player: null, cur: -1, shuffle: false, playing: false, timer: null, ready: null };
   function musicRoom() {
-    const playable = LOVE.playlist.filter(s => s.yt).length;
+    const playable = LOVE.playlist.filter(s => s.yt || s.apple).length;
     return '<section class="card music" id="musicRoom">' +
       '<div class="music-head"><div><h2>Our music room 🎧</h2><p class="muted">' + playable + ' old Bollywood songs I dedicate to you. Pick one and study with it 💗</p></div></div>' +
       '<div class="music-main">' +
-        '<div class="music-screen"><div class="yt-frame"><div id="ytPlayer"></div><div class="yt-cover" id="ytCover"><div class="vinyl" aria-hidden="true"><span></span></div><p>Tap a song to start 💿</p></div></div></div>' +
+        '<div class="music-screen"><div class="yt-frame"><div id="ytPlayer"></div><div class="apple-box" id="appleBox" hidden></div><div class="yt-cover" id="ytCover"><div class="vinyl" aria-hidden="true"><span></span></div><p>Tap a song to start 💿</p></div></div></div>' +
         '<div class="now"><span class="sub" id="nowLabel">Now playing</span><b id="nowTitle">Pick a song for us</b><em id="nowFilm">Old Bollywood, only for you</em><p class="now-note" id="nowNote">Every song here comes with a note from ' + esc(LOVE.me) + ' 💌</p>' +
           '<div class="bar seek" id="seekBar" role="slider" aria-label="Song position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0"><span id="seekFill"></span></div><div class="times"><span id="tNow">0:00</span><span id="tDur">0:00</span></div>' +
           '<div class="controls"><button class="cbtn" id="mPrev" type="button" aria-label="Previous song">⏮</button><button class="cbtn big" id="mPlay" type="button" aria-label="Play">▶</button><button class="cbtn" id="mNext" type="button" aria-label="Next song">⏭</button><button class="cbtn" id="mShuffle" type="button" aria-pressed="false" aria-label="Shuffle">🔀</button></div>' +
         "</div>" +
       "</div>" +
-      '<ol class="tracks">' + LOVE.playlist.map((s, i) => s.yt
-        ? '<li><button class="track" type="button" data-track="' + i + '"><span class="tr-n">' + (i + 1) + '</span><span class="tr-eq" aria-hidden="true"><i></i><i></i><i></i></span><span class="tr-body"><b>' + esc(s.title) + "</b><em>" + esc(s.film) + " · " + s.year + '</em><small>' + esc(s.note) + "</small></span></button></li>"
+      '<ol class="tracks">' + LOVE.playlist.map((s, i) => (s.yt || s.apple)
+        ? '<li><button class="track" type="button" data-track="' + i + '"><span class="tr-n">' + (i + 1) + '</span><span class="tr-eq" aria-hidden="true"><i></i><i></i><i></i></span><span class="tr-body"><b>' + esc(s.title) + "</b><em>" + esc(s.film) + " · " + s.year + (s.apple ? " · Apple Music" : "") + '</em><small>' + esc(s.note) + "</small></span></button></li>"
         : '<li><a class="track ext" href="https://www.youtube.com/results?search_query=' + encodeURIComponent(s.title + " " + s.film + " song") + '" target="_blank" rel="noopener noreferrer"><span class="tr-n">↗</span><span class="tr-body"><b>' + esc(s.title) + "</b><em>" + esc(s.film) + " · " + s.year + ' · opens on YouTube</em><small>' + esc(s.note) + "</small></span></a></li>").join("") +
       "</ol>" +
       '<p class="small muted music-foot">Songs play from the official label channels on YouTube. Keep this page open while they play; most phones pause YouTube when the screen locks.</p>' +
@@ -1008,7 +1030,7 @@
     });
     return music.ready;
   }
-  const playableList = () => LOVE.playlist.map((s, i) => s.yt ? i : -1).filter(i => i >= 0);
+  const playableList = () => LOVE.playlist.map((s, i) => (s.yt || s.apple) ? i : -1).filter(i => i >= 0);
   function paintMusic() {
     const s = LOVE.playlist[music.cur];
     const el = id => document.getElementById(id);
@@ -1022,13 +1044,13 @@
     if (s) {
       el("nowTitle").textContent = s.title;
       el("nowFilm").textContent = s.film + " (" + s.year + ")";
-      el("nowNote").textContent = s.note + " — " + LOVE.me + " 💌";
+      el("nowNote").textContent = s.note + " — " + LOVE.me + " 💌" + (s.apple ? " (plays in Apple Music's player)" : "");
       el("ytCover").hidden = true;
     }
   }
   function tickMusic() {
-    const p = music.player;
-    if (!p || !p.getDuration || !document.getElementById("seekFill")) return;
+    const p = music.player, cur = LOVE.playlist[music.cur];
+    if (!p || !p.getDuration || !document.getElementById("seekFill") || (cur && cur.apple)) return;
     const d = p.getDuration() || 0, t = p.getCurrentTime() || 0;
     document.getElementById("seekFill").style.width = (d ? t / d * 100 : 0) + "%";
     document.getElementById("seekBar").setAttribute("aria-valuenow", d ? Math.round(t / d * 100) : 0);
@@ -1037,8 +1059,23 @@
   }
   async function playSong(i) {
     const s = LOVE.playlist[i];
-    if (!s || !s.yt || !document.getElementById("musicRoom")) return;
+    if (!s || !(s.yt || s.apple) || !document.getElementById("musicRoom")) return;
     music.cur = i;
+    const ab = document.getElementById("appleBox");
+    if (s.apple) {
+      // Apple Music's own embed player (a preview, or the full song when signed in to Apple Music).
+      if (music.player && music.player.pauseVideo) music.player.pauseVideo();
+      music.playing = false;
+      ab.innerHTML = '<iframe title="' + esc(s.title) + ' on Apple Music" allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation" src="https://embed.music.apple.com/in/album/' + s.apple + '"></iframe>' +
+        '<p class="apple-links">Not loading? <a href="https://music.apple.com/in/album/' + s.apple + '" target="_blank" rel="noopener noreferrer">Open in Apple Music</a> · <a href="https://www.youtube.com/results?search_query=' + encodeURIComponent(s.title + " " + s.film + " song") + '" target="_blank" rel="noopener noreferrer">Open on YouTube</a></p>';
+      ab.hidden = false;
+      paintMusic();
+      ["seekFill"].forEach(id => { const x = document.getElementById(id); if (x) x.style.width = "0%"; });
+      document.getElementById("tNow").textContent = "—"; document.getElementById("tDur").textContent = "—";
+      toast("“" + s.title + "” for my pari 🧚‍♀️💗 Tap play in the Apple Music player.");
+      return;
+    }
+    if (ab) { ab.hidden = true; ab.innerHTML = ""; }
     paintMusic();
     try { await loadYT(); } catch (e) { toast("The music player couldn't load. Check the internet and try again 💗"); return; }
     if (!document.getElementById("musicRoom")) return;

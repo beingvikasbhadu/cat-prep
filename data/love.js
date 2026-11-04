@@ -398,6 +398,8 @@ window.LOVE = {
     { title: "Pyar Hua Ikrar Hua", film: "Shree 420", year: 1955, note: "Baarish + chhatri + hum ☔", yt: "ydgapb13HEE" },
     { title: "Kabhi Kabhi Mere Dil Mein", film: "Kabhi Kabhie", year: 1976, note: "Kabhi kabhi nahi, hamesha 😌", yt: "0S7uhEoxRbg" },
     { title: "Kuch Kuch Hota Hai", film: "Kuch Kuch Hota Hai", year: 1998, note: "Tum paas aati ho toh kuch kuch hota hai 🙈", yt: "bKZTnnFU9HA" },
+    { title: "Achchi Lagti Ho", film: "Kuch Naa Kaho", year: 2003, note: "Sach mein, tum bahut achhi lagti ho 🥰", yt: "HJIRktKAahU" },
+    { title: "Pari Pari", film: "Hungama", year: 2003, note: "Meri pari toh tum ho 🧚‍♀️💗", apple: "hungama-original-motion-picture-soundtrack/1222903026?i=1222903307" },
     { title: "Ek Ladki Ko Dekha", film: "1942: A Love Story", year: 1994, note: "Woh ladki tum ho", yt: "H5sheEWfsOQ" },
     { title: "Mere Sapno Ki Rani", film: "Aradhana", year: 1969, note: "Sapno wali rani? Woh toh tum ho 😍", yt: "Nw7lcCNSYy8" },
     { title: "Pal Pal Dil Ke Paas", film: "Blackmail", year: 1973, note: "Har pal, har second", yt: "Qa-uVqnv-No" },
