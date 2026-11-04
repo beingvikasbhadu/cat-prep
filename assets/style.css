@@ -103,6 +103,7 @@ button { font: inherit; }
   .tabbar a:hover { text-decoration: none; }
   .tabbar a.on { color: var(--accent); background: var(--accent-soft); }
   .tabbar a.on span { filter: none; transform: translateY(-1px) scale(1.08); }
+  @media (max-width: 370px) { .tabbar a { font-size: 10px; } .tabbar a span { font-size: 17px; } }
   main { padding-bottom: 96px; }
 }
 
