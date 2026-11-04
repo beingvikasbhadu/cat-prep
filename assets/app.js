@@ -117,6 +117,7 @@
       '<h2>' + esc(title || "Muah! 😘") + '</h2><p>' + esc(text) + '</p><span class="toast-from">— ' + esc(LOVE.me) + ' 💌</span>' +
       '<button class="btn primary" type="button">Aww, close 💗</button></div>';
     document.body.appendChild(wrap);
+    if (window.Stage3D) Stage3D.mountAll(wrap);
     requestAnimationFrame(() => wrap.classList.add("in"));
     const btn = wrap.querySelector("button");
     btn.focus({ preventScroll: true });
@@ -124,7 +125,7 @@
     const close = () => {
       wrap.classList.remove("in");
       document.removeEventListener("keydown", onKey);
-      setTimeout(() => { wrap.remove(); sceneOpen = false; if (prev && prev.focus) prev.focus(); }, 250);
+      setTimeout(() => { if (window.Stage3D) Stage3D.disposeIn(wrap); wrap.remove(); sceneOpen = false; if (prev && prev.focus) prev.focus(); }, 250);
     };
     const onKey = e => { if (e.key === "Escape") close(); };
     document.addEventListener("keydown", onKey);
@@ -277,7 +278,8 @@
   // Kiss story: cheek kiss, he gets shy and walks off, she pulls his hand back, they kiss. Hug: arms around each other.
   function couple(mode) {
     const hug = /hug/.test(mode || "");
-    return '<svg class="couple ' + (mode || "") + '" viewBox="0 0 260 252" role="img" aria-label="Cartoon of ' + esc(LOVE.me) + ' and ' + esc(LOVE.her) + (hug ? " hugging" : ": " + esc(LOVE.me) + " kisses " + esc(LOVE.her) + "’s cheek, gets shy and walks away, and she pulls him back for a kiss") + '">' +
+    const stage = hug ? "hug" : /once/.test(mode || "") ? "kiss" : "loop";
+    return '<div class="stage3d" data-stage="' + stage + '">' + '<svg class="couple ' + (mode || "") + '" viewBox="0 0 260 252" role="img" aria-label="Cartoon of ' + esc(LOVE.me) + ' and ' + esc(LOVE.her) + (hug ? " hugging" : ": " + esc(LOVE.me) + " kisses " + esc(LOVE.her) + "’s cheek, gets shy and walks away, and she pulls him back for a kiss") + '">' +
       '<defs>' +
         '<radialGradient id="cpSkinB" cx="42%" cy="36%" r="70%"><stop offset="0" stop-color="#f8d8bd"/><stop offset=".7" stop-color="#efc39f"/><stop offset="1" stop-color="#e0a984"/></radialGradient>' +
         '<radialGradient id="cpSkinG" cx="42%" cy="36%" r="70%"><stop offset="0" stop-color="#fde3cf"/><stop offset=".7" stop-color="#f6cfb3"/><stop offset="1" stop-color="#e9b796"/></radialGradient>' +
@@ -361,7 +363,7 @@
       '<g class="smooch"><path d="M132 75c-1.4-4-7.5-4-7.5.7 0 3.4 4 6 7.5 8.8 3.5-2.8 7.5-5.4 7.5-8.8 0-4.7-6.1-4.7-7.5-.7z" fill="#e8174f"/></g>' +
       '<g class="hughearts"><path d="M132 30c-2-6-11-6-11 1 0 5 6 9 11 13 5-4 11-8 11-13 0-7-9-7-11-1z" fill="#ff4d8d"/><path d="M110 18c-1.6-4.6-8-4.6-8 .8 0 3.8 4.6 6.8 8 9.8 3.4-3 8-6 8-9.8 0-5.4-6.4-5.4-8-.8z" fill="#ff86ad"/><path d="M156 16c-1.6-4.6-8-4.6-8 .8 0 3.8 4.6 6.8 8 9.8 3.4-3 8-6 8-9.8 0-5.4-6.4-5.4-8-.8z" fill="#ff86ad"/></g>' +
       '<text x="98" y="249" text-anchor="middle" class="tag">' + esc(LOVE.me) + '</text><text x="166" y="249" text-anchor="middle" class="tag">' + esc(LOVE.her) + '</text>' +
-      "</svg>";
+      "</svg></div>";
   }
   function miniFace() {
     return '<svg viewBox="0 0 60 60"><defs><radialGradient id="mfSkin" cx="42%" cy="36%" r="70%"><stop offset="0" stop-color="#f8d8bd"/><stop offset="1" stop-color="#e3ad88"/></radialGradient></defs><circle cx="30" cy="30" r="30" fill="#ffd6e4"/><path d="M13 60Q15 47 30 45Q45 47 47 60Z" fill="#7d4c33"/><path d="M24 46l6 5 6-5" fill="#a06b4b"/><path d="M15 29Q15 12 30 12Q45 12 45 29Q45 41 37 46Q30 50 23 46Q15 41 15 29Z" fill="url(#mfSkin)"/><path d="M13 33Q9 7 30 7Q51 7 47 31Q46 21 42 17Q36 23 28 18Q21 23 16 20Q14 26 13 33Z" fill="#1d1719"/><path d="M16 23Q26 10 46 16Q35 15 28 24Q22 20 16 23Z" fill="#2a2226"/><ellipse cx="24" cy="30" rx="2.8" ry="1.9" fill="#fff"/><ellipse cx="36" cy="30" rx="2.8" ry="1.9" fill="#fff"/><circle cx="24.2" cy="30.2" r="1.6" fill="#3a2a20"/><circle cx="36.2" cy="30.2" r="1.6" fill="#3a2a20"/><path d="M26 39q4 3 8 0" stroke="#a5534f" stroke-width="1.6" fill="none" stroke-linecap="round"/><ellipse cx="20" cy="36" rx="3" ry="1.7" fill="#ffa3bd" opacity=".8"/><ellipse cx="40" cy="36" rx="3" ry="1.7" fill="#ffa3bd" opacity=".8"/></svg>';
@@ -403,7 +405,9 @@
     else if (p === "test" && id) { const r = testPage(id); html = r.html; after = r.after; nav = "math"; }
     else if (p === "tracker") { html = trackerPage(); after = wireTracker; }
     else html = notFound();
+    if (window.Stage3D) Stage3D.disposeIn(app);
     app.innerHTML = '<div class="page">' + html + "</div>";
+    if (window.Stage3D) Stage3D.mountAll(app);
     document.querySelectorAll("[data-nav]").forEach(a => a.classList.toggle("on", a.dataset.nav === nav || (a.dataset.nav === "notes" && (nav === "varc" || nav === "lrdi"))));
     paintFocus();
     paintOwn();

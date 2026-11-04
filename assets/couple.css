@@ -89,3 +89,8 @@
   .couple.hug .hugarms, .couple.hug .hughearts { opacity: 1; }
   .couple.hug .arm { opacity: 0; }
 }
+
+/* 3D stage: the drawing shows until the first 3D frame is ready */
+.stage3d { position: relative; width: 100%; }
+.stage3d-canvas { display: block; width: 100%; height: auto; aspect-ratio: 260 / 252; }
+.stage3d.is-3d > .couple { display: none; }
