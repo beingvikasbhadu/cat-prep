@@ -454,7 +454,7 @@
           '<p class="lede">Target: <b>' + total + ' correct</b> across three sections. Revise a little, play a quiz, collect kisses. I’m cheering for you every single day 💗</p>' +
           '<div class="hero-btns"><a class="btn primary" href="#/quiz">Play a quick quiz ✨</a><a class="btn" href="#/math">Revise a topic</a></div>' +
         '</div>' +
-        '<div class="hero-art">' + couple("loop") + '</div>' +
+        '<div class="hero-art">' + couple("loop") + '<p class="love-quote" id="loveQuote">' + esc(fill(LOVE.quotes[Math.floor(Date.now() / 14000) % LOVE.quotes.length])) + '</p></div>' +
       '</section>' +
       (countdownToday() ? '<section class="banner"><span aria-hidden="true">⏳</span><p>' + esc(countdownToday()) + "</p></section>" : "") +
       '<section class="card note"><span class="note-pin" aria-hidden="true">💌</span><p class="sub">Note of the day from ' + esc(LOVE.me) + '</p><p class="note-text">' + esc(fill(note)) + '</p></section>' +
@@ -492,6 +492,14 @@
       '<p class="footnote">Made with 💗 by ' + esc(LOVE.me) + ' for ' + esc(LOVE.her) + ' · plan updated ' + esc(shortDate(T.updated)) + '</p>';
   }
   function wireHome() {
+    const q = document.getElementById("loveQuote");
+    if (q) {
+      const timer = setInterval(() => {
+        if (!q.isConnected) return clearInterval(timer);
+        q.classList.add("fade");
+        setTimeout(() => { q.textContent = fill(LOVE.quotes[Math.floor(Date.now() / 14000) % LOVE.quotes.length]); q.classList.remove("fade"); }, 400);
+      }, 14000);
+    }
     const art = app.querySelector(".hero-art");
     if (art) art.addEventListener("click", e => { heartBurst(e.clientX, e.clientY, 10); toast(fill(pick(LOVE.correct, "tap"))); });
   }

@@ -199,6 +199,27 @@
     renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
     renderer.setClearColor(0x000000, 0);
     const canvas = renderer.domElement; canvas.className = "stage3d-canvas";
+    const talkLines = ((window.LOVE && window.LOVE.talk) || {})[mode === "hug" ? "hug" : "kiss"] || [];
+    const talk = document.createElement("div"); talk.className = "stage-talk"; talk.setAttribute("aria-live", "polite");
+    const bubbles = { v: document.createElement("div"), k: document.createElement("div") };
+    bubbles.v.className = "bubble from-v"; bubbles.k.className = "bubble from-k";
+    talk.append(bubbles.v, bubbles.k);
+    const headPos = new THREE.Vector3();
+    function speak(t) {
+      ["v", "k"].forEach(who => {
+        const line = talkLines.find(l => l.who === who && t >= l.from && t < l.to);
+        const el = bubbles[who];
+        const text = line ? line.text.replace(/\{name\}/g, (window.LOVE && LOVE.her) || "") : "";
+        if (el.dataset.text !== text) { el.dataset.text = text; el.textContent = text; el.classList.toggle("on", !!text); }
+        if (!text) return;
+        const c = who === "v" ? V : K;
+        c.head.getWorldPosition(headPos); headPos.y += 0.33; headPos.project(camera);
+        // keep the whole bubble inside the scene (it sits above the point, so its height is the minimum top)
+        const hh = talk.clientHeight || 1, minTop = (el.offsetHeight + 6) / hh * 100;
+        const x = Math.max(18, Math.min(82, (headPos.x + 1) * 50)), y = Math.max(minTop, (1 - headPos.y) * 50);
+        el.style.left = x + "%"; el.style.top = y + "%";
+      });
+    }
     canvas.setAttribute("role", "img"); canvas.setAttribute("aria-label", host.getAttribute("data-label") || "3D cartoon of Vikas and Khushi");
 
     // ---------- poses ----------
@@ -236,6 +257,24 @@
       h.scale.setScalar(s); h.position.set(x, y + k * 0.15, z); h.rotation.y = Math.sin(k * 6) * 0.4;
     }
 
+    const DOWN = new THREE.Vector3(0, -1, 0), tA = new THREE.Vector3(), tB = new THREE.Vector3(), tM = new THREE.Vector3(), tL = new THREE.Vector3(), tQ = new THREE.Quaternion();
+    // point a straight arm at a world-space target (blended by amt)
+    function aim(a, target, amt) {
+      const parent = a.sh.parent;
+      tL.copy(target); parent.worldToLocal(tL); tL.sub(a.sh.position).normalize();
+      tQ.setFromUnitVectors(DOWN, tL);
+      a.sh.quaternion.slerp(tQ, amt);
+      a.el.rotation.set(0, 0, 0);
+    }
+    // his right hand and her right hand meet halfway between their shoulders (dropping lower as they get closer)
+    function holdHands(amt) {
+      scene.updateMatrixWorld(true);
+      V.armR.sh.getWorldPosition(tA); K.armR.sh.getWorldPosition(tB);
+      const d = tA.distanceTo(tB), L = 0.6;
+      tM.copy(tA).add(tB).multiplyScalar(0.5);
+      tM.y -= Math.max(0.08, Math.sqrt(Math.max(0, L * L - (d / 2) * (d / 2))));
+      aim(V.armR, tM, amt); aim(K.armR, tM, amt);
+    }
     function kissStory(t, loop) {
       resetLimbs(V); resetLimbs(K);
       // positions and turns through the story
@@ -275,9 +314,9 @@
       if (loop && t > 9.2) walk(K, t * 8, 0.6);
       if (kUp > 0) { K.legs.forEach(l => (l.rotation.x = 0)); }
       // her reaching arm (right arm, toward him), then holding hands while she pulls
-      const reach = seg(t, 4.5, 5.0) * (1 - seg(t, 6.0, 6.5));
-      K.armR.sh.rotation.x = -1.15 * reach; K.armR.sh.rotation.z = -0.08 - 0.25 * reach;
-      V.armR.sh.rotation.x = Math.min(V.armR.sh.rotation.x, -0.7 * seg(t, 4.8, 5.2) * (1 - seg(t, 6.0, 6.5)));
+      // she reaches out and catches his hand, holds it while pulling him back, then lets go for the kiss
+      const grab = seg(t, 4.45, 4.95) * (1 - seg(t, 6.0, 6.45));
+      if (grab > 0) holdHands(grab);
       // hands rest on each other during the kiss
       const hold = seg(t, 6.4, 7.0) * (loop ? 1 - seg(t, 9.2, 9.7) : 1);
       V.armR.sh.rotation.x += -0.45 * hold; V.armR.el.rotation.x = -0.6 * hold;
@@ -334,9 +373,10 @@
     }
 
     function frame(t) {
-      if (mode === "hug") hugStory(Math.min(t / 1.3, 4.6));
-      else if (mode === "kiss") kissStory(Math.min(t / 1.4, 9.3), false);
-      else kissStory((t / 1.4) % 10, true);
+      const st = mode === "hug" ? Math.min(t / 1.3, 4.6) : mode === "kiss" ? Math.min(t / 1.4, 9.3) : (t / 1.4) % 10;
+      if (mode === "hug") hugStory(st); else kissStory(st, mode !== "kiss");
+      scene.updateMatrixWorld(true);
+      speak(st);
       shadows[0].position.set(V.root.position.x, 0.002, V.root.position.z);
       shadows[1].position.set(K.root.position.x, 0.002, K.root.position.z);
       renderer.render(scene, camera);
@@ -366,6 +406,7 @@
     host.appendChild(canvas);
     io.observe(host); ro.observe(host);
     frame(FREEZE != null ? FREEZE : reduceMotion ? (mode === "hug" ? 4.6 : 0) : 0);
+    host.appendChild(talk);
     host.classList.add("is-3d");
     kick();
 
@@ -375,7 +416,7 @@
         io.disconnect(); ro.disconnect(); document.removeEventListener("visibilitychange", onVis);
         disposables.forEach(d => d.dispose && d.dispose());
         renderer.dispose(); renderer.forceContextLoss && renderer.forceContextLoss();
-        canvas.remove(); host.classList.remove("is-3d");
+        canvas.remove(); talk.remove(); host.classList.remove("is-3d");
       }
     };
   }

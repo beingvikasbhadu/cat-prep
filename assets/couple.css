@@ -94,3 +94,15 @@
 .stage3d { position: relative; width: 100%; }
 .stage3d-canvas { display: block; width: 100%; height: auto; aspect-ratio: 260 / 252; }
 .stage3d.is-3d > .couple { display: none; }
+
+/* speech bubbles over the 3D couple */
+.stage-talk { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+.bubble { position: absolute; transform: translate(-50%, -100%) scale(.85); opacity: 0; max-width: 62%; width: max-content; padding: 6px 11px; border-radius: 16px; background: #fff; color: #4a2639; border: 2px solid #ffb3cb; font: 800 clamp(11px, 3.2vw, 14px)/1.35 var(--font); text-align: center; box-shadow: 0 6px 16px rgba(255, 79, 139, .18); transition: opacity .25s, transform .25s cubic-bezier(.2, .8, .3, 1.4); }
+.bubble.on { opacity: 1; transform: translate(-50%, -100%) scale(1); }
+.bubble::after { content: ""; position: absolute; left: 50%; bottom: -7px; width: 10px; height: 10px; background: #fff; border-right: 2px solid #ffb3cb; border-bottom: 2px solid #ffb3cb; transform: translateX(-50%) rotate(45deg); }
+.bubble.from-k { border-color: #c9b8ff; }
+.bubble.from-k::after { border-color: #c9b8ff; }
+:root[data-theme="dark"] .bubble, :root[data-theme="dark"] .bubble::after { background: #3a2433; color: #ffe8f1; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .bubble, :root:not([data-theme="light"]) .bubble::after { background: #3a2433; color: #ffe8f1; } }
+.love-quote { margin: 6px auto 0; text-align: center; font-family: var(--display); font-size: clamp(15px, 3.6vw, 18px); color: var(--accent); max-width: 30ch; transition: opacity .4s; }
+.love-quote.fade { opacity: 0; }

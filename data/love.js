@@ -390,6 +390,38 @@ window.LOVE = {
   ],
 
   // Our songs: old Bollywood dedications. yt = the official YouTube video (opens on YouTube); without it, a YouTube search opens.
+  // What they say in the 3D animation. who: "v" = Vikas, "k" = Khushi. from/to are story seconds
+  // (kiss story runs 0–10 and plays at 1.4× slower; hug runs 0–4.6 at 1.3× slower).
+  talk: {
+    kiss: [
+      { who: "v", from: 0.05, to: 1.25, text: "Baby, ek baat bolun? 🙈" },
+      { who: "k", from: 0.75, to: 1.45, text: "Haan bolo na 🥰" },
+      { who: "k", from: 2.2, to: 3.2, text: "Ye kya tha?! 😳💗" },
+      { who: "v", from: 2.8, to: 4.3, text: "Kuch nahi… bas aise hi 🙈" },
+      { who: "k", from: 4.4, to: 5.5, text: "Ruko na… kahan ja rahe ho? 🥺" },
+      { who: "v", from: 5.45, to: 6.5, text: "Tumhare paas hi toh aa raha hoon, baby 💗" },
+      { who: "v", from: 7.0, to: 8.3, text: "I love you, baby 💖" },
+      { who: "k", from: 8.2, to: 9.6, text: "I love you too, meri jaan 🥰" }
+    ],
+    hug: [
+      { who: "v", from: 0, to: 1.3, text: "Idhar aao, baby 🤗" },
+      { who: "k", from: 1.4, to: 2.9, text: "Bas aise hi pakad ke rakhna 🥺💗" },
+      { who: "v", from: 2.9, to: 4.6, text: "Hamesha, baby. Promise 💖" }
+    ]
+  },
+
+  // Quotes under the animation on the home page (one per replay)
+  quotes: [
+    "Baby, tum meri har dua ka jawaab ho 💗",
+    "Duniya ki saari khushiyan ek taraf, aur meri Khushi ek taraf 💞",
+    "Baby, tumhare saath har pal ek pyaari si kahaani hai 📖",
+    "Main tumhe har roz thoda aur chahta hoon, baby 🥰",
+    "Tum ho toh sab kuch hai, baby. Tum nahi toh kuch bhi nahi 🌸",
+    "Mera sukoon, meri muskaan, meri baby: sab tum ho 💖",
+    "Baby, tumhari ek hasi meri saari thakaan utaar deti hai ✨",
+    "Har janam mein bas tum, baby 💍"
+  ],
+
   // Our special song: featured on the home page and at the top of the songs
   specialSong: { title: "Humko Pyar Hua", film: "Ready", year: 2011, yt: "EB25MOJIHRQ", note: "Hamara gaana 💖 Jab bhi ye suno, bas itna yaad rakhna: main hamesha tumhare saath hoon." },
 
