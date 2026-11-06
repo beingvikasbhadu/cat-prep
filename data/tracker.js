@@ -1,6 +1,6 @@
 // Your revision-plan tracker. Claude updates this file after every test report you paste in chat.
 window.TRACKER = {
-  updated: "2026-11-06",
+  updated: "2026-11-07",
   examDate: "2026-11-29",
   targets: { qa: 12, varc: 15, lrdi: 12 },
   goalNote: "QA: attempt 14–15 at about 85% accuracy (12 right + 2 wrong = 34 marks).",
@@ -13,8 +13,8 @@ window.TRACKER = {
     "ratio": { status: "In progress", score: "Set 1: 15/20 (L1 5/5, L2 6/9, L3 2/6) · L2–3 took 52 min vs 36 target · all 7 wrong ones redone 3 Nov · Fresh check 5 Nov: 4.5/6, missed partnership and coins", weak: "Variation (√n, x²), partnership with mid-year changes, two-case k-method, continued proportion, coins (count vs value)" },
     "mixtures": { status: "In progress", score: "Set 1 (with Averages): 12/20 overall (L1 3/5, L2 4/9, L3 5/6) in 61 min vs 40 target · mixture questions 5/10 · Fresh check 5 Nov: 7/8 in 23 min vs 16 · Two-mixtures drill 5 Nov: 2/2", weak: "Alligation when the mean must be worked out first (cost price after profit, milk fraction); replacement solved for x; water added vs water after" },
     "averages": { status: "In progress", score: "Set 1 (with Mixtures): average questions 7/10 · 13 of 20 questions over target time · Fresh check 5 Nov: overlap and consecutive both right", weak: "Overlapping groups; weighted average of two groups (use alligation); consecutive odd numbers" },
-    "tsd": { status: "In progress", score: "Set 1 (5–6 Nov): 11/15 TSD (L1 4/4, L2 5/7, L3 2/4) in 54 min vs 34 target · 2 warm-ups skipped · Fresh check 6 Nov: 5/8 in 32 min vs 18", weak: "Two trains in the same direction; boats from distance and time; '3 hours more' equation; accident / delay" },
-    "time-work": { status: "Not started", score: "", weak: "" },
+    "tsd": { status: "In progress", score: "Set 1 (5–6 Nov): 11/15 TSD (L1 4/4, L2 5/7, L3 2/4) in 54 min vs 34 target · 2 warm-ups skipped · Fresh check 6 Nov: 5/8 in 32 min vs 18 · Set 2 (races, circular tracks) kept for the weekly review", weak: "Two trains in the same direction; boats from distance and time; '3 hours more' equation; accident / delay" },
+    "time-work": { status: "In progress", score: "Set 1 (with pipes, 7 Nov): 11/12 (L1 3/3, L2 6/6, L3 2/3) in 21:40 vs 24 target · 2 warm-ups skipped", weak: "Men and women equivalence (or / and type)" },
     "equations": { status: "Not started", score: "", weak: "" },
     "inequalities": { status: "Not started", score: "", weak: "" },
     "functions": { status: "Not started", score: "", weak: "" },
@@ -40,14 +40,17 @@ window.TRACKER = {
     { what: "Overlapping groups: the shared item is counted twice", found: "A&M Set 1, Q2", fix: "Shared item = sum of group 1 + sum of group 2 − total", status: "Practising" },
     { what: "Repeated replacement, solving for x", found: "A&M Set 1, Q20", fix: "Milk left ÷ start = (1 − x/V)ⁿ, then take the nth root", status: "Practising" },
     { what: "Answering a different quantity than asked (total vs added, rounded vs exact)", found: "A&M Set 1, Q5, Q9; TSD Set 1 Q16 (read '3 hours more' as '3 hours'); TSD fresh check Q5 (gave the boat speed 10, asked the stream speed 2)", fix: "Before writing the answer, reread the last line of the question; underline 'more', 'than', 'each', 'total'", status: "Practising" },
-    { what: "Speed: too many questions over target time", found: "Ratio Set 1 (Q8 7 min, Q19 9 min); A&M Set 1: 61 min vs 40; Ratio fresh check: 30 min vs 16; TSD Set 1: 54 min vs 34, Q17 13.5 min with no answer; TSD fresh check: 32 min vs 18 (Q6 7.5 min)", fix: "Leave a question at 3 min; redo slow ones untimed, then timed", status: "Open" },
+    { what: "Speed: too many questions over target time", found: "Ratio Set 1 (Q8 7 min, Q19 9 min); A&M Set 1: 61 min vs 40; Ratio fresh check: 30 min vs 16; TSD Set 1: 54 min vs 34, Q17 13.5 min with no answer; TSD fresh check: 32 min vs 18 (Q6 7.5 min); Time & Work Set 1 (7 Nov): 21.7 min vs 24, first set under target", fix: "Leave a question at 3 min; redo slow ones untimed, then timed", status: "Open" },
     { what: "Coins: ratio of values vs ratio of counts", found: "Ratio Set 1, Q7; fresh check 5 Nov Q6 blank after 7 min; TSD fresh check Q1 wrong (110, answer 90)", fix: "Values ratio: split the ₹ first, then ÷ coin value. Counts ratio: value of one set first", status: "Open" },
     { what: "Calculation slips (unit conversion, division)", found: "Ratio Set 1 Q18; A&M Set 1 Q12; TSD Set 1 Q9, Q12; TSD fresh check Q3, Q4 right", fix: "Write every step on paper; before marking, rough-check the size of the answer (300 m at about 3 m/s is about 100 s)", status: "Open" },
     { what: "Accident / delay: slower speed for part of the trip", found: "TSD Set 1, Q17 (blank after 13.5 min); TSD fresh check Q7 right, Q8 wrong (90, answer 60)", fix: "Split the wording into Case 1 and Case 2. Extra per km: speed a/b → extra (b − a)/a of normal time (3/5 → 2/3, 4/5 → 1/4, 2/3 → 1/2). Gap between the two late times = that extra on the shifted km", status: "Practising" }
+,
+    { what: "Men and women equivalence (or / and type)", found: "Time & Work Set 1, Q14 (answered 21.7, answer 9)", fix: "OR = two equal teams: 12 men = 18 women → 1 man = 1.5 women. Turn everyone into women, then effort ÷ team", status: "Open" }
   ],
 
   // Newest first. Redo each after 1, 3 and 7 days in the warm-up.
   errorLog: [
+    { date: "7 Nov", where: "Time & Work Set 1, Q14", topic: "Time & Work", reason: "Cause not found yet (answered 21.7)", takeaway: "1 man = 1.5 women → 8 men + 16 women = 28 women. Work 18 × 14 = 252 → 252 ÷ 28 = 9 days" },
     { date: "6 Nov", where: "TSD fresh check, Q8", topic: "TSD", reason: "Cause not found yet (answered 90)", takeaway: "4/5 speed → extra 1/4 per km. 15 min saved = 1/4 × normal time for 60 km → 60 min → 60 km/h" },
     { date: "6 Nov", where: "TSD fresh check, Q5", topic: "TSD", reason: "Answered a different quantity (boat speed, not stream)", takeaway: "Down 12, up 8: boat = (12 + 8)/2 = 10, stream = (12 − 8)/2 = 2. Reread the last line" },
     { date: "6 Nov", where: "TSD fresh check, Q1", topic: "Ratio", reason: "Cause not found yet (answered 110)", takeaway: "₹90 as 4 : 3 : 2 → ₹40, ₹30, ₹20 → ÷ ₹2, ₹1, ₹0.50 → 20 + 30 + 40 = 90" },
@@ -84,7 +87,7 @@ window.TRACKER = {
       { date: "2026-11-04", text: "Diagnostic: one past CAT QA section (22 Qs, 40 min) + analysis, then SI & CI set 1", done: false },
       { date: "2026-11-05", text: "Averages + Mixtures & alligation: Set 1 12/20 in 61 min (done 4 Nov), fresh check 7/8 in 23 min", done: true },
       { date: "2026-11-06", text: "Time-Speed-Distance 1: relative speed, trains, boats & streams. Set 1 done: 11/15 TSD in 54 min; fresh check 5/8 in 32 min", done: true },
-      { date: "2026-11-07", text: "Time-Speed-Distance 2: races, circular tracks set + Time & Work notes (pipes, efficiency)", done: false },
+      { date: "2026-11-07", text: "Time & Work notes + Set 1 done: 11/12 in 21:40 vs 24 (TSD 2 races set moved to the weekly review)", done: true },
       { date: "2026-11-08", text: "Time & Work set + weekly review: redo this week's error log", done: false },
       { date: "2026-11-09", text: "Arithmetic PYQ day: mixed past CAT questions (incl. P&L, %, SI & CI) + Arithmetic sectional, then fix the weakest types", done: false }
     ]},
