@@ -1,6 +1,6 @@
 // Your revision-plan tracker. Claude updates this file after every test report you paste in chat.
 window.TRACKER = {
-  updated: "2026-11-04",
+  updated: "2026-11-06",
   examDate: "2026-11-29",
   targets: { qa: 12, varc: 15, lrdi: 12 },
   goalNote: "QA: attempt 14–15 at about 85% accuracy (12 right + 2 wrong = 34 marks).",
@@ -10,10 +10,10 @@ window.TRACKER = {
     "percentages": { status: "In progress", score: "Set 1: not sent yet", weak: "Successive % change" },
     "profit-loss": { status: "In progress", score: "Set 1, Set 2 (hard): not sent yet", weak: "Price–demand maximisation" },
     "si-ci": { status: "Not started", score: "Set 1 given 3 Nov", weak: "" },
-    "ratio": { status: "In progress", score: "Set 1: 15/20 (L1 5/5, L2 6/9, L3 2/6) · L2–3 took 52 min vs 36 target · all 7 wrong ones redone 3 Nov", weak: "Variation (√n, x²), partnership with mid-year changes, two-case k-method, continued proportion, coins (count vs value)" },
-    "mixtures": { status: "Not started", score: "Set 1 (with Averages) given 3 Nov", weak: "" },
-    "averages": { status: "Not started", score: "Set 1 (with Mixtures) given 3 Nov", weak: "" },
-    "tsd": { status: "Not started", score: "", weak: "" },
+    "ratio": { status: "In progress", score: "Set 1: 15/20 (L1 5/5, L2 6/9, L3 2/6) · L2–3 took 52 min vs 36 target · all 7 wrong ones redone 3 Nov · Fresh check 5 Nov: 4.5/6, missed partnership and coins", weak: "Variation (√n, x²), partnership with mid-year changes, two-case k-method, continued proportion, coins (count vs value)" },
+    "mixtures": { status: "In progress", score: "Set 1 (with Averages): 12/20 overall (L1 3/5, L2 4/9, L3 5/6) in 61 min vs 40 target · mixture questions 5/10 · Fresh check 5 Nov: 7/8 in 23 min vs 16 · Two-mixtures drill 5 Nov: 2/2", weak: "Alligation when the mean must be worked out first (cost price after profit, milk fraction); replacement solved for x; water added vs water after" },
+    "averages": { status: "In progress", score: "Set 1 (with Mixtures): average questions 7/10 · 13 of 20 questions over target time · Fresh check 5 Nov: overlap and consecutive both right", weak: "Overlapping groups; weighted average of two groups (use alligation); consecutive odd numbers" },
+    "tsd": { status: "In progress", score: "Set 1 (5–6 Nov): 11/15 TSD (L1 4/4, L2 5/7, L3 2/4) in 54 min vs 34 target · 2 warm-ups skipped", weak: "Two trains in the same direction; boats from distance and time; '3 hours more' equation; accident / delay" },
     "time-work": { status: "Not started", score: "", weak: "" },
     "equations": { status: "Not started", score: "", weak: "" },
     "inequalities": { status: "Not started", score: "", weak: "" },
@@ -32,15 +32,38 @@ window.TRACKER = {
   weaknesses: [
     { what: "Price–demand maximisation: profit = (a + x)(b − x)", found: "P&L Set 2, Q15", fix: "Find where each bracket becomes 0; the maximum is halfway between. Drill P1–P3", status: "Open" },
     { what: "Successive % change: stopped at the ab/100 term", found: "Percentages Set 1, Q1(b)", fix: "100 method: 100 → 120 → 108, so the net change is +8%", status: "Open" },
-    { what: "Variation: treated a √n or x² rule as a straight-line rule", found: "Ratio Set 1, Q9, Q20", fix: "Write the equation with k first (speed = 42 − k√n), find k from the given case, then use it", status: "Practising" },
-    { what: "Partnership with money added or withdrawn mid-year", found: "Ratio Set 1, Q10", fix: "Draw a 12-month line; capital × months for each piece, then add", status: "Practising" },
-    { what: "Equal ratios (k-method): forgot the second case", found: "Ratio Set 1, Q15", fix: "Always check a + b + c = 0 as well; it gives k = −1", status: "Practising" },
-    { what: "Continued proportion", found: "Ratio Set 1, Q16", fix: "4 terms: d = a × r³. Find r, then b = ar and c = ar²", status: "Practising" },
-    { what: "Speed: 8 of 15 questions over target time", found: "Ratio Set 1 (Q8 7 min, Q19 9 min)", fix: "Leave a question at 3 min; redo slow ones untimed, then timed", status: "Open" }
+    { what: "Variation: treated a √n or x² rule as a straight-line rule", found: "Ratio Set 1, Q9, Q20; fresh check 5 Nov: Q1(a) and Q2 right, Q1(b) wrong (answered 9 coaches, max is 10)", fix: "Write the equation with k first (speed = 42 − k√n), find k from the given case, then use it", status: "Practising" },
+    { what: "Partnership with money added or withdrawn mid-year", found: "Ratio Set 1, Q10; fresh check 5 Nov Q3 wrong again (answered ₹23,250, answer ₹19,375)", fix: "Draw a 12-month line; capital × months for each piece, then add", status: "Open" },
+    { what: "Equal ratios (k-method): forgot the second case", found: "Ratio Set 1, Q15; fresh check 5 Nov Q4 right, both values (1 of 3)", fix: "Always check a + b + c = 0 as well; it gives k = −1", status: "Practising" },
+    { what: "Continued proportion", found: "Ratio Set 1, Q16; fresh check 5 Nov Q5 right (1 of 3)", fix: "4 terms: d = a × r³. Find r, then b = ar and c = ar²", status: "Practising" },
+    { what: "Alligation when the mean must be worked out first", found: "A&M Set 1, Q8, Q10, Q14; fresh check Q2 (two mixtures) wrong again; drill 5 Nov Q7 and Q8 right (2 of 3)", fix: "Get both 'prices' and the mean before the cross: CP = SP ÷ (1 + profit%), milk as a fraction, group averages as prices", status: "Practising" },
+    { what: "Overlapping groups: the shared item is counted twice", found: "A&M Set 1, Q2", fix: "Shared item = sum of group 1 + sum of group 2 − total", status: "Practising" },
+    { what: "Repeated replacement, solving for x", found: "A&M Set 1, Q20", fix: "Milk left ÷ start = (1 − x/V)ⁿ, then take the nth root", status: "Practising" },
+    { what: "Answering a different quantity than asked (total vs added, rounded vs exact)", found: "A&M Set 1, Q5, Q9; TSD Set 1 Q16 (read '3 hours more' as '3 hours')", fix: "Before writing the answer, reread the last line of the question; underline 'more', 'than', 'each', 'total'", status: "Practising" },
+    { what: "Speed: too many questions over target time", found: "Ratio Set 1 (Q8 7 min, Q19 9 min); A&M Set 1: 61 min vs 40; Ratio fresh check: 30 min vs 16; TSD Set 1: 54 min vs 34, Q17 13.5 min with no answer", fix: "Leave a question at 3 min; redo slow ones untimed, then timed", status: "Open" },
+    { what: "Coins: ratio of values vs ratio of counts", found: "Ratio Set 1, Q7; fresh check 5 Nov Q6 blank after 7 min", fix: "Values ratio: split the ₹ first, then ÷ coin value. Counts ratio: value of one set first", status: "Open" },
+    { what: "Calculation slips (unit conversion, division)", found: "Ratio Set 1 Q18; A&M Set 1 Q12; TSD Set 1 Q9, Q12", fix: "Write every step on paper; before marking, rough-check the size of the answer (300 m at about 3 m/s is about 100 s)", status: "Open" },
+    { what: "Accident / delay: slower speed for part of the trip", found: "TSD Set 1, Q17 (blank after 13.5 min)", fix: "Split the wording into Case 1 and Case 2. The gap between the two late times = extra time lost on the shifted km (at 3/5 speed, 2/3 extra per km)", status: "Open" }
   ],
 
   // Newest first. Redo each after 1, 3 and 7 days in the warm-up.
   errorLog: [
+    { date: "6 Nov", where: "TSD Set 1, Q17", topic: "TSD", reason: "Concept + tricky wording; blank after 13.5 min", takeaway: "50 km more at full speed saves 40 min = 2/3 of those 50 km's normal time → 50 km takes 1 h → 50 km/h" },
+    { date: "6 Nov", where: "TSD Set 1, Q16", topic: "TSD", reason: "Question not read properly", takeaway: "'3 hours more' = up time − down time = 3 → b = 9 (6 km/h up: 6 h, 12 km/h down: 3 h)" },
+    { date: "6 Nov", where: "TSD Set 1, Q12", topic: "TSD", reason: "Calculation slip", takeaway: "Turn distance + time into speeds first: down 15, up 10 → boat (15 + 10)/2 = 12.5" },
+    { date: "6 Nov", where: "TSD Set 1, Q9", topic: "TSD", reason: "Calculation slip", takeaway: "Same direction: 10 km/h = 25/9 m/s; 300 ÷ 25/9 = 108 s" },
+    { date: "5 Nov", where: "Ratio fresh check, Q6", topic: "Ratio", reason: "Left blank after 7 min", takeaway: "Values 1 : 2 : 3 → ₹30, ₹60, ₹90 → ÷ ₹1, ₹0.50, ₹0.25 → 30 + 120 + 360 = 510" },
+    { date: "5 Nov", where: "Ratio fresh check, Q3", topic: "Ratio", reason: "Concept (likely counted Q's ₹40,000 for 6 months, not 3)", takeaway: "Q joins after month 3: 40k × 3 + 30k × 6 = 3.0L vs P 4.2L → 7 : 5 → ₹19,375" },
+    { date: "5 Nov", where: "Ratio fresh check, Q1(b)", topic: "Ratio", reason: "Boundary slip (answered 9)", takeaway: "Plug in: 10 coaches → 60 − 50 = 10 km/h, still moves; 11 → 60 − 60.5 < 0, stops. Max 10" },
+    { date: "5 Nov", where: "A&M Fresh check, Q2", topic: "Mixtures", reason: "Concept (two mixtures, answered 1:1)", takeaway: "Milk fractions over one denominator: 5/8, 2/8, mean 4/8 → P : Q = (4 − 2) : (5 − 4) = 2 : 1" },
+    { date: "4 Nov", where: "A&M Set 1, Q20", topic: "Mixtures", reason: "Left blank after 1 min", takeaway: "Work backwards: (1 − x/60)² = 38.4/60 = 0.64 → 0.8 → x = 12" },
+    { date: "4 Nov", where: "A&M Set 1, Q14", topic: "Mixtures", reason: "Left blank after 5.5 min", takeaway: "Remove the profit first: CP = 286/1.1 = 260; cross → 40 : 60 = 2 : 3" },
+    { date: "4 Nov", where: "A&M Set 1, Q12", topic: "Averages", reason: "Calculation slip (likely stepped by 1)", takeaway: "Odd numbers go up in 2s: 33 is the 4th of 7, so 33 + 3 × 2 = 39" },
+    { date: "4 Nov", where: "A&M Set 1, Q10", topic: "Mixtures", reason: "Left blank after 6.5 min", takeaway: "Milk fractions 3/4 and 3/8, mean 1/2 on the cross → 1/8 : 1/4 = 1 : 2" },
+    { date: "4 Nov", where: "A&M Set 1, Q9", topic: "Mixtures", reason: "Rounded (58 vs 58.32)", takeaway: "TITA needs the exact value: 80 × 0.9³ = 58.32" },
+    { date: "4 Nov", where: "A&M Set 1, Q8", topic: "Averages", reason: "Left blank after 3.5 min", takeaway: "Weighted average = alligation: boys : girls = (80 − 75) : (75 − 72) = 5 : 3 → 15 girls" },
+    { date: "4 Nov", where: "A&M Set 1, Q5", topic: "Mixtures", reason: "Misread the ask (likely)", takeaway: "Milk stays 48 L → total 64 L → add 4 L. 16 L is the water after, not the water added" },
+    { date: "4 Nov", where: "A&M Set 1, Q2", topic: "Averages", reason: "Cause not found (answered 18)", takeaway: "First 6 + last 6 = 606 counts the 6th twice: 606 − 550 = 56" },
     { date: "3 Nov", where: "Ratio Set 1, Q20", topic: "Ratio", reason: "Concept", takeaway: "Fall ∝ √n, not a fixed amount per wagon: 18 = 3k, k = 6; 6√n = 42 → n = 49, so max 48" },
     { date: "3 Nov", where: "Ratio Set 1, Q18", topic: "Ratio", reason: "Calculation slip (likely)", takeaway: "4 + 9 + 25 = 38, not 48: value 38,000, loss ₹62,000" },
     { date: "3 Nov", where: "Ratio Set 1, Q16", topic: "Ratio", reason: "Cause not found; redone right 3 Nov", takeaway: "r³ = 192/3 = 64, r = 4; b = 12, c = 48 → 60" },
@@ -56,11 +79,11 @@ window.TRACKER = {
     { block: "Arithmetic", items: [
       { date: "2026-11-03", text: "Ratio, proportion & partnership Set 1, Levels 2–3: done, 8/15 in 52 min", done: true },
       { date: "2026-11-04", text: "Diagnostic: one past CAT QA section (22 Qs, 40 min) + analysis, then SI & CI set 1", done: false },
-      { date: "2026-11-05", text: "Averages + Mixtures & alligation", done: false },
-      { date: "2026-11-06", text: "Time-Speed-Distance 1: relative speed, trains, boats & streams", done: false },
-      { date: "2026-11-07", text: "Time-Speed-Distance 2: races, circular tracks + Time & Work (pipes, efficiency)", done: false },
-      { date: "2026-11-08", text: "Arithmetic PYQ day: 30 mixed past CAT questions + Arithmetic sectional (15 Qs, 30 min)", done: false },
-      { date: "2026-11-09", text: "Fix the 3 weakest arithmetic types on the weakness board", done: false }
+      { date: "2026-11-05", text: "Averages + Mixtures & alligation: Set 1 12/20 in 61 min (done 4 Nov), fresh check 7/8 in 23 min", done: true },
+      { date: "2026-11-06", text: "Time-Speed-Distance 1: relative speed, trains, boats & streams. Set 1 done: 11/15 TSD in 54 min; fresh check next", done: false },
+      { date: "2026-11-07", text: "Time-Speed-Distance 2: races, circular tracks set + Time & Work notes (pipes, efficiency)", done: false },
+      { date: "2026-11-08", text: "Time & Work set + weekly review: redo this week's error log", done: false },
+      { date: "2026-11-09", text: "Arithmetic PYQ day: mixed past CAT questions (incl. P&L, %, SI & CI) + Arithmetic sectional, then fix the weakest types", done: false }
     ]},
     { block: "Algebra", items: [
       { date: "2026-11-10", text: "Linear + quadratic equations", done: false },
