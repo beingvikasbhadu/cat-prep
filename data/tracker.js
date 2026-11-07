@@ -52,7 +52,7 @@ window.TRACKER = {
   // Newest first. Redo each after 1, 3 and 7 days in the warm-up.
   errorLog: [
     { date: "7 Nov", where: "SI & CI Set 2, Q14", topic: "SI & CI", reason: "Calculation slip (likely; answered 12,500)", takeaway: "0.44x = 0.4(x + 5,000) = 0.4x + 2,000 → 0.04x = 2,000 → x = 50,000" },
-    { date: "7 Nov", where: "SI & CI Set 2, Q13", topic: "SI & CI", reason: "Cause not found yet (answered 1,230)", takeaway: "2,310 ÷ 2.1 = 1,100 → × 1.21 = 1,331. Check: 2,310 → 2,541, pay 1,331 → 1,210 → 1,331, pay → 0" },
+    { date: "7 Nov", where: "SI & CI Set 2, Q13", topic: "SI & CI", reason: "Concept: year-2 interest taken on (2,310 − x), not on (2,541 − x), so year-1 interest got no interest; that gives 1,320, then typed as 1,230", takeaway: "2,310 ÷ 2.1 = 1,100 → × 1.21 = 1,331. Check: 2,310 → 2,541, pay 1,331 → 1,210 → 1,331, pay → 0" },
     { date: "7 Nov", where: "Time & Work Set 1, Q14", topic: "Time & Work", reason: "Cause not found yet (answered 21.7)", takeaway: "1 man = 1.5 women → 8 men + 16 women = 28 women. Work 18 × 14 = 252 → 252 ÷ 28 = 9 days" },
     { date: "6 Nov", where: "TSD fresh check, Q8", topic: "TSD", reason: "Cause not found yet (answered 90)", takeaway: "4/5 speed → extra 1/4 per km. 15 min saved = 1/4 × normal time for 60 km → 60 min → 60 km/h" },
     { date: "6 Nov", where: "TSD fresh check, Q5", topic: "TSD", reason: "Answered a different quantity (boat speed, not stream)", takeaway: "Down 12, up 8: boat = (12 + 8)/2 = 10, stream = (12 − 8)/2 = 2. Reread the last line" },
