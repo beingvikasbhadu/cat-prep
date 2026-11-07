@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Arithmetic PYQ Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  /* Layout: one narrow exam-sheet column; a summary strip on top, one card per question, results at the end */
+  :root {
+    --bg: #eef1f5;
+    --surface: #ffffff;
+    --ink: #17202d;
+    --muted: #5a6577;
+    --line: #d6dce5;
+    --accent: #1f5fae;
+    --accent-ink: #ffffff;
+    --run: #0d7a5a;
+    --run-soft: #e3f4ee;
+    --warn: #a45f00;
+    --warn-soft: #fbf0dc;
+    --done-soft: #e8eef8;
+    --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+    --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e131a; --surface: #161d27; --ink: #e4e9f1; --muted: #98a3b4; --line: #29323f;
+      --accent: #74a9ef; --accent-ink: #0e131a; --run: #46c49b; --run-soft: #11291f;
+      --warn: #f0b04a; --warn-soft: #2e230f; --done-soft: #1a2434; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e131a; --surface: #161d27; --ink: #e4e9f1; --muted: #98a3b4; --line: #29323f;
+    --accent: #74a9ef; --accent-ink: #0e131a; --run: #46c49b; --run-soft: #11291f;
+    --warn: #f0b04a; --warn-soft: #2e230f; --done-soft: #1a2434; color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: var(--font-body); font-size: 15px; line-height: 1.55;
+  }
+  .wrap {
+    max-width: 760px; margin: 0 auto;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 28px 56px;
+    display: grid; gap: 18px;
+  }
+  header { display: grid; gap: 6px; }
+  .eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  h1 { font-family: var(--font-display); font-size: 30px; line-height: 1.15; margin: 0; text-wrap: balance; }
+  .lede { margin: 0; color: var(--muted); max-width: 62ch; }
+
+  .summary {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;
+  }
+  .stat { display: grid; gap: 2px; min-width: 0; }
+  .stat span { font-size: 12px; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+  .stat b { font-family: var(--font-mono); font-size: 22px; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .stat b.warn { color: var(--warn); }
+
+  h2 { font-family: var(--font-display); font-size: 19px; margin: 10px 0 0; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  h2 small { font-family: var(--font-body); font-size: 13px; color: var(--muted); font-weight: 500; }
+
+  .q {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    padding: 16px; display: grid; gap: 12px; border-left: 4px solid var(--line);
+  }
+  .q.running { border-left-color: var(--run); }
+  .q.over { border-left-color: var(--warn); }
+  .q.done { border-left-color: var(--accent); background: var(--done-soft); }
+  .q-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .qnum { font-family: var(--font-display); font-weight: 700; font-size: 17px; }
+  .chip {
+    font-size: 11.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted);
+  }
+  .chip.state { margin-left: auto; }
+  .chip.state.running { color: var(--run); border-color: var(--run); background: var(--run-soft); }
+  .chip.state.over { color: var(--warn); border-color: var(--warn); background: var(--warn-soft); }
+  .chip.state.done { color: var(--accent); border-color: var(--accent); }
+  .q p { margin: 0; max-width: 65ch; }
+  .opts { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; color: var(--ink); }
+
+  .controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .clock {
+    font-family: var(--font-mono); font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums;
+    min-width: 5.2ch; color: var(--ink);
+  }
+  .q.running .clock { color: var(--run); }
+  .q.over .clock { color: var(--warn); }
+  .target { font-size: 13px; color: var(--muted); font-family: var(--font-mono); }
+  .btns { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+  button {
+    font: 600 14px/1 var(--font-body); border-radius: 8px; padding: 10px 14px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); min-width: 92px; }
+  .q.running button.primary { background: var(--run); border-color: var(--run); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .answer { display: grid; gap: 4px; }
+  .answer label { font-size: 12.5px; color: var(--muted); font-weight: 600; }
+  .answer input {
+    font: 15px var(--font-body); padding: 9px 11px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--bg); color: var(--ink); width: 100%;
+  }
+
+  .results { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 12px; }
+  .results p { margin: 0; color: var(--muted); }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  textarea {
+    width: 100%; min-height: 190px; font: 13px/1.5 var(--font-mono); padding: 10px;
+    border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+  }
+  .toast { font-size: 13px; color: var(--run); font-weight: 600; align-self: center; }
+  .results p.sync { font-size: 13px; font-weight: 600; color: var(--muted); }
+  .results p.sync.ok { color: var(--run); }
+  .results p.sync.bad { color: var(--warn); }
+
+  @media (max-width: 520px) {
+    h1 { font-size: 25px; }
+    .summary { grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 12px; }
+    .stat b { font-size: 18px; }
+    .btns { margin-left: 0; width: 100%; }
+    .btns button { flex: 1; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .q { transition: border-color .2s, background-color .2s; }
+  }
+  body { margin: 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">CAT 2026 · Arithmetic · Real CAT 2023 and 2024 questions</div>
+    <h1>20 past-paper questions, one timer each</h1>
+    <p class="lede">Press Start when you begin reading a question and Done when you have your answer. Starting a new question pauses the one that is running, just like moving on in the exam. Your times and answers stay saved in this browser. For MCQs, type the letter or the value. Real CAT pace is about 1:50 a question.</p>
+  </header>
+
+  <section class="summary" aria-label="Progress">
+    <div class="stat"><span>Done</span><b id="sumDone">0 / 20</b></div>
+    <div class="stat"><span>Total time</span><b id="sumTime">0:00</b></div>
+    <div class="stat"><span>Over target</span><b id="sumOver">0</b></div>
+  </section>
+
+  <div id="list"></div>
+
+  <section class="results" aria-labelledby="resHead">
+    <h2 id="resHead">Send your results</h2>
+    <p>When you finish, press <b>Copy results</b> and send the copied text to Vikas. Every answer will be checked, mistakes explained, and your tracker updated.</p>
+    <p class="sync" id="sync" role="status" hidden></p>
+    <div class="row">
+      <button class="primary" id="copyBtn" type="button">Copy results</button>
+      <button id="submitBtn" type="button" hidden>Submit</button>
+      <button id="resetAll" type="button">Clear all timers</button>
+      <span class="toast" id="toast" role="status"></span>
+    </div>
+    <textarea id="copyOut" readonly hidden aria-label="Results text"></textarea>
+  </section>
+</div>
+
+<script>
+const QS = [
+  {"level": 1, "n": 1, "type": "MCQ · CAT 2024 S1", "text": "The selling price of a product is fixed to give a 40% profit. If the product had cost 40% less and had been sold for ₹5 less, the profit would have been 50%. What is the original selling price (₹)?", "opts": ["(a) 10", "(b) 15", "(c) 20", "(d) 14"]},
+  {"level": 1, "n": 2, "type": "MCQ · CAT 2024 S1", "text": "A glass is full of milk. Two-thirds of it is poured out and replaced with water. This is repeated three more times. What is the final ratio of milk to water?", "opts": ["(a) 1:27", "(b) 1:81", "(c) 1:26", "(d) 1:80"]},
+  {"level": 1, "n": 3, "type": "MCQ · CAT 2023 S2", "text": "In a company, 20% of the employees work in manufacturing. Their total salary is one-sixth of the total salary of all employees. What is the ratio of the average salary of manufacturing employees to that of non-manufacturing employees?", "opts": ["(a) 4:5", "(b) 5:6", "(c) 5:4", "(d) 6:5"]},
+  {"level": 1, "n": 4, "type": "MCQ · CAT 2024 S1", "text": "₹10,000 is deposited in Bank A at 5% simple interest for some years. The maturity amount is then deposited in Bank B for 5 years at 6% simple interest. The interests from A and B are in the ratio 10 : 13. For how many years was the money in Bank A?", "opts": ["(a) 4", "(b) 3", "(c) 6", "(d) 5"]},
+  {"level": 1, "n": 5, "type": "TITA · CAT 2024 S1", "text": "There are four numbers. The average of the first two is 1 more than the first number. The average of the first three is 2 more than the average of the first two. The average of all four is 3 more than the average of the first three. Find the difference between the largest and the smallest number."},
+  {"level": 2, "n": 6, "type": "MCQ · CAT 2024 S1", "text": "In September, the incomes of Kamal, Amal and Vimal are in the ratio 8 : 6 : 5. They rent a house together; Kamal pays 15%, Amal 12% and Vimal 18% of their incomes to cover the rent. In October the rent is unchanged, but their incomes rise by 10%, 12% and 15%. In October, rent as a percentage of their total income is nearest to:", "opts": ["(a) 14.84", "(b) 12.75", "(c) 13.26", "(d) 15.18"]},
+  {"level": 2, "n": 7, "type": "MCQ · CAT 2023 S2", "text": "Minu buys sunglasses for ₹1,000 and sells them to Kanu at 20% profit. Kanu sells them back to Minu at 20% loss. Minu then sells them to Tanu. Minu's total profit from all her transactions is ₹500. What is her profit % on the sale to Tanu?", "opts": ["(a) 35.42%", "(b) 31.25%", "(c) 52%", "(d) 26%"]},
+  {"level": 2, "n": 8, "type": "MCQ · CAT 2023 S1", "text": "Gita sells objects A and B at the same price, making 20% profit on A and 10% loss on B. She then raises the selling price so that A and B are still sold at the same price and B now makes 10% profit. The profit on A is now nearest to:", "opts": ["(a) 42%", "(b) 47%", "(c) 45%", "(d) 49%"]},
+  {"level": 2, "n": 9, "type": "TITA · CAT 2024 S1", "text": "A fruit seller has 187 fruits: apples, mangoes and oranges. Apples : mangoes = 5 : 2. After selling 75 apples, 26 mangoes and half the oranges, unsold apples : unsold oranges = 3 : 2. How many fruits are unsold in total?"},
+  {"level": 2, "n": 10, "type": "MCQ · CAT 2023 S1", "text": "Mixture P is made by removing some coffee from a jar of coffee and replacing it with the same amount of cocoa. The same amount is removed from P and replaced with cocoa to make mixture Q. In Q, coffee : cocoa = 16 : 9. What is the ratio of cocoa in P to cocoa in Q?", "opts": ["(a) 4:9", "(b) 1:3", "(c) 5:9", "(d) 1:2"]},
+  {"level": 2, "n": 11, "type": "TITA · CAT 2023 S2", "text": "A container has 40 litres of milk. 4 litres are removed and replaced with 4 litres of water, and this is repeated. After how many such steps (smallest number) does the milk become less than the water?"},
+  {"level": 2, "n": 12, "type": "TITA · CAT 2023 S1", "text": "Arvind travels from town A to town B and Surbhi from B to A, starting at the same time on the same route. After they meet, Arvind takes 6 hours to reach B and Surbhi takes 24 hours to reach A. Arvind's speed is 54 km/h. Find the distance between A and B (km)."},
+  {"level": 2, "n": 13, "type": "MCQ · CAT 2024 S1", "text": "A and B are 45 km apart. Anil goes from A to B and Sunil from B to A, starting at the same time. They cross after 1 hour 30 minutes. Anil reaches B exactly 1 hour 15 minutes after Sunil reaches A. What is Anil's speed (km/h)?", "opts": ["(a) 16", "(b) 14", "(c) 12", "(d) 18"]},
+  {"level": 2, "n": 14, "type": "MCQ · CAT 2023 S2", "text": "Ravi drives at 40 km/h. Vijay is 54 m behind Ravi, going the same way. Ashok comes from the opposite direction at 50 km/h and is 225 m from Ravi. At what speed (km/h) must Vijay drive so that all three cross each other at the same moment?", "opts": ["(a) 58.8", "(b) 64.4", "(c) 67.2", "(d) 61.6"]},
+  {"level": 2, "n": 15, "type": "TITA · CAT 2023 S3", "text": "Gautam and Suhani together finish a job in 20 days. On a day when Gautam does only 60% of his usual work, Suhani makes up for it exactly by doing 150% of her usual work. How many days would the faster of the two take to finish the job alone?"},
+  {"level": 3, "n": 16, "type": "MCQ · CAT 2023 S3", "text": "A town's population in 2020 was 1,00,000. It fell by y% from 2020 to 2021 and rose by x% from 2021 to 2022, where x and y are natural numbers. The 2022 population was more than the 2020 population, and x and y differ by 10. What was the lowest possible population in 2021?", "opts": ["(a) 74,000", "(b) 75,000", "(c) 72,000", "(d) 73,000"]},
+  {"level": 3, "n": 17, "type": "TITA · CAT 2023 S1", "text": "Anil invests ₹22,000 for 6 years in a scheme at 4% per year, compounded half-yearly. Sunil invests in the same scheme for 5 years, then reinvests the whole amount for 1 year at 10% simple interest. Both get the same amount at the end of 6 years. Find Sunil's initial investment (₹)."},
+  {"level": 3, "n": 18, "type": "MCQ · CAT 2023 S2", "text": "Anil borrows ₹2 lakh at 8% per year, compounded half-yearly. He repays ₹10,320 at the end of the first year and clears the loan by paying everything outstanding at the end of the third year. The total interest paid over the three years (₹) is nearest to:", "opts": ["(a) 45,311", "(b) 51,311", "(c) 33,130", "(d) 40,991"]},
+  {"level": 3, "n": 19, "type": "MCQ · CAT 2023 S2", "text": "Pipes A and C fill a tank; pipe B drains it. B empties the full tank in 1 hour less than A takes to fill it. With A, B and C all on, the empty tank fills in 2 hours. If B and C are turned on with the tank empty and B is turned off after 1 hour, C needs another 1 hour 15 minutes to fill the rest. A alone fills the tank in less than 5 hours. How many minutes does C alone take to fill the empty tank?", "opts": ["(a) 90", "(b) 60", "(c) 120", "(d) 75"]},
+  {"level": 3, "n": 20, "type": "TITA · CAT 2023 S1", "text": "The amounts of work Amal, Sunil and Kamal can each do in a day are in harmonic progression. Kamal takes twice as long as Amal to do the same job. Amal works for 4 days and Sunil for 9 days, and then Kamal needs 16 days to finish the rest. How many days would Sunil take to do the whole job alone?"}
+];
+const TARGET = { 1: 90, 2: 120, 3: 180 };
+const KEY = 'cat-arith-pyq1-timer-v1';
+
+let state = {};
+try { state = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { state = {}; }
+
+function rec(n) {
+  if (!state[n]) state[n] = { elapsed: 0, startedAt: null, answer: '', done: false };
+  return state[n];
+}
+function save() {
+  state._savedAt = Date.now();
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+}
+// A timer left running when the page closed stops at the last save, so closed time is not counted.
+(function settle() {
+  const at = state._savedAt || Date.now();
+  QS.forEach(q => {
+    const s = state[q.n];
+    if (s && s.startedAt) { s.elapsed += Math.max(0, at - s.startedAt); s.startedAt = null; }
+  });
+})();
+
+const ms = s => s.elapsed + (s.startedAt ? Date.now() - s.startedAt : 0);
+function fmt(t) {
+  const sec = Math.floor(t / 1000);
+  return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
+}
+
+const list = document.getElementById('list');
+const cards = {};
+
+function build() {
+  let level = -1;
+  QS.forEach(q => {
+    if (q.level !== level) {
+      level = q.level;
+      const h = document.createElement('h2');
+      h.innerHTML = ({
+        1: 'Level 1: easy CAT questions <small>target 1:30 each</small>',
+        2: 'Level 2: medium CAT questions <small>target 2:00 each</small>',
+        3: 'Level 3: hard CAT questions <small>target 3:00 each</small>'
+      })[level];
+      list.appendChild(h);
+    }
+    const card = document.createElement('article');
+    card.className = 'q';
+    card.style.marginTop = '12px';
+    const tag = !q.type ? '' : '<span class="chip">' + q.type + '</span>';
+    card.innerHTML =
+      '<div class="q-head"><span class="qnum">Q' + q.n + '</span>' + tag +
+      '<span class="chip state">Not started</span></div>' +
+      '<p></p>' +
+      (q.opts ? '<ul class="opts">' + q.opts.map(o => '<li>' + o + '</li>').join('') + '</ul>' : '') +
+      '<div class="controls"><span class="clock" aria-live="off">0:00</span>' +
+      '<span class="target">/ ' + fmt(TARGET[q.level] * 1000) + '</span>' +
+      '<div class="btns"><button class="primary" type="button" data-act="toggle">Start</button>' +
+      '<button type="button" data-act="done">Done</button>' +
+      '<button type="button" data-act="reset">Reset</button></div></div>' +
+      '<div class="answer"><label for="ans-' + q.n + '">Your answer</label>' +
+      '<input id="ans-' + q.n + '" type="text" autocomplete="off" placeholder="Type your answer"></div>';
+    card.querySelector('p').textContent = q.text;
+    const input = card.querySelector('input');
+    input.value = rec(q.n).answer || '';
+    input.addEventListener('input', () => { rec(q.n).answer = input.value; save(); scheduleSync(); });
+    card.addEventListener('click', e => {
+      const b = e.target.closest('button');
+      if (b) act(q.n, b.dataset.act);
+    });
+    list.appendChild(card);
+    cards[q.n] = { card, q,
+      clock: card.querySelector('.clock'), chip: card.querySelector('.chip.state'),
+      toggle: card.querySelector('[data-act="toggle"]'), done: card.querySelector('[data-act="done"]'),
+      reset: card.querySelector('[data-act="reset"]') };
+  });
+}
+
+function pause(n) {
+  const s = rec(n);
+  if (s.startedAt) { s.elapsed = ms(s); s.startedAt = null; }
+}
+function act(n, what) {
+  const s = rec(n);
+  if (what === 'toggle') {
+    if (s.startedAt) { pause(n); }
+    else {
+      QS.forEach(q => { if (q.n !== n) pause(q.n); });
+      s.done = false; s.startedAt = Date.now();
+    }
+  } else if (what === 'done') {
+    pause(n); s.done = true;
+  } else if (what === 'reset') {
+    state[n] = { elapsed: 0, startedAt: null, answer: s.answer, done: false };
+  }
+  save(); renderAll(); scheduleSync();
+}
+
+function renderCard(n) {
+  const c = cards[n], s = rec(n), t = ms(s), over = t > TARGET[c.q.level] * 1000;
+  c.clock.textContent = fmt(t);
+  c.card.classList.toggle('running', !!s.startedAt);
+  c.card.classList.toggle('over', over && !s.done);
+  c.card.classList.toggle('done', s.done);
+  let label = 'Not started', cls = '';
+  if (s.done) { label = over ? 'Done · over target' : 'Done'; cls = 'done'; }
+  else if (s.startedAt) { label = over ? 'Over target' : 'Running'; cls = over ? 'over' : 'running'; }
+  else if (t > 0) { label = over ? 'Paused · over target' : 'Paused'; cls = over ? 'over' : ''; }
+  c.chip.textContent = label;
+  c.chip.className = 'chip state' + (cls ? ' ' + cls : '');
+  c.toggle.textContent = s.startedAt ? 'Pause' : (t > 0 ? 'Resume' : 'Start');
+  c.done.disabled = s.done || t === 0;
+  c.reset.disabled = t === 0 && !s.done;
+}
+function renderSummary() {
+  let done = 0, total = 0, overCount = 0;
+  QS.forEach(q => {
+    const s = rec(q.n), t = ms(s);
+    total += t;
+    if (s.done) done++;
+    if (t > TARGET[q.level] * 1000) overCount++;
+  });
+  document.getElementById('sumDone').textContent = done + ' / ' + QS.length;
+  document.getElementById('sumTime').textContent = fmt(total);
+  const o = document.getElementById('sumOver');
+  o.textContent = overCount;
+  o.classList.toggle('warn', overCount > 0);
+}
+function renderAll() { QS.forEach(q => renderCard(q.n)); renderSummary(); }
+
+let ticks = 0;
+setInterval(() => {
+  const running = QS.find(q => rec(q.n).startedAt);
+  if (running) {
+    renderCard(running.n); renderSummary();
+    if (++ticks % 4 === 0) save();
+  }
+}, 250);
+
+function resultsText() {
+  const lines = ['Arithmetic PYQ Quiz 1: my results', ''];
+  let total = 0;
+  const over = [];
+  QS.forEach(q => {
+    const s = rec(q.n), t = ms(s);
+    total += t;
+    const ans = (s.answer || '').trim() || '(no answer)';
+    const time = t === 0 ? 'not attempted' : fmt(t) + (s.done ? '' : ' (not marked done)');
+    if (t > TARGET[q.level] * 1000) over.push('Q' + q.n);
+    lines.push('Q' + q.n + ': ' + ans + ' | ' + time + ' | target ' + fmt(TARGET[q.level] * 1000));
+  });
+  lines.push('', 'Total time: ' + fmt(total));
+  lines.push('Over target: ' + (over.length ? over.join(', ') : 'none'));
+  return lines.join('\n');
+}
+
+const toast = document.getElementById('toast');
+document.getElementById('copyBtn').addEventListener('click', () => {
+  const text = resultsText();
+  const out = document.getElementById('copyOut');
+  const fallback = () => {
+    out.value = text; out.hidden = false; out.focus(); out.select();
+    toast.textContent = 'Select all and copy the text below';
+  };
+  try {
+    navigator.clipboard.writeText(text).then(() => {
+      toast.textContent = 'Copied. Now send it to Vikas.';
+      out.value = text; out.hidden = false;
+    }, fallback);
+  } catch (e) { fallback(); }
+});
+
+let armed = false;
+const resetBtn = document.getElementById('resetAll');
+resetBtn.addEventListener('click', () => {
+  if (!armed) {
+    armed = true; resetBtn.textContent = 'Tap again to clear everything';
+    setTimeout(() => { armed = false; resetBtn.textContent = 'Clear all timers'; }, 3000);
+    return;
+  }
+  armed = false; resetBtn.textContent = 'Clear all timers';
+  state = {}; submitted = false; save(); scheduleSync(); renderSubmit();
+  QS.forEach(q => { document.getElementById('ans-' + q.n).value = ''; });
+  document.getElementById('copyOut').hidden = true;
+  toast.textContent = 'All timers and answers cleared';
+  renderAll();
+});
+
+// Saving for Claude: one shared document holds every answer and time, written after a pause in activity.
+let docRef = null, lastSent = '', writing = false, pending = false, syncTimer = null, submitted = false;
+const syncEl = document.getElementById('sync');
+const submitBtn = document.getElementById('submitBtn');
+
+function setSync(text, cls) {
+  syncEl.textContent = text;
+  syncEl.className = 'sync' + (cls ? ' ' + cls : '');
+}
+function payload() {
+  const questions = {};
+  QS.forEach(q => {
+    const s = rec(q.n);
+    questions['q' + q.n] = {
+      answer: (s.answer || '').trim(),
+      seconds: Math.round(ms(s) / 1000),
+      done: !!s.done,
+      targetSeconds: TARGET[q.level]
+    };
+  });
+  return { set: 'Arithmetic PYQ Quiz 1', submitted, questions };
+}
+function scheduleSync() {
+  if (!docRef) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(pushSync, 1200);
+}
+async function pushSync() {
+  if (!docRef) return;
+  if (writing) { pending = true; return; }
+  const body = payload();
+  const key = JSON.stringify(body);
+  if (key === lastSent) return;
+  writing = true;
+  setSync('Saving…', '');
+  try {
+    await docRef.set(Object.assign({}, body, { updatedAt: new Date().toISOString() }));
+    lastSent = key;
+    const t = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    setSync((submitted ? 'Submitted. Tell Claude in chat that you are done. Last saved ' : 'Saved for Claude at ') + t, 'ok');
+  } catch (e) {
+    setSync(e && e.code === 'invalid_argument'
+      ? 'This view cannot save for Claude. Use Copy results and paste them in chat.'
+      : 'Could not save just now. It will try again on your next change, or use Copy results.', 'bad');
+  } finally {
+    writing = false;
+    if (pending) { pending = false; pushSync(); }
+  }
+}
+function renderSubmit() {
+  submitBtn.textContent = submitted ? 'Submitted' : 'Submit to Claude';
+}
+submitBtn.addEventListener('click', () => {
+  QS.forEach(q => pause(q.n));
+  submitted = true;
+  save(); renderAll(); renderSubmit();
+  clearTimeout(syncTimer);
+  pushSync();
+});
+document.addEventListener('visibilitychange', () => { if (document.hidden) pushSync(); });
+
+function hydrate(data) {
+  const qs = (data && data.questions) || {};
+  QS.forEach(q => {
+    const r = qs['q' + q.n];
+    if (!r) return;
+    state[q.n] = { elapsed: (r.seconds || 0) * 1000, startedAt: null, answer: r.answer || '', done: !!r.done };
+    document.getElementById('ans-' + q.n).value = r.answer || '';
+  });
+  save(); renderAll();
+}
+
+async function connect() {
+  let db = null;
+  try { db = window.claude && window.claude.use ? await window.claude.use('db') : null; } catch (e) { db = null; }
+  if (!db) {
+    setSync('Saving for Claude is not available here. Use Copy results and paste them in chat.', 'bad');
+    submitBtn.hidden = true;
+    return;
+  }
+  docRef = db.doc('attempts/arith-pyq1');
+  const slow = setTimeout(() => setSync('Still connecting. Your work is kept in this browser meanwhile.', 'bad'), 10000);
+  try {
+    const snap = await docRef.get();
+    clearTimeout(slow);
+    const hasLocal = QS.some(q => state[q.n] && (state[q.n].elapsed || state[q.n].answer));
+    if (snap.exists) {
+      submitted = !!snap.data().submitted;
+      if (!hasLocal) hydrate(snap.data());
+    }
+    renderSubmit();
+    lastSent = hasLocal ? '' : JSON.stringify(payload());
+    setSync(snap.exists ? 'Saved for Claude' : 'Ready. Your work saves for Claude as you go.', 'ok');
+    if (hasLocal) scheduleSync();
+  } catch (e) {
+    clearTimeout(slow);
+    docRef = null;
+    setSync('Could not reach saved data. Use Copy results and paste them in chat.', 'bad');
+  }
+}
+
+build();
+renderAll();
+</script>
+</body>
+</html>
