@@ -15,7 +15,7 @@ window.TRACKER = {
     "averages": { status: "In progress", score: "Set 1 (with Mixtures): average questions 7/10 · 13 of 20 questions over target time · Fresh check 5 Nov: overlap and consecutive both right", weak: "Overlapping groups; weighted average of two groups (use alligation); consecutive odd numbers" },
     "tsd": { status: "In progress", score: "Set 1 (5–6 Nov): 11/15 TSD (L1 4/4, L2 5/7, L3 2/4) in 54 min vs 34 target · 2 warm-ups skipped · Fresh check 6 Nov: 5/8 in 32 min vs 18 · Set 2 (races, circular tracks) kept for the weekly review", weak: "Two trains in the same direction; boats from distance and time; '3 hours more' equation; accident / delay" },
     "time-work": { status: "In progress", score: "Set 1 (with pipes, 7 Nov): 11/12 (L1 3/3, L2 6/6, L3 2/3) in 21:40 vs 24 target · 2 warm-ups skipped", weak: "Men and women equivalence (or / and type)" },
-    "equations": { status: "In progress", score: "Set 1 given 9 Nov (17 Qs, 34 min)", weak: "" },
+    "equations": { status: "In progress", score: "Set 1 (9 Nov): 13/15 (L1 4/4, L2 5/7, L3 4/4) in 38 min vs 30 · 2 arithmetic warm-ups skipped (4th time)", weak: "Root formulas: sign of b (b = −sum), α² + β² identity; slow on counting questions" },
     "inequalities": { status: "Not started", score: "", weak: "" },
     "functions": { status: "Not started", score: "", weak: "" },
     "logs": { status: "Not started", score: "", weak: "" },
@@ -40,17 +40,20 @@ window.TRACKER = {
     { what: "Overlapping groups: the shared item is counted twice", found: "A&M Set 1, Q2", fix: "Shared item = sum of group 1 + sum of group 2 − total", status: "Practising" },
     { what: "Repeated replacement, solving for x", found: "A&M Set 1, Q20", fix: "Milk left ÷ start = (1 − x/V)ⁿ, then take the nth root", status: "Practising" },
     { what: "Answering a different quantity than asked (total vs added, rounded vs exact)", found: "A&M Set 1, Q5, Q9; TSD Set 1 Q16 (read '3 hours more' as '3 hours'); TSD fresh check Q5 (gave the boat speed 10, asked the stream speed 2)", fix: "Before writing the answer, reread the last line of the question; underline 'more', 'than', 'each', 'total'", status: "Practising" },
-    { what: "Speed: too many questions over target time", found: "Ratio Set 1 (Q8 7 min, Q19 9 min); A&M Set 1: 61 min vs 40; Ratio fresh check: 30 min vs 16; TSD Set 1: 54 min vs 34, Q17 13.5 min with no answer; TSD fresh check: 32 min vs 18 (Q6 7.5 min); Time & Work Set 1 (7 Nov): 21.7 min vs 24, first set under target; SI & CI Set 2 (7 Nov): 34.6 min vs 24, Q12 8.6 min", fix: "Leave a question at 3 min; redo slow ones untimed, then timed", status: "Open" },
-    { what: "Coins: ratio of values vs ratio of counts", found: "Ratio Set 1, Q7; fresh check 5 Nov Q6 blank after 7 min; TSD fresh check Q1 wrong (110, answer 90)", fix: "Values ratio: split the ₹ first, then ÷ coin value. Counts ratio: value of one set first", status: "Open" },
+    { what: "Speed: too many questions over target time", found: "Ratio Set 1 (Q8 7 min, Q19 9 min); A&M Set 1: 61 min vs 40; Ratio fresh check: 30 min vs 16; TSD Set 1: 54 min vs 34, Q17 13.5 min with no answer; TSD fresh check: 32 min vs 18 (Q6 7.5 min); Time & Work Set 1 (7 Nov): 21.7 min vs 24, first set under target; SI & CI Set 2 (7 Nov): 34.6 min vs 24, Q12 8.6 min; Equations Set 1 (9 Nov): 38 min vs 30 (Q10 10.3 min, Q15 8.6 min, both right)", fix: "Leave a question at 3 min; redo slow ones untimed, then timed", status: "Open" },
+    { what: "Coins: ratio of values vs ratio of counts", found: "Ratio Set 1, Q7; fresh check 5 Nov Q6 blank after 7 min; TSD fresh check Q1 wrong (110, answer 90); warm-up skipped 3 times since (untested since 6 Nov)", fix: "Values ratio: split the ₹ first, then ÷ coin value. Counts ratio: value of one set first", status: "Open" },
     { what: "Calculation slips (unit conversion, division)", found: "Ratio Set 1 Q18; A&M Set 1 Q12; TSD Set 1 Q9, Q12; TSD fresh check Q3, Q4 right; SI & CI Set 2 Q14 (12,500 vs 50,000: likely 0.4 × 5,000 written as 500)", fix: "Write every step on paper; before marking, rough-check the size of the answer (300 m at about 3 m/s is about 100 s)", status: "Open" },
-    { what: "Accident / delay: slower speed for part of the trip", found: "TSD Set 1, Q17 (blank after 13.5 min); TSD fresh check Q7 right, Q8 wrong (90, answer 60)", fix: "Split the wording into Case 1 and Case 2. Extra per km: speed a/b → extra (b − a)/a of normal time (3/5 → 2/3, 4/5 → 1/4, 2/3 → 1/2). Gap between the two late times = that extra on the shifted km", status: "Practising" }
+    { what: "Accident / delay: slower speed for part of the trip", found: "TSD Set 1, Q17 (blank after 13.5 min); TSD fresh check Q7 right, Q8 wrong (90, answer 60); warm-up skipped 3 times since (untested since 6 Nov)", fix: "Split the wording into Case 1 and Case 2. Extra per km: speed a/b → extra (b − a)/a of normal time (3/5 → 2/3, 4/5 → 1/4, 2/3 → 1/2). Gap between the two late times = that extra on the shifted km", status: "Practising" }
 ,
     { what: "Men and women equivalence (or / and type)", found: "Time & Work Set 1, Q14 (answered 21.7, answer 9)", fix: "OR = two equal teams: 12 men = 18 women → 1 man = 1.5 women. Turn everyone into women, then effort ÷ team", status: "Open" },
-    { what: "Equal instalments (CI loan repaid in equal parts)", found: "SI & CI Set 2, Q13 (answered 1,230, answer 1,331)", fix: "2 instalments: payment = loan ÷ 2.1 × 1.21 at 10% (÷ 2.2 × 1.44 at 20%). Check with a bank-statement table: it must end at 0", status: "Open" }
+    { what: "Equal instalments (CI loan repaid in equal parts)", found: "SI & CI Set 2, Q13 (answered 1,230, answer 1,331)", fix: "2 instalments: payment = loan ÷ 2.1 × 1.21 at 10% (÷ 2.2 × 1.44 at 20%). Check with a bank-statement table: it must end at 0", status: "Open" },
+    { what: "Root formulas: sign of b, α² + β²", found: "Equations Set 1, Q6 (−17, answer −13) and Q7 (22, answer 19)", fix: "Equation from roots: x² − (sum)x + product, so b = −sum. α² + β² = sum² − 2 × product (the 2 matters)", status: "Open" }
   ],
 
   // Newest first. Redo each after 1, 3 and 7 days in the warm-up.
   errorLog: [
+    { date: "9 Nov", where: "Equations Set 1, Q7", topic: "Equations", reason: "Formula slip (likely subtracted the product once; answered 22)", takeaway: "α² + β² = (α + β)² − 2αβ = 25 − 2 × 3 = 19" },
+    { date: "9 Nov", where: "Equations Set 1, Q6", topic: "Equations", reason: "Sign slip (likely took b = sum; answered −17)", takeaway: "Roots 3, −5: x² − (−2)x + (−15) = x² + 2x − 15 → b = 2, c = −15 → −13" },
     { date: "7 Nov", where: "SI & CI Set 2, Q14", topic: "SI & CI", reason: "Calculation slip (likely; answered 12,500)", takeaway: "0.44x = 0.4(x + 5,000) = 0.4x + 2,000 → 0.04x = 2,000 → x = 50,000" },
     { date: "7 Nov", where: "SI & CI Set 2, Q13", topic: "SI & CI", reason: "Concept: year-2 interest taken on (2,310 − x), not on (2,541 − x), so year-1 interest got no interest; that gives 1,320, then typed as 1,230", takeaway: "2,310 ÷ 2.1 = 1,100 → × 1.21 = 1,331. Check: 2,310 → 2,541, pay 1,331 → 1,210 → 1,331, pay → 0" },
     { date: "7 Nov", where: "Time & Work Set 1, Q14", topic: "Time & Work", reason: "Cause not found yet (answered 21.7)", takeaway: "1 man = 1.5 women → 8 men + 16 women = 28 women. Work 18 × 14 = 252 → 252 ÷ 28 = 9 days" },
@@ -94,7 +97,7 @@ window.TRACKER = {
       { date: "2026-11-08", text: "Arithmetic revision notes (PDF) made; Arithmetic PYQ quiz (20 real CAT questions) given", done: true },
           ]},
     { block: "Algebra", items: [
-      { date: "2026-11-09", text: "Linear + quadratic equations (Set 1)", done: false },
+      { date: "2026-11-09", text: "Linear + quadratic equations: Set 1 13/15 in 38 min", done: true },
       { date: "2026-11-10", text: "Inequalities & modulus", done: false },
       { date: "2026-11-11", text: "Functions & graphs (standard types only)", done: false },
       { date: "2026-11-12", text: "Logs, surds, indices", done: false },
