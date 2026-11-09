@@ -19,7 +19,7 @@ window.TRACKER = {
     "inequalities": { status: "Not started", score: "", weak: "" },
     "functions": { status: "Not started", score: "", weak: "" },
     "logs": { status: "Not started", score: "", weak: "" },
-    "progressions": { status: "Not started", score: "", weak: "" },
+    "progressions": { status: "In progress", score: "Set 1 given 9 Nov (15 Qs incl. 8 real CAT questions, 34 min)", weak: "" },
     "triangles": { status: "Not started", score: "", weak: "" },
     "circles": { status: "Not started", score: "", weak: "" },
     "mensuration": { status: "Not started", score: "", weak: "" },
@@ -98,10 +98,10 @@ window.TRACKER = {
           ]},
     { block: "Algebra", items: [
       { date: "2026-11-09", text: "Linear + quadratic equations: Set 1 13/15 in 38 min", done: true },
-      { date: "2026-11-10", text: "Inequalities & modulus", done: false },
-      { date: "2026-11-11", text: "Functions & graphs (standard types only)", done: false },
-      { date: "2026-11-12", text: "Logs, surds, indices", done: false },
-      { date: "2026-11-13", text: "Progressions", done: false },
+      { date: "2026-11-10", text: "Progressions (AP, GP, series): Set 1 with real CAT questions", done: false },
+      { date: "2026-11-11", text: "Inequalities & modulus", done: false },
+      { date: "2026-11-12", text: "Functions & graphs (standard types only)", done: false },
+      { date: "2026-11-13", text: "Logs, surds, indices", done: false },
       { date: "2026-11-14", text: "Algebra sectional (15 Qs, 30 min) + weekly review of arithmetic weak spots and TSD races", done: false },
       { date: "2026-11-15", text: "Full mock 1 + analysis", done: false }
     ]},
