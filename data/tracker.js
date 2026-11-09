@@ -1,6 +1,6 @@
 // Your revision-plan tracker. Claude updates this file after every test report you paste in chat.
 window.TRACKER = {
-  updated: "2026-11-07",
+  updated: "2026-11-09",
   examDate: "2026-11-29",
   targets: { qa: 12, varc: 15, lrdi: 12 },
   goalNote: "QA: attempt 14–15 at about 85% accuracy (12 right + 2 wrong = 34 marks).",
@@ -15,7 +15,7 @@ window.TRACKER = {
     "averages": { status: "In progress", score: "Set 1 (with Mixtures): average questions 7/10 · 13 of 20 questions over target time · Fresh check 5 Nov: overlap and consecutive both right", weak: "Overlapping groups; weighted average of two groups (use alligation); consecutive odd numbers" },
     "tsd": { status: "In progress", score: "Set 1 (5–6 Nov): 11/15 TSD (L1 4/4, L2 5/7, L3 2/4) in 54 min vs 34 target · 2 warm-ups skipped · Fresh check 6 Nov: 5/8 in 32 min vs 18 · Set 2 (races, circular tracks) kept for the weekly review", weak: "Two trains in the same direction; boats from distance and time; '3 hours more' equation; accident / delay" },
     "time-work": { status: "In progress", score: "Set 1 (with pipes, 7 Nov): 11/12 (L1 3/3, L2 6/6, L3 2/3) in 21:40 vs 24 target · 2 warm-ups skipped", weak: "Men and women equivalence (or / and type)" },
-    "equations": { status: "Not started", score: "", weak: "" },
+    "equations": { status: "In progress", score: "Set 1 given 9 Nov (17 Qs, 34 min)", weak: "" },
     "inequalities": { status: "Not started", score: "", weak: "" },
     "functions": { status: "Not started", score: "", weak: "" },
     "logs": { status: "Not started", score: "", weak: "" },
@@ -91,15 +91,15 @@ window.TRACKER = {
       { date: "2026-11-05", text: "Averages + Mixtures & alligation: Set 1 12/20 in 61 min (done 4 Nov), fresh check 7/8 in 23 min", done: true },
       { date: "2026-11-06", text: "Time-Speed-Distance 1: relative speed, trains, boats & streams. Set 1 done: 11/15 TSD in 54 min; fresh check 5/8 in 32 min", done: true },
       { date: "2026-11-07", text: "Time & Work notes + Set 1 done: 11/12 in 21:40 vs 24. SI & CI notes + Set 2 done: 10/12 in 34:38 vs 28", done: true },
-      { date: "2026-11-08", text: "Time & Work set + weekly review: redo this week's error log", done: false },
-      { date: "2026-11-09", text: "Arithmetic PYQ day: mixed past CAT questions (incl. P&L, %, SI & CI) + Arithmetic sectional, then fix the weakest types", done: false }
-    ]},
+      { date: "2026-11-08", text: "Arithmetic revision notes (PDF) made; Arithmetic PYQ quiz (20 real CAT questions) given", done: true },
+          ]},
     { block: "Algebra", items: [
-      { date: "2026-11-10", text: "Linear + quadratic equations", done: false },
-      { date: "2026-11-11", text: "Inequalities & modulus", done: false },
-      { date: "2026-11-12", text: "Functions & graphs (standard types only)", done: false },
-      { date: "2026-11-13", text: "Logs, surds, indices", done: false },
-      { date: "2026-11-14", text: "Progressions + Algebra sectional (15 Qs, 30 min)", done: false },
+      { date: "2026-11-09", text: "Linear + quadratic equations (Set 1)", done: false },
+      { date: "2026-11-10", text: "Inequalities & modulus", done: false },
+      { date: "2026-11-11", text: "Functions & graphs (standard types only)", done: false },
+      { date: "2026-11-12", text: "Logs, surds, indices", done: false },
+      { date: "2026-11-13", text: "Progressions", done: false },
+      { date: "2026-11-14", text: "Algebra sectional (15 Qs, 30 min) + weekly review of arithmetic weak spots and TSD races", done: false },
       { date: "2026-11-15", text: "Full mock 1 + analysis", done: false }
     ]},
     { block: "Geometry, Number System, Modern Math", items: [
