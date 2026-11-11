@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Progressions Fix-it</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  /* Layout: one narrow exam-sheet column; a summary strip on top, one card per question, results at the end */
+  :root {
+    --bg: #eef1f5;
+    --surface: #ffffff;
+    --ink: #17202d;
+    --muted: #5a6577;
+    --line: #d6dce5;
+    --accent: #1f5fae;
+    --accent-ink: #ffffff;
+    --run: #0d7a5a;
+    --run-soft: #e3f4ee;
+    --warn: #a45f00;
+    --warn-soft: #fbf0dc;
+    --done-soft: #e8eef8;
+    --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+    --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e131a; --surface: #161d27; --ink: #e4e9f1; --muted: #98a3b4; --line: #29323f;
+      --accent: #74a9ef; --accent-ink: #0e131a; --run: #46c49b; --run-soft: #11291f;
+      --warn: #f0b04a; --warn-soft: #2e230f; --done-soft: #1a2434; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e131a; --surface: #161d27; --ink: #e4e9f1; --muted: #98a3b4; --line: #29323f;
+    --accent: #74a9ef; --accent-ink: #0e131a; --run: #46c49b; --run-soft: #11291f;
+    --warn: #f0b04a; --warn-soft: #2e230f; --done-soft: #1a2434; color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: var(--font-body); font-size: 15px; line-height: 1.55;
+  }
+  .wrap {
+    max-width: 760px; margin: 0 auto;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 28px 56px;
+    display: grid; gap: 18px;
+  }
+  header { display: grid; gap: 6px; }
+  .eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  h1 { font-family: var(--font-display); font-size: 30px; line-height: 1.15; margin: 0; text-wrap: balance; }
+  .lede { margin: 0; color: var(--muted); max-width: 62ch; }
+
+  .summary {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;
+  }
+  .stat { display: grid; gap: 2px; min-width: 0; }
+  .stat span { font-size: 12px; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+  .stat b { font-family: var(--font-mono); font-size: 22px; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .stat b.warn { color: var(--warn); }
+
+  h2 { font-family: var(--font-display); font-size: 19px; margin: 10px 0 0; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  h2 small { font-family: var(--font-body); font-size: 13px; color: var(--muted); font-weight: 500; }
+
+  .q {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    padding: 16px; display: grid; gap: 12px; border-left: 4px solid var(--line);
+  }
+  .q.running { border-left-color: var(--run); }
+  .q.over { border-left-color: var(--warn); }
+  .q.done { border-left-color: var(--accent); background: var(--done-soft); }
+  .q-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .qnum { font-family: var(--font-display); font-weight: 700; font-size: 17px; }
+  .chip {
+    font-size: 11.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted);
+  }
+  .chip.state { margin-left: auto; }
+  .chip.state.running { color: var(--run); border-color: var(--run); background: var(--run-soft); }
+  .chip.state.over { color: var(--warn); border-color: var(--warn); background: var(--warn-soft); }
+  .chip.state.done { color: var(--accent); border-color: var(--accent); }
+  .q p { margin: 0; max-width: 65ch; }
+  .opts { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; color: var(--ink); }
+
+  .controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .clock {
+    font-family: var(--font-mono); font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums;
+    min-width: 5.2ch; color: var(--ink);
+  }
+  .q.running .clock { color: var(--run); }
+  .q.over .clock { color: var(--warn); }
+  .target { font-size: 13px; color: var(--muted); font-family: var(--font-mono); }
+  .btns { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+  button {
+    font: 600 14px/1 var(--font-body); border-radius: 8px; padding: 10px 14px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); min-width: 92px; }
+  .q.running button.primary { background: var(--run); border-color: var(--run); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .answer { display: grid; gap: 4px; }
+  .answer label { font-size: 12.5px; color: var(--muted); font-weight: 600; }
+  .answer input {
+    font: 15px var(--font-body); padding: 9px 11px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--bg); color: var(--ink); width: 100%;
+  }
+
+  .results { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 12px; }
+  .results p { margin: 0; color: var(--muted); }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  textarea {
+    width: 100%; min-height: 190px; font: 13px/1.5 var(--font-mono); padding: 10px;
+    border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+  }
+  .toast { font-size: 13px; color: var(--run); font-weight: 600; align-self: center; }
+  .results p.sync { font-size: 13px; font-weight: 600; color: var(--muted); }
+  .results p.sync.ok { color: var(--run); }
+  .results p.sync.bad { color: var(--warn); }
+
+  @media (max-width: 520px) {
+    h1 { font-size: 25px; }
+    .summary { grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 12px; }
+    .stat b { font-size: 18px; }
+    .btns { margin-left: 0; width: 100%; }
+    .btns button { flex: 1; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .q { transition: border-color .2s, background-color .2s; }
+  }
+  body { margin: 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">CAT 2026 · Algebra · Progressions fix-it (after the 3-set quiz)</div>
+    <h1>7 questions, one timer each</h1>
+    <p class="lede">Press Start when you begin reading a question and Done when you have your answer. Starting a new question pauses the one that is running, just like moving on in the exam. Your times and answers stay saved in this browser. Before you type each answer, reread the last line: is it asking for one term or the total? Leave any question at 2 × its target.</p>
+  </header>
+
+  <section class="summary" aria-label="Progress">
+    <div class="stat"><span>Done</span><b id="sumDone">0 / 7</b></div>
+    <div class="stat"><span>Total time</span><b id="sumTime">0:00</b></div>
+    <div class="stat"><span>Over target</span><b id="sumOver">0</b></div>
+  </section>
+
+  <div id="list"></div>
+
+  <section class="results" aria-labelledby="resHead">
+    <h2 id="resHead">Send your results</h2>
+    <p>When you finish, press <b>Copy results</b> and send the copied text to Vikas. Every answer will be checked, mistakes explained, and your tracker updated.</p>
+    <p class="sync" id="sync" role="status" hidden></p>
+    <div class="row">
+      <button class="primary" id="copyBtn" type="button">Copy results</button>
+      <button id="submitBtn" type="button" hidden>Submit</button>
+      <button id="resetAll" type="button">Clear all timers</button>
+      <span class="toast" id="toast" role="status"></span>
+    </div>
+    <textarea id="copyOut" readonly hidden aria-label="Results text"></textarea>
+  </section>
+</div>
+
+<script>
+const QS = [
+  {"level": 1, "n": 1, "type": "Term or sum?", "text": "What is the 30th even number?"},
+  {"level": 1, "n": 2, "type": "Term or sum?", "text": "2 + 4 + 6 + … + 60 = ?"},
+  {"level": 2, "n": 3, "type": "Careful counting", "text": "The sum of the first n terms is Sₙ = 2n² + 3n for every n. Find a₁₀ (the 10th term only)."},
+  {"level": 2, "n": 4, "type": "Careful counting", "text": "a₁ = 3 and aₙ₊₁ = aₙ + 4. Find a₂₀."},
+  {"level": 3, "n": 5, "type": "Cycles and cancelling", "text": "x₁ = 2, x₂ = 5 and xₙ₊₂ = xₙ₊₁ − xₙ. Find x₁₀₀."},
+  {"level": 3, "n": 6, "type": "Cycles and cancelling", "text": "1/(2×3) + 1/(3×4) + 1/(4×5) + … + 1/(9×10) = ? (write it as a fraction)"},
+  {"level": 3, "n": 7, "type": "Cycles and cancelling", "text": "1/3 + 3/9 + 5/27 + 7/81 + … (forever) = ?"}
+];
+const TARGET = { 1: 60, 2: 120, 3: 180 };
+const KEY = 'cat-prog-fixit1-timer-v1';
+
+let state = {};
+try { state = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { state = {}; }
+
+function rec(n) {
+  if (!state[n]) state[n] = { elapsed: 0, startedAt: null, answer: '', done: false };
+  return state[n];
+}
+function save() {
+  state._savedAt = Date.now();
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+}
+// A timer left running when the page closed stops at the last save, so closed time is not counted.
+(function settle() {
+  const at = state._savedAt || Date.now();
+  QS.forEach(q => {
+    const s = state[q.n];
+    if (s && s.startedAt) { s.elapsed += Math.max(0, at - s.startedAt); s.startedAt = null; }
+  });
+})();
+
+const ms = s => s.elapsed + (s.startedAt ? Date.now() - s.startedAt : 0);
+function fmt(t) {
+  const sec = Math.floor(t / 1000);
+  return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
+}
+
+const list = document.getElementById('list');
+const cards = {};
+
+function build() {
+  let level = -1;
+  QS.forEach(q => {
+    if (q.level !== level) {
+      level = q.level;
+      const h = document.createElement('h2');
+      h.innerHTML = ({
+        1: 'Part 1: term or sum? <small>target 1:00 each</small>',
+        2: 'Part 2: careful counting <small>target 2:00 each</small>',
+        3: 'Part 3: cycles and cancelling <small>target 3:00 each</small>'
+      })[level];
+      list.appendChild(h);
+    }
+    const card = document.createElement('article');
+    card.className = 'q';
+    card.style.marginTop = '12px';
+    const tag = !q.type ? '' : '<span class="chip">' + q.type + '</span>';
+    card.innerHTML =
+      '<div class="q-head"><span class="qnum">Q' + q.n + '</span>' + tag +
+      '<span class="chip state">Not started</span></div>' +
+      '<p></p>' +
+      (q.opts ? '<ul class="opts">' + q.opts.map(o => '<li>' + o + '</li>').join('') + '</ul>' : '') +
+      '<div class="controls"><span class="clock" aria-live="off">0:00</span>' +
+      '<span class="target">/ ' + fmt(TARGET[q.level] * 1000) + '</span>' +
+      '<div class="btns"><button class="primary" type="button" data-act="toggle">Start</button>' +
+      '<button type="button" data-act="done">Done</button>' +
+      '<button type="button" data-act="reset">Reset</button></div></div>' +
+      '<div class="answer"><label for="ans-' + q.n + '">Your answer</label>' +
+      '<input id="ans-' + q.n + '" type="text" autocomplete="off" placeholder="Type your answer"></div>';
+    card.querySelector('p').textContent = q.text;
+    const input = card.querySelector('input');
+    input.value = rec(q.n).answer || '';
+    input.addEventListener('input', () => { rec(q.n).answer = input.value; save(); scheduleSync(); });
+    card.addEventListener('click', e => {
+      const b = e.target.closest('button');
+      if (b) act(q.n, b.dataset.act);
+    });
+    list.appendChild(card);
+    cards[q.n] = { card, q,
+      clock: card.querySelector('.clock'), chip: card.querySelector('.chip.state'),
+      toggle: card.querySelector('[data-act="toggle"]'), done: card.querySelector('[data-act="done"]'),
+      reset: card.querySelector('[data-act="reset"]') };
+  });
+}
+
+function pause(n) {
+  const s = rec(n);
+  if (s.startedAt) { s.elapsed = ms(s); s.startedAt = null; }
+}
+function act(n, what) {
+  const s = rec(n);
+  if (what === 'toggle') {
+    if (s.startedAt) { pause(n); }
+    else {
+      QS.forEach(q => { if (q.n !== n) pause(q.n); });
+      s.done = false; s.startedAt = Date.now();
+    }
+  } else if (what === 'done') {
+    pause(n); s.done = true;
+  } else if (what === 'reset') {
+    state[n] = { elapsed: 0, startedAt: null, answer: s.answer, done: false };
+  }
+  save(); renderAll(); scheduleSync();
+}
+
+function renderCard(n) {
+  const c = cards[n], s = rec(n), t = ms(s), over = t > TARGET[c.q.level] * 1000;
+  c.clock.textContent = fmt(t);
+  c.card.classList.toggle('running', !!s.startedAt);
+  c.card.classList.toggle('over', over && !s.done);
+  c.card.classList.toggle('done', s.done);
+  let label = 'Not started', cls = '';
+  if (s.done) { label = over ? 'Done · over target' : 'Done'; cls = 'done'; }
+  else if (s.startedAt) { label = over ? 'Over target' : 'Running'; cls = over ? 'over' : 'running'; }
+  else if (t > 0) { label = over ? 'Paused · over target' : 'Paused'; cls = over ? 'over' : ''; }
+  c.chip.textContent = label;
+  c.chip.className = 'chip state' + (cls ? ' ' + cls : '');
+  c.toggle.textContent = s.startedAt ? 'Pause' : (t > 0 ? 'Resume' : 'Start');
+  c.done.disabled = s.done || t === 0;
+  c.reset.disabled = t === 0 && !s.done;
+}
+function renderSummary() {
+  let done = 0, total = 0, overCount = 0;
+  QS.forEach(q => {
+    const s = rec(q.n), t = ms(s);
+    total += t;
+    if (s.done) done++;
+    if (t > TARGET[q.level] * 1000) overCount++;
+  });
+  document.getElementById('sumDone').textContent = done + ' / ' + QS.length;
+  document.getElementById('sumTime').textContent = fmt(total);
+  const o = document.getElementById('sumOver');
+  o.textContent = overCount;
+  o.classList.toggle('warn', overCount > 0);
+}
+function renderAll() { QS.forEach(q => renderCard(q.n)); renderSummary(); }
+
+let ticks = 0;
+setInterval(() => {
+  const running = QS.find(q => rec(q.n).startedAt);
+  if (running) {
+    renderCard(running.n); renderSummary();
+    if (++ticks % 4 === 0) save();
+  }
+}, 250);
+
+function resultsText() {
+  const lines = ['Progressions fix-it 1: my results', ''];
+  let total = 0;
+  const over = [];
+  QS.forEach(q => {
+    const s = rec(q.n), t = ms(s);
+    total += t;
+    const ans = (s.answer || '').trim() || '(no answer)';
+    const time = t === 0 ? 'not attempted' : fmt(t) + (s.done ? '' : ' (not marked done)');
+    if (t > TARGET[q.level] * 1000) over.push('Q' + q.n);
+    lines.push('Q' + q.n + ': ' + ans + ' | ' + time + ' | target ' + fmt(TARGET[q.level] * 1000));
+  });
+  lines.push('', 'Total time: ' + fmt(total));
+  lines.push('Over target: ' + (over.length ? over.join(', ') : 'none'));
+  return lines.join('\n');
+}
+
+const toast = document.getElementById('toast');
+document.getElementById('copyBtn').addEventListener('click', () => {
+  const text = resultsText();
+  const out = document.getElementById('copyOut');
+  const fallback = () => {
+    out.value = text; out.hidden = false; out.focus(); out.select();
+    toast.textContent = 'Select all and copy the text below';
+  };
+  try {
+    navigator.clipboard.writeText(text).then(() => {
+      toast.textContent = 'Copied. Now send it to Vikas.';
+      out.value = text; out.hidden = false;
+    }, fallback);
+  } catch (e) { fallback(); }
+});
+
+let armed = false;
+const resetBtn = document.getElementById('resetAll');
+resetBtn.addEventListener('click', () => {
+  if (!armed) {
+    armed = true; resetBtn.textContent = 'Tap again to clear everything';
+    setTimeout(() => { armed = false; resetBtn.textContent = 'Clear all timers'; }, 3000);
+    return;
+  }
+  armed = false; resetBtn.textContent = 'Clear all timers';
+  state = {}; submitted = false; save(); scheduleSync(); renderSubmit();
+  QS.forEach(q => { document.getElementById('ans-' + q.n).value = ''; });
+  document.getElementById('copyOut').hidden = true;
+  toast.textContent = 'All timers and answers cleared';
+  renderAll();
+});
+
+// Saving for Claude: one shared document holds every answer and time, written after a pause in activity.
+let docRef = null, lastSent = '', writing = false, pending = false, syncTimer = null, submitted = false;
+const syncEl = document.getElementById('sync');
+const submitBtn = document.getElementById('submitBtn');
+
+function setSync(text, cls) {
+  syncEl.textContent = text;
+  syncEl.className = 'sync' + (cls ? ' ' + cls : '');
+}
+function payload() {
+  const questions = {};
+  QS.forEach(q => {
+    const s = rec(q.n);
+    questions['q' + q.n] = {
+      answer: (s.answer || '').trim(),
+      seconds: Math.round(ms(s) / 1000),
+      done: !!s.done,
+      targetSeconds: TARGET[q.level]
+    };
+  });
+  return { set: 'Progressions fix-it 1', submitted, questions };
+}
+function scheduleSync() {
+  if (!docRef) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(pushSync, 1200);
+}
+async function pushSync() {
+  if (!docRef) return;
+  if (writing) { pending = true; return; }
+  const body = payload();
+  const key = JSON.stringify(body);
+  if (key === lastSent) return;
+  writing = true;
+  setSync('Saving…', '');
+  try {
+    await docRef.set(Object.assign({}, body, { updatedAt: new Date().toISOString() }));
+    lastSent = key;
+    const t = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    setSync((submitted ? 'Submitted. Tell Claude in chat that you are done. Last saved ' : 'Saved for Claude at ') + t, 'ok');
+  } catch (e) {
+    setSync(e && e.code === 'invalid_argument'
+      ? 'This view cannot save for Claude. Use Copy results and paste them in chat.'
+      : 'Could not save just now. It will try again on your next change, or use Copy results.', 'bad');
+  } finally {
+    writing = false;
+    if (pending) { pending = false; pushSync(); }
+  }
+}
+function renderSubmit() {
+  submitBtn.textContent = submitted ? 'Submitted' : 'Submit to Claude';
+}
+submitBtn.addEventListener('click', () => {
+  QS.forEach(q => pause(q.n));
+  submitted = true;
+  save(); renderAll(); renderSubmit();
+  clearTimeout(syncTimer);
+  pushSync();
+});
+document.addEventListener('visibilitychange', () => { if (document.hidden) pushSync(); });
+
+function hydrate(data) {
+  const qs = (data && data.questions) || {};
+  QS.forEach(q => {
+    const r = qs['q' + q.n];
+    if (!r) return;
+    state[q.n] = { elapsed: (r.seconds || 0) * 1000, startedAt: null, answer: r.answer || '', done: !!r.done };
+    document.getElementById('ans-' + q.n).value = r.answer || '';
+  });
+  save(); renderAll();
+}
+
+async function connect() {
+  let db = null;
+  try { db = window.claude && window.claude.use ? await window.claude.use('db') : null; } catch (e) { db = null; }
+  if (!db) {
+    setSync('Saving for Claude is not available here. Use Copy results and paste them in chat.', 'bad');
+    submitBtn.hidden = true;
+    return;
+  }
+  docRef = db.doc('attempts/arith-pyq1');
+  const slow = setTimeout(() => setSync('Still connecting. Your work is kept in this browser meanwhile.', 'bad'), 10000);
+  try {
+    const snap = await docRef.get();
+    clearTimeout(slow);
+    const hasLocal = QS.some(q => state[q.n] && (state[q.n].elapsed || state[q.n].answer));
+    if (snap.exists) {
+      submitted = !!snap.data().submitted;
+      if (!hasLocal) hydrate(snap.data());
+    }
+    renderSubmit();
+    lastSent = hasLocal ? '' : JSON.stringify(payload());
+    setSync(snap.exists ? 'Saved for Claude' : 'Ready. Your work saves for Claude as you go.', 'ok');
+    if (hasLocal) scheduleSync();
+  } catch (e) {
+    clearTimeout(slow);
+    docRef = null;
+    setSync('Could not reach saved data. Use Copy results and paste them in chat.', 'bad');
+  }
+}
+
+build();
+renderAll();
+</script>
+</body>
+</html>

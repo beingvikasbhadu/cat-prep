@@ -19,7 +19,7 @@ window.TRACKER = {
     "inequalities": { status: "Not started", score: "", weak: "" },
     "functions": { status: "Not started", score: "", weak: "" },
     "logs": { status: "Not started", score: "", weak: "" },
-    "progressions": { status: "In progress", score: "Set 1 given 9 Nov (15 Qs incl. 8 real CAT questions, 34 min)", weak: "" },
+    "progressions": { status: "In progress", score: "3-set quiz (11 Nov): 18/28 (basics 9/10, real CAT 6/10, harder 3/8) in 212 min vs 72 · Set 1 (9 Nov) result not in yet", weak: "Term vs sum and n vs n − 1 (Q3, Q15, Q17, Q28); far too slow on CAT questions (Q13 21 min, no answer)" },
     "triangles": { status: "Not started", score: "", weak: "" },
     "circles": { status: "Not started", score: "", weak: "" },
     "mensuration": { status: "Not started", score: "", weak: "" },
@@ -40,18 +40,24 @@ window.TRACKER = {
     { what: "Overlapping groups: the shared item is counted twice", found: "A&M Set 1, Q2", fix: "Shared item = sum of group 1 + sum of group 2 − total", status: "Practising" },
     { what: "Repeated replacement, solving for x", found: "A&M Set 1, Q20", fix: "Milk left ÷ start = (1 − x/V)ⁿ, then take the nth root", status: "Practising" },
     { what: "Answering a different quantity than asked (total vs added, rounded vs exact)", found: "A&M Set 1, Q5, Q9; TSD Set 1 Q16 (read '3 hours more' as '3 hours'); TSD fresh check Q5 (gave the boat speed 10, asked the stream speed 2)", fix: "Before writing the answer, reread the last line of the question; underline 'more', 'than', 'each', 'total'", status: "Practising" },
-    { what: "Speed: too many questions over target time", found: "Ratio Set 1 (Q8 7 min, Q19 9 min); A&M Set 1: 61 min vs 40; Ratio fresh check: 30 min vs 16; TSD Set 1: 54 min vs 34, Q17 13.5 min with no answer; TSD fresh check: 32 min vs 18 (Q6 7.5 min); Time & Work Set 1 (7 Nov): 21.7 min vs 24, first set under target; SI & CI Set 2 (7 Nov): 34.6 min vs 24, Q12 8.6 min; Equations Set 1 (9 Nov): 38 min vs 30 (Q10 10.3 min, Q15 8.6 min, both right)", fix: "Leave a question at 3 min; redo slow ones untimed, then timed", status: "Open" },
+    { what: "Speed: too many questions over target time", found: "Ratio Set 1 (Q8 7 min, Q19 9 min); A&M Set 1: 61 min vs 40; Ratio fresh check: 30 min vs 16; TSD Set 1: 54 min vs 34, Q17 13.5 min with no answer; TSD fresh check: 32 min vs 18 (Q6 7.5 min); Time & Work Set 1 (7 Nov): 21.7 min vs 24, first set under target; SI & CI Set 2 (7 Nov): 34.6 min vs 24, Q12 8.6 min; Equations Set 1 (9 Nov): 38 min vs 30 (Q10 10.3 min, Q15 8.6 min, both right); Progressions 3-set quiz (11 Nov): 212 min vs 72, 23 of 28 over target, Q13 21.5 min and Q26 14.7 min with no answer", fix: "Leave a question at 3 min; redo slow ones untimed, then timed", status: "Open" },
     { what: "Coins: ratio of values vs ratio of counts", found: "Ratio Set 1, Q7; fresh check 5 Nov Q6 blank after 7 min; TSD fresh check Q1 wrong (110, answer 90); warm-up skipped 3 times since (untested since 6 Nov)", fix: "Values ratio: split the ₹ first, then ÷ coin value. Counts ratio: value of one set first", status: "Open" },
     { what: "Calculation slips (unit conversion, division)", found: "Ratio Set 1 Q18; A&M Set 1 Q12; TSD Set 1 Q9, Q12; TSD fresh check Q3, Q4 right; SI & CI Set 2 Q14 (12,500 vs 50,000: likely 0.4 × 5,000 written as 500)", fix: "Write every step on paper; before marking, rough-check the size of the answer (300 m at about 3 m/s is about 100 s)", status: "Open" },
     { what: "Accident / delay: slower speed for part of the trip", found: "TSD Set 1, Q17 (blank after 13.5 min); TSD fresh check Q7 right, Q8 wrong (90, answer 60); warm-up skipped 3 times since (untested since 6 Nov)", fix: "Split the wording into Case 1 and Case 2. Extra per km: speed a/b → extra (b − a)/a of normal time (3/5 → 2/3, 4/5 → 1/4, 2/3 → 1/2). Gap between the two late times = that extra on the shifted km", status: "Practising" }
 ,
     { what: "Men and women equivalence (or / and type)", found: "Time & Work Set 1, Q14 (answered 21.7, answer 9)", fix: "OR = two equal teams: 12 men = 18 women → 1 man = 1.5 women. Turn everyone into women, then effort ÷ team", status: "Open" },
     { what: "Equal instalments (CI loan repaid in equal parts)", found: "SI & CI Set 2, Q13 (answered 1,230, answer 1,331)", fix: "2 instalments: payment = loan ÷ 2.1 × 1.21 at 10% (÷ 2.2 × 1.44 at 20%). Check with a bank-statement table: it must end at 0", status: "Open" },
-    { what: "Root formulas: sign of b, α² + β²", found: "Equations Set 1, Q6 (−17, answer −13) and Q7 (22, answer 19)", fix: "Equation from roots: x² − (sum)x + product, so b = −sum. α² + β² = sum² − 2 × product (the 2 matters)", status: "Open" }
+    { what: "Root formulas: sign of b, α² + β²", found: "Equations Set 1, Q6 (−17, answer −13) and Q7 (22, answer 19)", fix: "Equation from roots: x² − (sum)x + product, so b = −sum. α² + β² = sum² − 2 × product (the 2 matters)", status: "Open" },
+    { what: "Term vs sum, and counting off by one (aₙ vs Sₙ, n vs n − 1)", found: "Progressions 3-set quiz: Q3 (49 = 25th odd number, asked the sum 625), Q17 (12,282 = S₁₁, asked a₁₁ = 6,144), Q28 (2,551: added 1 to 50, should stop at 49), Q15 (counted from x₁, sequence starts at x₀)", fix: "Underline 'term' or 'sum' in the question. aₙ = Sₙ − Sₙ₋₁. The nth term is n − 1 steps after the first. Write the first 3 terms with their numbers before using a formula", status: "Open" }
   ],
 
   // Newest first. Redo each after 1, 3 and 7 days in the warm-up.
   errorLog: [
+    { date: "11 Nov", where: "Progressions 3-set quiz, Q13, Q18, Q22, Q24, Q26, Q27", topic: "Progressions", reason: "Left blank (Q13 after 21.5 min; Q24 skipped at 0:40)", takeaway: "Tools: change in the sum = the new term (Q13); p + 3 doubles (Q18); 1/(k(k+1)) = 1/k − 1/(k+1) (Q22); list the first number, then every 35 (Q24); Σn(n+1) = n(n+1)(n+2)/3 (Q26); S − S/2 (Q27)" },
+    { date: "11 Nov", where: "Progressions 3-set quiz, Q28", topic: "Progressions", reason: "Off by one (answered 2,551 = 1 + 50 × 51)", takeaway: "a₅₀ = a₁ + 2(1 + 2 + … + 49) = 1 + 49 × 50 = 2,451. Going from a₁ to a₅₀ takes 49 steps" },
+    { date: "11 Nov", where: "Progressions 3-set quiz, Q17", topic: "Progressions", reason: "Gave the sum, not the term (12,282 = S₁₁)", takeaway: "a₁₁ = S₁₁ − S₁₀ = 12,282 − 6,138 = 6,144" },
+    { date: "11 Nov", where: "Progressions 3-set quiz, Q15", topic: "Progressions", reason: "Off by one in the cycle (answered 1, which is x₂₀₂₀)", takeaway: "x₀ to x₄ = 1, 2, 3, 2, 1, then it repeats every 5. 2021 = 5 × 404 + 1 → same as x₁ = 2" },
+    { date: "11 Nov", where: "Progressions 3-set quiz, Q3", topic: "Progressions", reason: "Gave the 25th odd number (49), asked the sum", takeaway: "Sum of the first n odd numbers = n² → 25² = 625" },
     { date: "9 Nov", where: "Equations Set 1, Q7", topic: "Equations", reason: "Formula slip (likely subtracted the product once; answered 22)", takeaway: "α² + β² = (α + β)² − 2αβ = 25 − 2 × 3 = 19" },
     { date: "9 Nov", where: "Equations Set 1, Q6", topic: "Equations", reason: "Sign slip (likely took b = sum; answered −17)", takeaway: "Roots 3, −5: x² − (−2)x + (−15) = x² + 2x − 15 → b = 2, c = −15 → −13" },
     { date: "7 Nov", where: "SI & CI Set 2, Q14", topic: "SI & CI", reason: "Calculation slip (likely; answered 12,500)", takeaway: "0.44x = 0.4(x + 5,000) = 0.4x + 2,000 → 0.04x = 2,000 → x = 50,000" },
@@ -98,7 +104,7 @@ window.TRACKER = {
           ]},
     { block: "Algebra", items: [
       { date: "2026-11-09", text: "Linear + quadratic equations: Set 1 13/15 in 38 min", done: true },
-      { date: "2026-11-10", text: "Progressions (AP, GP, series): Set 1 with real CAT questions", done: false },
+      { date: "2026-11-10", text: "Progressions (AP, GP, HP, series): 3-set quiz 18/28 in 212 min", done: true },
       { date: "2026-11-11", text: "Inequalities & modulus", done: false },
       { date: "2026-11-12", text: "Functions & graphs (standard types only)", done: false },
       { date: "2026-11-13", text: "Logs, surds, indices", done: false },
