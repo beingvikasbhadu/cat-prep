@@ -16,7 +16,7 @@ window.TRACKER = {
     "tsd": { status: "In progress", score: "Set 1 (5–6 Nov): 11/15 TSD (L1 4/4, L2 5/7, L3 2/4) in 54 min vs 34 target · 2 warm-ups skipped · Fresh check 6 Nov: 5/8 in 32 min vs 18 · Set 2 (races, circular tracks) kept for the weekly review", weak: "Two trains in the same direction; boats from distance and time; '3 hours more' equation; accident / delay" },
     "time-work": { status: "In progress", score: "Set 1 (with pipes, 7 Nov): 11/12 (L1 3/3, L2 6/6, L3 2/3) in 21:40 vs 24 target · 2 warm-ups skipped", weak: "Men and women equivalence (or / and type)" },
     "equations": { status: "In progress", score: "Set 1 (9 Nov): 13/15 (L1 4/4, L2 5/7, L3 4/4) in 38 min vs 30 · 2 arithmetic warm-ups skipped (4th time) · 3-set quiz (12 Nov): 22/28 (basics 10/10, real CAT 9/10, harder 3/8) in 131 min vs 72", weak: "Harder-than-CAT: product vs sum of real roots, roots in a range, power chains, integer roots; Q20 26 min with no answer" },
-    "inequalities": { status: "In progress", score: "Revision lesson 12 Nov (9 ideas) + 9-question try-it page", weak: "" },
+    "inequalities": { status: "In progress", score: "Revision lesson 12 Nov (9 ideas) + 9-question try-it page · 3-section quiz given 12 Nov (25 Qs incl. 15 real CAT 2020–24)", weak: "" },
     "functions": { status: "Not started", score: "", weak: "" },
     "logs": { status: "Not started", score: "", weak: "" },
     "progressions": { status: "In progress", score: "3-set quiz (11 Nov): 18/28 (basics 9/10, real CAT 6/10, harder 3/8) in 212 min vs 72 · Set 1 (9 Nov) result not in yet", weak: "Term vs sum and n vs n − 1 (Q3, Q15, Q17, Q28); far too slow on CAT questions (Q13 21 min, no answer)" },
