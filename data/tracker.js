@@ -18,7 +18,7 @@ window.TRACKER = {
     "equations": { status: "In progress", score: "Set 1 (9 Nov): 13/15 (L1 4/4, L2 5/7, L3 4/4) in 38 min vs 30 · 2 arithmetic warm-ups skipped (4th time) · 3-set quiz (12 Nov): 22/28 (basics 10/10, real CAT 9/10, harder 3/8) in 131 min vs 72", weak: "Harder-than-CAT: product vs sum of real roots, roots in a range, power chains, integer roots; Q20 26 min with no answer" },
     "inequalities": { status: "In progress", score: "Revision lesson 12 Nov (9 ideas) + 9-question try-it page · 3-section quiz given 12 Nov (25 Qs incl. 15 real CAT 2020–24)", weak: "" },
     "functions": { status: "Not started", score: "", weak: "" },
-    "logs": { status: "In progress", score: "Identities + surds & indices try-it (12 Nov): 11/11 in 11 min vs 16.5 (logs still to do)", weak: "" },
+    "logs": { status: "In progress", score: "Identities + surds & indices try-it (12 Nov): 11/11 in 11 min vs 16.5 · 2-section quiz given 12 Nov (15 real CAT 2017–24 + 5 harder) · logs still to do", weak: "" },
     "progressions": { status: "In progress", score: "3-set quiz (11 Nov): 18/28 (basics 9/10, real CAT 6/10, harder 3/8) in 212 min vs 72 · Set 1 (9 Nov) result not in yet", weak: "Term vs sum and n vs n − 1 (Q3, Q15, Q17, Q28); far too slow on CAT questions (Q13 21 min, no answer)" },
     "triangles": { status: "Not started", score: "", weak: "" },
     "circles": { status: "Not started", score: "", weak: "" },
