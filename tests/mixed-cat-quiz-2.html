@@ -136,32 +136,47 @@
     .q { transition: border-color .2s, background-color .2s; }
   }
   body { margin: 0; }
+
+  /* Exam mode: one countdown for the whole set, answers lock at 0:00 */
+  .summary { position: sticky; top: 0; z-index: 5; }
+  .stat b.low { color: var(--warn); }
+  .startbox { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 10px; justify-items: start; }
+  .startbox p { margin: 0; color: var(--muted); }
+  .q.answered { border-left-color: var(--accent); }
+  .locked .answer input { opacity: .75; }
+  .banner { border-radius: 10px; padding: 12px 16px; font-weight: 600; background: var(--warn-soft); color: var(--warn); border: 1px solid var(--warn); }
+  .banner[hidden], #list[hidden], .results[hidden], .startbox[hidden] { display: none; }
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="wrap" id="wrap">
   <header>
     <div class="eyebrow">CAT 2026 · Mixed quiz 2 · Arithmetic + Algebra + Geometry</div>
     <h1>12 real CAT questions in 40 minutes</h1>
-    <p class="lede">Press Start when you begin reading a question and Done when you have your answer. Starting a new question pauses the one that is running, just like moving on in the exam. Your times and answers stay saved in this browser. All 12 are real CAT questions (2017–2020): 4 arithmetic, 4 algebra, 4 geometry. Total 40 minutes, so about 3:20 a question. For MCQs, type the letter or the value. Like a real mock: first read all 12 for 10 seconds each and do the easy ones first. No method after 1 minute: skip. Leave any question at 5 minutes. Before you type an answer, reread the last line of the question.</p>
+    <p class="lede">One clock for the whole test: <b>40 minutes</b>. The questions appear when you press Start. The clock keeps running even if you close the page, just like the real exam. At 0:00 every answer locks and your results appear. For MCQs, type the letter or the value. First read all 12 for 10 seconds each and do the easy ones first. No method after 1 minute: skip. Before you type an answer, reread the last line of the question.</p>
   </header>
 
   <section class="summary" aria-label="Progress">
-    <div class="stat"><span>Done</span><b id="sumDone">0 / 12</b></div>
-    <div class="stat"><span>Total time</span><b id="sumTime">0:00</b></div>
-    <div class="stat"><span>Over target</span><b id="sumOver">0</b></div>
+    <div class="stat"><span>Time left</span><b id="left">40:00</b></div>
+    <div class="stat"><span>Answered</span><b id="answered">0 / 12</b></div>
+    <div class="stat"><span>Status</span><b id="status">Not started</b></div>
   </section>
 
-  <div id="list"></div>
+  <section class="startbox" id="startbox">
+    <p>Sit somewhere quiet with a pen and rough paper. Once you press Start, the clock cannot be paused.</p>
+    <button class="primary" id="startBtn" type="button">Start the 40-minute test</button>
+  </section>
 
-  <section class="results" aria-labelledby="resHead">
+  <div class="banner" id="banner" role="status" hidden></div>
+
+  <div id="list" hidden></div>
+
+  <section class="results" id="results" aria-labelledby="resHead" hidden>
     <h2 id="resHead">Send your results</h2>
-    <p>When you finish, press <b>Copy results</b> and send the copied text to Vikas. Every answer will be checked, mistakes explained, and your tracker updated.</p>
-    <p class="sync" id="sync" role="status" hidden></p>
+    <p id="resNote">Press <b>Copy results</b> and send the copied text to Vikas. Every answer will be checked, mistakes explained, and your tracker updated.</p>
     <div class="row">
       <button class="primary" id="copyBtn" type="button">Copy results</button>
-      <button id="submitBtn" type="button" hidden>Submit</button>
-      <button id="resetAll" type="button">Clear all timers</button>
+      <button id="finishBtn" type="button">Finish early and lock</button>
       <span class="toast" id="toast" role="status"></span>
     </div>
     <textarea id="copyOut" readonly hidden aria-label="Results text"></textarea>
@@ -183,160 +198,122 @@ const QS = [
   {"level": 3, "n": 11, "type": "TITA · CAT 2017 S2 · Circles", "text": "ABCD is a quadrilateral inscribed in a circle with centre O. If ∠COD = 120° and ∠BAC = 30°, then the value of ∠BCD (in degrees) is"},
   {"level": 3, "n": 12, "type": "TITA · CAT 2018 S2 · Triangles + circles", "text": "On a triangle ABC, a circle with diameter BC is drawn, intersecting AB and AC at points P and Q, respectively. If the lengths of AB, AC and CP are 30 cm, 25 cm and 20 cm respectively, then the length of BQ, in cm, is"}
 ];
-const TARGET = { 1: 200, 2: 200, 3: 200 };
-const KEY = 'cat-mixed2-timer-v1';
+const LIMIT = 40 * 60 * 1000;
+const KEY = 'cat-mixed2-exam-v1';
+const HEADS = {
+        1: 'Arithmetic: real CAT',
+        2: 'Algebra: real CAT',
+        3: 'Geometry: real CAT'
+      };
 
-let state = {};
-try { state = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { state = {}; }
+let state = { startedAt: null, endedAt: null, early: false, answers: {} };
+try { state = Object.assign(state, JSON.parse(localStorage.getItem(KEY) || '{}') || {}); } catch (e) {}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
 
-function rec(n) {
-  if (!state[n]) state[n] = { elapsed: 0, startedAt: null, answer: '', done: false };
-  return state[n];
-}
-function save() {
-  state._savedAt = Date.now();
-  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
-}
-// A timer left running when the page closed stops at the last save, so closed time is not counted.
-(function settle() {
-  const at = state._savedAt || Date.now();
-  QS.forEach(q => {
-    const s = state[q.n];
-    if (s && s.startedAt) { s.elapsed += Math.max(0, at - s.startedAt); s.startedAt = null; }
-  });
-})();
-
-const ms = s => s.elapsed + (s.startedAt ? Date.now() - s.startedAt : 0);
 function fmt(t) {
-  const sec = Math.floor(t / 1000);
+  const sec = Math.max(0, Math.ceil(t / 1000));
   return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
 }
+const used = () => state.startedAt ? Math.min(LIMIT, (state.endedAt || Date.now()) - state.startedAt) : 0;
+const locked = () => !!state.endedAt;
 
 const list = document.getElementById('list');
-const cards = {};
-
+const inputs = {};
 function build() {
   let level = -1;
   QS.forEach(q => {
     if (q.level !== level) {
       level = q.level;
       const h = document.createElement('h2');
-      h.innerHTML = ({
-        1: 'Arithmetic: real CAT <small>target 3:20 each</small>',
-        2: 'Algebra: real CAT <small>target 3:20 each</small>',
-        3: 'Geometry: real CAT <small>target 3:20 each</small>'
-      })[level];
+      h.innerHTML = HEADS[level];
       list.appendChild(h);
     }
     const card = document.createElement('article');
     card.className = 'q';
     card.style.marginTop = '12px';
-    const tag = !q.type ? '' : '<span class="chip">' + q.type + '</span>';
     card.innerHTML =
-      '<div class="q-head"><span class="qnum">Q' + q.n + '</span>' + tag +
-      '<span class="chip state">Not started</span></div>' +
+      '<div class="q-head"><span class="qnum">Q' + q.n + '</span>' + (q.type ? '<span class="chip">' + q.type + '</span>' : '') + '</div>' +
       '<p></p>' +
       (q.opts ? '<ul class="opts">' + q.opts.map(o => '<li>' + o + '</li>').join('') + '</ul>' : '') +
-      '<div class="controls"><span class="clock" aria-live="off">0:00</span>' +
-      '<span class="target">/ ' + fmt(TARGET[q.level] * 1000) + '</span>' +
-      '<div class="btns"><button class="primary" type="button" data-act="toggle">Start</button>' +
-      '<button type="button" data-act="done">Done</button>' +
-      '<button type="button" data-act="reset">Reset</button></div></div>' +
       '<div class="answer"><label for="ans-' + q.n + '">Your answer</label>' +
       '<input id="ans-' + q.n + '" type="text" autocomplete="off" placeholder="Type your answer"></div>';
     card.querySelector('p').textContent = q.text;
     const input = card.querySelector('input');
-    input.value = rec(q.n).answer || '';
-    input.addEventListener('input', () => { rec(q.n).answer = input.value; save(); scheduleSync(); });
-    card.addEventListener('click', e => {
-      const b = e.target.closest('button');
-      if (b) act(q.n, b.dataset.act);
+    input.value = state.answers[q.n] || '';
+    input.addEventListener('input', () => {
+      if (locked()) return;
+      state.answers[q.n] = input.value; save();
+      card.classList.toggle('answered', !!input.value.trim());
+      renderSummary();
     });
+    card.classList.toggle('answered', !!input.value.trim());
+    inputs[q.n] = input;
     list.appendChild(card);
-    cards[q.n] = { card, q,
-      clock: card.querySelector('.clock'), chip: card.querySelector('.chip.state'),
-      toggle: card.querySelector('[data-act="toggle"]'), done: card.querySelector('[data-act="done"]'),
-      reset: card.querySelector('[data-act="reset"]') };
   });
 }
 
-function pause(n) {
-  const s = rec(n);
-  if (s.startedAt) { s.elapsed = ms(s); s.startedAt = null; }
-}
-function act(n, what) {
-  const s = rec(n);
-  if (what === 'toggle') {
-    if (s.startedAt) { pause(n); }
-    else {
-      QS.forEach(q => { if (q.n !== n) pause(q.n); });
-      s.done = false; s.startedAt = Date.now();
-    }
-  } else if (what === 'done') {
-    pause(n); s.done = true;
-  } else if (what === 'reset') {
-    state[n] = { elapsed: 0, startedAt: null, answer: s.answer, done: false };
-  }
-  save(); renderAll(); scheduleSync();
-}
-
-function renderCard(n) {
-  const c = cards[n], s = rec(n), t = ms(s), over = t > TARGET[c.q.level] * 1000;
-  c.clock.textContent = fmt(t);
-  c.card.classList.toggle('running', !!s.startedAt);
-  c.card.classList.toggle('over', over && !s.done);
-  c.card.classList.toggle('done', s.done);
-  let label = 'Not started', cls = '';
-  if (s.done) { label = over ? 'Done · over target' : 'Done'; cls = 'done'; }
-  else if (s.startedAt) { label = over ? 'Over target' : 'Running'; cls = over ? 'over' : 'running'; }
-  else if (t > 0) { label = over ? 'Paused · over target' : 'Paused'; cls = over ? 'over' : ''; }
-  c.chip.textContent = label;
-  c.chip.className = 'chip state' + (cls ? ' ' + cls : '');
-  c.toggle.textContent = s.startedAt ? 'Pause' : (t > 0 ? 'Resume' : 'Start');
-  c.done.disabled = s.done || t === 0;
-  c.reset.disabled = t === 0 && !s.done;
-}
+function answeredCount() { return QS.filter(q => (state.answers[q.n] || '').trim()).length; }
 function renderSummary() {
-  let done = 0, total = 0, overCount = 0;
-  QS.forEach(q => {
-    const s = rec(q.n), t = ms(s);
-    total += t;
-    if (s.done) done++;
-    if (t > TARGET[q.level] * 1000) overCount++;
-  });
-  document.getElementById('sumDone').textContent = done + ' / ' + QS.length;
-  document.getElementById('sumTime').textContent = fmt(total);
-  const o = document.getElementById('sumOver');
-  o.textContent = overCount;
-  o.classList.toggle('warn', overCount > 0);
+  const left = LIMIT - used();
+  const el = document.getElementById('left');
+  el.textContent = fmt(left);
+  el.classList.toggle('low', !!state.startedAt && left <= 5 * 60 * 1000);
+  document.getElementById('answered').textContent = answeredCount() + ' / ' + QS.length;
+  document.getElementById('status').textContent = !state.startedAt ? 'Not started' : (locked() ? 'Locked' : 'Running');
 }
-function renderAll() { QS.forEach(q => renderCard(q.n)); renderSummary(); }
 
-let ticks = 0;
-setInterval(() => {
-  const running = QS.find(q => rec(q.n).startedAt);
-  if (running) {
-    renderCard(running.n); renderSummary();
-    if (++ticks % 4 === 0) save();
+function lock(early) {
+  if (!state.endedAt) {
+    state.endedAt = early ? Date.now() : state.startedAt + LIMIT;
+    state.early = !!early;
+    save();
   }
-}, 250);
+  render();
+}
+
+function render() {
+  const started = !!state.startedAt;
+  document.getElementById('startbox').hidden = started;
+  list.hidden = !started;
+  document.getElementById('results').hidden = !started;
+  const isLocked = locked();
+  document.getElementById('wrap').classList.toggle('locked', isLocked);
+  QS.forEach(q => { inputs[q.n].readOnly = isLocked; });
+  document.getElementById('finishBtn').hidden = isLocked;
+  const banner = document.getElementById('banner');
+  banner.hidden = !isLocked;
+  if (isLocked) {
+    banner.textContent = (state.early ? 'You finished early. ' : "Time's up. ") + 'Your answers are locked. Press Copy results below and send them to Vikas.';
+    document.getElementById('copyOut').value = resultsText();
+    document.getElementById('copyOut').hidden = false;
+  }
+  renderSummary();
+}
 
 function resultsText() {
   const lines = ['Mixed CAT quiz 2: my results', ''];
-  let total = 0;
-  const over = [];
-  QS.forEach(q => {
-    const s = rec(q.n), t = ms(s);
-    total += t;
-    const ans = (s.answer || '').trim() || '(no answer)';
-    const time = t === 0 ? 'not attempted' : fmt(t) + (s.done ? '' : ' (not marked done)');
-    if (t > TARGET[q.level] * 1000) over.push('Q' + q.n);
-    lines.push('Q' + q.n + ': ' + ans + ' | ' + time + ' | target ' + fmt(TARGET[q.level] * 1000));
-  });
-  lines.push('', 'Total time: ' + fmt(total));
-  lines.push('Over target: ' + (over.length ? over.join(', ') : 'none'));
+  QS.forEach(q => lines.push('Q' + q.n + ': ' + ((state.answers[q.n] || '').trim() || '(no answer)')));
+  lines.push('', 'Answered: ' + answeredCount() + ' / ' + QS.length);
+  lines.push('Time used: ' + fmt(used()) + ' of 40:00' + (locked() ? (state.early ? ' (finished early)' : ' (time up, auto-locked)') : ' (still running)'));
   return lines.join('\n');
 }
+
+document.getElementById('startBtn').addEventListener('click', () => {
+  if (state.startedAt) return;
+  state.startedAt = Date.now(); save(); render();
+  window.scrollTo({ top: 0 });
+});
+
+let armed = false;
+const finishBtn = document.getElementById('finishBtn');
+finishBtn.addEventListener('click', () => {
+  if (!armed) {
+    armed = true; finishBtn.textContent = 'Tap again to lock your answers';
+    setTimeout(() => { armed = false; finishBtn.textContent = 'Finish early and lock'; }, 3000);
+    return;
+  }
+  lock(true);
+});
 
 const toast = document.getElementById('toast');
 document.getElementById('copyBtn').addEventListener('click', () => {
@@ -354,125 +331,15 @@ document.getElementById('copyBtn').addEventListener('click', () => {
   } catch (e) { fallback(); }
 });
 
-let armed = false;
-const resetBtn = document.getElementById('resetAll');
-resetBtn.addEventListener('click', () => {
-  if (!armed) {
-    armed = true; resetBtn.textContent = 'Tap again to clear everything';
-    setTimeout(() => { armed = false; resetBtn.textContent = 'Clear all timers'; }, 3000);
-    return;
-  }
-  armed = false; resetBtn.textContent = 'Clear all timers';
-  state = {}; submitted = false; save(); scheduleSync(); renderSubmit();
-  QS.forEach(q => { document.getElementById('ans-' + q.n).value = ''; });
-  document.getElementById('copyOut').hidden = true;
-  toast.textContent = 'All timers and answers cleared';
-  renderAll();
-});
-
-// Saving for Claude: one shared document holds every answer and time, written after a pause in activity.
-let docRef = null, lastSent = '', writing = false, pending = false, syncTimer = null, submitted = false;
-const syncEl = document.getElementById('sync');
-const submitBtn = document.getElementById('submitBtn');
-
-function setSync(text, cls) {
-  syncEl.textContent = text;
-  syncEl.className = 'sync' + (cls ? ' ' + cls : '');
-}
-function payload() {
-  const questions = {};
-  QS.forEach(q => {
-    const s = rec(q.n);
-    questions['q' + q.n] = {
-      answer: (s.answer || '').trim(),
-      seconds: Math.round(ms(s) / 1000),
-      done: !!s.done,
-      targetSeconds: TARGET[q.level]
-    };
-  });
-  return { set: 'Mixed CAT quiz 2', submitted, questions };
-}
-function scheduleSync() {
-  if (!docRef) return;
-  clearTimeout(syncTimer);
-  syncTimer = setTimeout(pushSync, 1200);
-}
-async function pushSync() {
-  if (!docRef) return;
-  if (writing) { pending = true; return; }
-  const body = payload();
-  const key = JSON.stringify(body);
-  if (key === lastSent) return;
-  writing = true;
-  setSync('Saving…', '');
-  try {
-    await docRef.set(Object.assign({}, body, { updatedAt: new Date().toISOString() }));
-    lastSent = key;
-    const t = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    setSync((submitted ? 'Submitted. Tell Claude in chat that you are done. Last saved ' : 'Saved for Claude at ') + t, 'ok');
-  } catch (e) {
-    setSync(e && e.code === 'invalid_argument'
-      ? 'This view cannot save for Claude. Use Copy results and paste them in chat.'
-      : 'Could not save just now. It will try again on your next change, or use Copy results.', 'bad');
-  } finally {
-    writing = false;
-    if (pending) { pending = false; pushSync(); }
-  }
-}
-function renderSubmit() {
-  submitBtn.textContent = submitted ? 'Submitted' : 'Submit to Claude';
-}
-submitBtn.addEventListener('click', () => {
-  QS.forEach(q => pause(q.n));
-  submitted = true;
-  save(); renderAll(); renderSubmit();
-  clearTimeout(syncTimer);
-  pushSync();
-});
-document.addEventListener('visibilitychange', () => { if (document.hidden) pushSync(); });
-
-function hydrate(data) {
-  const qs = (data && data.questions) || {};
-  QS.forEach(q => {
-    const r = qs['q' + q.n];
-    if (!r) return;
-    state[q.n] = { elapsed: (r.seconds || 0) * 1000, startedAt: null, answer: r.answer || '', done: !!r.done };
-    document.getElementById('ans-' + q.n).value = r.answer || '';
-  });
-  save(); renderAll();
-}
-
-async function connect() {
-  let db = null;
-  try { db = window.claude && window.claude.use ? await window.claude.use('db') : null; } catch (e) { db = null; }
-  if (!db) {
-    setSync('Saving for Claude is not available here. Use Copy results and paste them in chat.', 'bad');
-    submitBtn.hidden = true;
-    return;
-  }
-  docRef = db.doc('attempts/arith-pyq1');
-  const slow = setTimeout(() => setSync('Still connecting. Your work is kept in this browser meanwhile.', 'bad'), 10000);
-  try {
-    const snap = await docRef.get();
-    clearTimeout(slow);
-    const hasLocal = QS.some(q => state[q.n] && (state[q.n].elapsed || state[q.n].answer));
-    if (snap.exists) {
-      submitted = !!snap.data().submitted;
-      if (!hasLocal) hydrate(snap.data());
-    }
-    renderSubmit();
-    lastSent = hasLocal ? '' : JSON.stringify(payload());
-    setSync(snap.exists ? 'Saved for Claude' : 'Ready. Your work saves for Claude as you go.', 'ok');
-    if (hasLocal) scheduleSync();
-  } catch (e) {
-    clearTimeout(slow);
-    docRef = null;
-    setSync('Could not reach saved data. Use Copy results and paste them in chat.', 'bad');
-  }
-}
+setInterval(() => {
+  if (!state.startedAt || locked()) return;
+  if (Date.now() - state.startedAt >= LIMIT) lock(false);
+  else renderSummary();
+}, 250);
 
 build();
-renderAll();
+if (state.startedAt && !state.endedAt && Date.now() - state.startedAt >= LIMIT) lock(false);
+render();
 </script>
 </body>
 </html>
