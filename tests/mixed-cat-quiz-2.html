@@ -138,7 +138,8 @@
   body { margin: 0; }
 
   /* Exam mode: one countdown for the whole set, answers lock at 0:00 */
-  .summary { position: sticky; top: 0; z-index: 5; }
+  .summary { position: sticky; top: 0; z-index: 5; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; align-items: center; }
+  @media (max-width: 520px) { .summary { grid-template-columns: repeat(3, minmax(0, 1fr)); } #submitTop { grid-column: 1 / -1; } }
   .stat b.low { color: var(--warn); }
   .startbox { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 10px; justify-items: start; }
   .startbox p { margin: 0; color: var(--muted); }
@@ -153,13 +154,14 @@
   <header>
     <div class="eyebrow">CAT 2026 · Mixed quiz 2 · Arithmetic + Algebra + Geometry</div>
     <h1>12 real CAT questions in 40 minutes</h1>
-    <p class="lede">One clock for the whole test: <b>40 minutes</b>. The questions appear when you press Start. The clock keeps running even if you close the page, just like the real exam. At 0:00 every answer locks and your results appear. For MCQs, type the letter or the value. First read all 12 for 10 seconds each and do the easy ones first. No method after 1 minute: skip. Before you type an answer, reread the last line of the question.</p>
+    <p class="lede">One clock for the whole test: <b>40 minutes</b>. The questions appear when you press Start. The clock keeps running even if you close the page, just like the real exam. When you press <b>Submit test</b> (top bar) or the clock reaches 0:00, every answer locks and your results appear. For MCQs, type the letter or the value. First read all 12 for 10 seconds each and do the easy ones first. No method after 1 minute: skip. Before you type an answer, reread the last line of the question.</p>
   </header>
 
   <section class="summary" aria-label="Progress">
     <div class="stat"><span>Time left</span><b id="left">40:00</b></div>
     <div class="stat"><span>Answered</span><b id="answered">0 / 12</b></div>
     <div class="stat"><span>Status</span><b id="status">Not started</b></div>
+    <button class="primary" id="submitTop" type="button" hidden>Submit test</button>
   </section>
 
   <section class="startbox" id="startbox">
@@ -176,7 +178,7 @@
     <p id="resNote">Press <b>Copy results</b> and send the copied text to Vikas. Every answer will be checked, mistakes explained, and your tracker updated.</p>
     <div class="row">
       <button class="primary" id="copyBtn" type="button">Copy results</button>
-      <button id="finishBtn" type="button">Finish early and lock</button>
+      <button id="finishBtn" type="button">Submit test</button>
       <span class="toast" id="toast" role="status"></span>
     </div>
     <textarea id="copyOut" readonly hidden aria-label="Results text"></textarea>
@@ -280,10 +282,11 @@ function render() {
   document.getElementById('wrap').classList.toggle('locked', isLocked);
   QS.forEach(q => { inputs[q.n].readOnly = isLocked; });
   document.getElementById('finishBtn').hidden = isLocked;
+  document.getElementById('submitTop').hidden = !started || isLocked;
   const banner = document.getElementById('banner');
   banner.hidden = !isLocked;
   if (isLocked) {
-    banner.textContent = (state.early ? 'You finished early. ' : "Time's up. ") + 'Your answers are locked. Press Copy results below and send them to Vikas.';
+    banner.textContent = (state.early ? 'Test submitted. ' : "Time's up. ") + 'Your answers are locked. Press Copy results below and send them to Vikas.';
     document.getElementById('copyOut').value = resultsText();
     document.getElementById('copyOut').hidden = false;
   }
@@ -294,7 +297,7 @@ function resultsText() {
   const lines = ['Mixed CAT quiz 2: my results', ''];
   QS.forEach(q => lines.push('Q' + q.n + ': ' + ((state.answers[q.n] || '').trim() || '(no answer)')));
   lines.push('', 'Answered: ' + answeredCount() + ' / ' + QS.length);
-  lines.push('Time used: ' + fmt(used()) + ' of 40:00' + (locked() ? (state.early ? ' (finished early)' : ' (time up, auto-locked)') : ' (still running)'));
+  lines.push('Time used: ' + fmt(used()) + ' of 40:00' + (locked() ? (state.early ? ' (submitted)' : ' (time up, auto-locked)') : ' (still running)'));
   return lines.join('\n');
 }
 
@@ -304,15 +307,20 @@ document.getElementById('startBtn').addEventListener('click', () => {
   window.scrollTo({ top: 0 });
 });
 
-let armed = false;
-const finishBtn = document.getElementById('finishBtn');
-finishBtn.addEventListener('click', () => {
-  if (!armed) {
-    armed = true; finishBtn.textContent = 'Tap again to lock your answers';
-    setTimeout(() => { armed = false; finishBtn.textContent = 'Finish early and lock'; }, 3000);
-    return;
-  }
-  lock(true);
+// Submit needs two taps so a stray tap cannot end the test.
+let armed = null;
+['finishBtn', 'submitTop'].forEach(id => {
+  const btn = document.getElementById(id);
+  btn.addEventListener('click', () => {
+    if (armed !== btn) {
+      armed = btn; btn.textContent = 'Tap again to submit';
+      setTimeout(() => { if (armed === btn) armed = null; btn.textContent = 'Submit test'; }, 3000);
+      return;
+    }
+    armed = null;
+    lock(true);
+    window.scrollTo({ top: 0 });
+  });
 });
 
 const toast = document.getElementById('toast');
