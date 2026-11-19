@@ -91,36 +91,107 @@
   .cx-check{display:flex;gap:8px;align-items:flex-start;margin:10px 0}
   .cx-check input{width:18px;height:18px;margin-top:2px;flex:none}
   /* report */
-  .rp{max-width:980px;margin:0 auto;padding:20px 16px 60px;display:grid;gap:16px}
-  .rp h1{font-family:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;font-size:26px;margin:0}
-  .rp h2{font-family:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;font-size:19px;margin:0 0 10px}
-  .rp .muted{color:#5a6577;font-size:13.5px}
-  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
-  .tile{background:#fff;border:1px solid #d5dbe3;border-radius:8px;padding:12px}
-  .tile span{display:block;font-size:12px;color:#5a6577;text-transform:uppercase;letter-spacing:.04em}
-  .tile b{font:600 26px "IBM Plex Mono",ui-monospace,Consolas,monospace}
-  .tile.good b{color:#1f8f5f} .tile.bad b{color:#c0392b}
+  .rp{--ink:#1d2533;--ink2:#52514e;--line:#dfe3e9;--good:#0ca30c;--good-t:#0a7d0a;--bad:#d03b3b;--serious:#ec835a;--warn:#b26b00;--skip:#c9ced6;
+    --l1:#86b6ef;--l2:#5598e7;--l3:#2a78d6;--l4:#1c5cab;--l5:#0d366b;
+    max-width:1000px;margin:0 auto;padding:22px 16px 70px;display:grid;grid-template-columns:minmax(0,1fr);gap:16px;color:var(--ink)}
+  .rp > *,.hero > *{min-width:0}
+  body.cx-report .cc-icon,body.cx-report .cc-pad{display:none !important}
+  .qh .s{display:none}
+  .rp h1{font-family:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;font-size:28px;margin:2px 0 0;line-height:1.15}
+  .rp h2{font-family:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;font-size:19px;margin:0 0 6px}
+  .rp .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);font-weight:600}
+  .rp .note{color:var(--ink2);font-size:13.5px;margin:0 0 12px}
+  .rp .mut{color:var(--ink2)}
+  .rp .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px}
+  .hero{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;align-items:center}
+  .hero .big{font:600 64px/1 "IBM Plex Sans",system-ui,sans-serif;letter-spacing:-.02em;margin:6px 0 14px}
+  .hero .big small{font-size:22px;color:var(--ink2);font-weight:500;letter-spacing:0}
+  .meter{position:relative;height:12px;border-radius:6px;background:#eceff3;margin:22px 0 10px}
+  .meter i{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:var(--l3)}
+  .meter b{position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--ink)}
+  .meter b em{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);font:600 11.5px "IBM Plex Sans",sans-serif;font-style:normal;white-space:nowrap;color:var(--ink);margin-bottom:2px}
+  .hero .sub{font-size:13.5px;color:var(--ink2)}
+  .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .kpi{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid}
+  .kpi span{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink2);font-weight:600}
+  .kpi b{font:600 26px/1.2 "IBM Plex Sans",system-ui,sans-serif}
+  .kpi em{font-style:normal;font-size:12px;color:var(--ink2)}
+  .adv{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+  .adv li{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:8px;background:#f6f8fb;font-size:14.5px}
+  .adv .ai{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;color:#fff;background:var(--ink2)}
+  .adv .a-good .ai{background:var(--good)} .adv .a-bad .ai{background:var(--bad)} .adv .a-warn .ai{background:var(--warn)} .adv .a-score .ai{background:var(--l3)}
+  .lv{display:inline-block;border-radius:999px;padding:1px 9px;font-size:12px;font-weight:600;white-space:nowrap;line-height:1.6}
+  .lv1{background:var(--l1);color:#0b1d33}.lv2{background:var(--l2);color:#fff}.lv3{background:var(--l3);color:#fff}.lv4{background:var(--l4);color:#fff}.lv5{background:var(--l5);color:#fff}
+  .qmap{display:grid;gap:6px;align-items:stretch}
+  .qh{font-size:13px;font-weight:600;text-align:center;padding-bottom:2px}
+  .qh small{font-weight:500;color:var(--ink2)}
+  .qr{display:flex;align-items:center}
+  .qc{border-radius:8px;background:#f7f8fa;padding:6px;display:flex;flex-wrap:wrap;gap:6px;min-height:44px;align-content:flex-start}
+  .qc.zone{background:#e4eefc;box-shadow:inset 0 0 0 1px #b7d3f6}
+  .qd{font:600 13px "IBM Plex Sans",system-ui,sans-serif;border-radius:6px;padding:5px 8px;cursor:pointer;display:inline-flex;gap:4px;align-items:center;border:1px solid transparent;min-height:32px}
+  .qd i{font-style:normal}
+  .qd-ok{background:var(--good);color:#fff}
+  .qd-no{background:var(--bad);color:#fff}
+  .qd-skip{background:#fff;color:var(--ink);border-color:#aab3c0}
+  .legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:12px;font-size:12.5px;color:var(--ink2);align-items:center}
+  .legend span{display:inline-flex;gap:6px;align-items:center}
+  .sw{display:inline-block;width:14px;height:14px;border-radius:4px;flex:none}
+  .sw.qd-skip{border:1px solid #aab3c0}
+  .sw.zone{background:#e4eefc;box-shadow:inset 0 0 0 1px #b7d3f6}
+  .tl{position:relative;padding:4px 0 0}
+  .tl-track{position:relative;height:40px;background:#f1f3f6;border-radius:6px;overflow:hidden}
+  .seg{position:absolute;top:0;bottom:0;border:0;border-right:2px solid #fff;padding:0;font:600 11.5px "IBM Plex Sans",sans-serif;color:#fff;cursor:pointer;overflow:hidden;white-space:nowrap}
+  .seg.lv1{color:#0b1d33}
+  .seg-left{position:absolute;top:0;bottom:0;right:0;display:grid;place-items:center;font-size:11.5px;color:var(--ink2);background:repeating-linear-gradient(135deg,#f1f3f6 0 6px,#e6e9ee 6px 7px)}
+  .tl-saves{position:relative;height:22px}
+  .sv{position:absolute;top:3px;transform:translateX(-50%);font-weight:700;font-size:13px;cursor:default;line-height:1}
+  .sv-ok{color:var(--good-t)} .sv-no{color:var(--bad)}
+  .tl-axis{position:relative;height:18px;border-top:1px solid var(--line);font-size:11px;color:var(--ink2)}
+  .tl-axis span{position:absolute;top:2px;transform:translateX(-50%)}
+  .tl-axis span:first-child{transform:none} .tl-axis span:last-child{transform:translateX(-100%)}
+  .flow{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px;counter-reset:f}
+  .flow li{counter-increment:f;display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:8px;padding:5px 8px;font-size:12.5px;background:#fff}
+  .flow li::before{content:counter(f);font:600 11px "IBM Plex Mono",monospace;color:var(--ink2)}
+  .flow li.none::before{content:none}
+  .flow b{font-size:14px} .flow .rs-ok{color:var(--good-t)} .flow .rs-no{color:var(--bad)} .flow .rs-skip{color:var(--ink2)}
+  .stack{display:flex;height:22px;border-radius:6px;overflow:hidden;gap:2px;background:#fff;margin-bottom:12px}
+  .stack i{display:block;height:100%;cursor:default}
+  .c-good{background:var(--good)} .c-bad{background:var(--bad)} .c-serious{background:var(--serious)} .c-hard{background:#59606b} .c-other{background:#aab3c0} .c-idle{background:repeating-linear-gradient(135deg,#eceff3 0 5px,#d9dde3 5px 6px)} .c-skip{background:var(--skip)}
+  .hb{display:flex;height:10px;border-radius:5px;overflow:hidden;gap:2px;min-width:120px;margin:3px 0 4px}
+  .hb i{display:block;height:100%}
   .tw{overflow-x:auto}
-  table.t{border-collapse:collapse;width:100%;font-size:13.5px;background:#fff}
-  table.t th,table.t td{border:1px solid #d5dbe3;padding:6px 8px;text-align:left;vertical-align:top}
-  table.t th{background:#f1f4f8;font-weight:600;white-space:nowrap}
-  table.t td.n{text-align:right;font-family:"IBM Plex Mono",ui-monospace,monospace;white-space:nowrap}
-  .ok{color:#1f8f5f;font-weight:700} .no{color:#c0392b;font-weight:700} .sk{color:#8a94a3}
-  .d1{background:#d8f3e3}.d2{background:#e6f5d6}.d3{background:#fff4cf}.d4{background:#ffe2cc}.d5{background:#ffd3d3}
-  .dtag{display:inline-block;border-radius:999px;padding:1px 8px;font-size:12px;font-weight:600;white-space:nowrap;color:#2a2a2a}
-  .flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-  .flow .st{border-radius:6px;padding:4px 8px;font-size:12.5px;border:1px solid #d5dbe3}
-  .flow .st b{font-family:"IBM Plex Mono",monospace}
-  .todo li{margin:6px 0}
-  .bar{height:10px;border-radius:5px;background:#e3e8ef;overflow:hidden;min-width:80px}
-  .bar i{display:block;height:100%;background:#1f6fd1}
-  details.sol{background:#fff;border:1px solid #d5dbe3;border-radius:8px;padding:10px 12px}
-  details.sol summary{cursor:pointer;font-weight:600;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-  details.sol .qt{margin:8px 0;color:#1d2533}
-  details.sol .an{margin:6px 0 0;padding:8px 10px;background:#f4f7fb;border-radius:6px}
-  .verdict{font-size:12.5px;font-weight:600;padding:1px 8px;border-radius:999px;border:1px solid currentColor}
-  .rp .copy{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-  .rp textarea{width:100%;min-height:160px;font:12.5px/1.45 "IBM Plex Mono",ui-monospace,monospace;padding:10px;border:1px solid #d5dbe3;border-radius:6px}
+  table.t{border-collapse:collapse;width:100%;font-size:13.5px}
+  table.t th,table.t td{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:middle}
+  table.t th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink2);font-weight:600;white-space:nowrap}
+  table.t .n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  table.t .w{min-width:150px}
+  table.compact td{padding:5px 8px}
+  .tb{position:relative;height:10px;background:#eceff3;border-radius:5px;min-width:110px;margin-bottom:3px}
+  .tb i{position:absolute;left:0;top:0;bottom:0;border-radius:5px;background:var(--l3)}
+  .tb i.over{background:var(--serious)}
+  .tb b{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink)}
+  .rs{font-weight:600;white-space:nowrap} .rs-ok{color:var(--good-t)} .rs-no{color:var(--bad)} .rs-skip{color:var(--ink2)}
+  .vd{display:inline-block;font-size:12px;font-weight:600;border-radius:6px;padding:2px 8px;line-height:1.4}
+  .vd-good{background:#e2f5e2;color:#0a6b0a} .vd-bad{background:#fbe3e3;color:#a22a2a} .vd-warn{background:#fdf0dc;color:#8a5200} .vd-neutral{background:#eef0f3;color:var(--ink2)}
+  .sols{display:grid;gap:10px}
+  details.sol{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+  details.sol summary{cursor:pointer;display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:14px}
+  details.sol .qtx{margin:10px 0 6px}
+  details.sol .an{margin:8px 0 0;padding:10px 12px;background:#f4f7fb;border-radius:8px;font-size:14px}
+  details.sol .src{font-size:12.5px;margin-top:6px}
+  .rp .copy{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+  .rp textarea{width:100%;min-height:150px;font:12px/1.45 "IBM Plex Mono",ui-monospace,monospace;padding:10px;border:1px solid var(--line);border-radius:8px}
+  .tip{position:absolute;z-index:90;max-width:280px;background:#1d2533;color:#fff;font-size:12.5px;line-height:1.4;padding:7px 10px;border-radius:6px;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+  .tip[hidden]{display:none}
+  @media (max-width:700px){
+    .hero{grid-template-columns:1fr}
+    .hero .big{font-size:52px}
+    .qmap{grid-template-columns:74px repeat(4,minmax(0,1fr)) !important;gap:4px}
+    .qr .lv{font-size:11px;padding:1px 6px;white-space:normal;text-align:center}
+    .qh .f{display:none} .qh .s{display:inline} .qh{font-size:12px}
+    .qc{padding:4px;gap:4px}
+    .qd{padding:3px 5px;font-size:12px;min-height:28px}
+  }
   @media (max-width:900px){
     .cx-main{grid-template-columns:1fr}
     .cx-side{position:fixed;inset:0 0 0 auto;width:min(320px,88vw);z-index:70;transform:translateX(105%);transition:transform .2s;overflow:auto;box-shadow:-6px 0 24px rgba(0,0,0,.25)}
@@ -192,16 +263,17 @@
     ag.addEventListener('change', () => { go.disabled = !ag.checked; });
     go.addEventListener('click', () => {
       S = blank(); S.startedAt = now(); S.cur = 1; since = now();
-      openQ(1, true); save(); renderExam(); window.scrollTo(0, 0);
+      openQ(1, 'start'); save(); renderExam(); window.scrollTo(0, 0);
     });
   }
 
   /* ---------- exam ---------- */
   let pending = {}; // unsaved selection per question (cleared when leaving without saving)
   function logE(type, n) { S.log.push([rel(), n, type]); }
-  function openQ(n, first) {
-    if (!first) accrue();
-    if (!first && S.cur !== n) pending = {};
+  // mode: 'start' (first question of the test), 'resume' (page reopened), or undefined (normal navigation)
+  function openQ(n, mode) {
+    if (mode === 'resume') { since = now(); logE('resume', n); return; }
+    if (!mode) { accrue(); if (S.cur === n) return; pending = {}; }
     S.cur = n; since = now();
     if (!S.visited[n]) { S.visited[n] = true; S.firstOpen[n] = Object.keys(S.firstOpen).length + 1; }
     S.visits[n] = (S.visits[n] || 0) + 1;
@@ -253,7 +325,7 @@
       if (locked()) return;
       const n = S.cur;
       delete pending[n];
-      if (has(S.answers[n])) { delete S.answers[n]; logE('clear', n); }
+      if (has(S.answers[n])) { delete S.answers[n]; S.changes[n] = (S.changes[n] || 0) + 1; logE('clear', n); }
       save(); drawQ(); drawPalette();
     });
     root.querySelector('#cxSubmit').addEventListener('click', openModal);
@@ -355,138 +427,242 @@
   document.addEventListener('visibilitychange', () => { if (S.startedAt && !locked()) { accrue(); save(); } });
 
   /* ---------- grading + analytics ---------- */
-  function grade() {
+  // "Doable" = any very easy question, plus easy/medium questions in her three target topics.
+  const isDoable = m => m.diff === 1 || (TARGET_TOPICS.includes(m.topic) && m.diff <= 3);
+  const TOPICS = ['Arithmetic', 'Algebra', 'Geometry', 'Numbers'];
+  function analyze() {
     const M = meta();
-    return QS.map(q => {
+    const endT = used();
+    // segments of the timeline from open/resume events
+    const ev = S.log.filter(e => e[2] === 'open' || e[2] === 'resume' || e[2] === 'submit' || e[2] === 'timeup');
+    const segs = [];
+    for (let i = 0; i < ev.length; i++) {
+      if (ev[i][2] === 'submit' || ev[i][2] === 'timeup') break;
+      const t0 = ev[i][0], t1 = i + 1 < ev.length ? ev[i + 1][0] : endT;
+      if (t1 > t0) segs.push({ n: ev[i][1], t0, t1 });
+    }
+    const saves = S.log.filter(e => e[2].startsWith('save:')).map(e => ({ t: e[0], n: e[1], v: e[2].slice(5) }));
+    const lastSaveAt = {}; saves.forEach(s => { lastSaveAt[s.n] = s.t; });
+    const firstSaveAt = {}; saves.forEach(s => { if (!(s.n in firstSaveAt)) firstSaveAt[s.n] = s.t; });
+    const rows = QS.map(q => {
       const m = M.find(x => x.n === q.n);
       const a = has(S.answers[q.n]) ? String(S.answers[q.n]).trim() : '';
       let res = 'skip';
       if (a) {
         if (q.kind === 'MCQ') res = a.toLowerCase() === String(m.ans).toLowerCase() ? 'ok' : 'no';
-        else { const x = parseFloat(a), y = parseFloat(m.ans); res = (!isNaN(x) && Math.abs(x - y) < 1e-9) || a === String(m.ans) ? 'ok' : 'no'; }
+        else { const x = Number(a), y = Number(m.ans); res = (a !== '' && !isNaN(x) && !isNaN(y) && Math.abs(x - y) < 1e-9) || a === String(m.ans) ? 'ok' : 'no'; }
       }
       const marks = res === 'ok' ? 3 : (res === 'no' && q.kind === 'MCQ' ? -1 : 0);
       const time = S.time[q.n] || 0;
-      const should = TARGET_TOPICS.includes(m.topic) && m.diff <= 3;
-      let verdict;
-      if (res === 'ok') verdict = time > IDEAL[m.diff] * 1000 * 1.5 ? ['Right but slow', '#a45f00'] : ['Right', '#1f8f5f'];
-      else if (res === 'no') verdict = m.diff >= 4 ? ['Wrong on a hard one: should have skipped', '#c0392b'] : ['Wrong on a doable one: check the method', '#c0392b'];
-      else if (should) verdict = !S.visited[q.n] ? ['Missed: never opened', '#c0392b'] : ['Missed: doable, but skipped', '#c0392b'];
-      else verdict = time > 120000 ? ['Good skip, but too much time spent', '#a45f00'] : ['Good skip', '#1f8f5f'];
-      return { q, m, a, res, marks, time, should, verdict, visits: S.visits[q.n] || 0, open: S.firstOpen[q.n] || null, saved: S.firstSave[q.n] || null, changes: S.changes[q.n] || 0, marked: !!S.marked[q.n] };
+      const doable = isDoable(m);
+      const ideal = IDEAL[m.diff] * 1000;
+      let v;
+      if (res === 'ok') v = time > ideal * 1.5 ? ['Right, but slow', 'warn'] : ['Right', 'good'];
+      else if (res === 'no') v = doable ? ['Wrong on a doable one: fix the method', 'bad'] : m.diff === 5 ? ['Wrong on a very hard one: should have skipped', 'bad'] : ['Wrong on a hard one: risky attempt', 'bad'];
+      else if (doable) v = S.visited[q.n] ? ['Missed: doable, but skipped', 'bad'] : ['Missed: never opened', 'bad'];
+      else if (time > 120000) v = ['Skipped, but spent ' + mmss(time) + ': decide faster', 'warn'];
+      else v = m.diff >= 4 ? ['Good skip', 'good'] : ['Skipped (bonus topic)', 'neutral'];
+      return { n: q.n, q, m, kind: q.kind, topic: m.topic, sub: m.sub, diff: m.diff, doable, a, ans: m.ans, res, marks, time, ideal,
+        verdict: v[0], tone: v[1], visits: S.visits[q.n] || 0, open: S.firstOpen[q.n] || null, saved: S.firstSave[q.n] || null,
+        savedAt: firstSaveAt[q.n] ?? null, changes: S.changes[q.n] || 0, marked: !!S.marked[q.n] };
     });
-  }
-  function group(rows, key, order) {
-    return order.map(k => {
+    const att = rows.filter(r => r.res !== 'skip');
+    const tot = { marks: rows.reduce((s, r) => s + r.marks, 0), ok: rows.filter(r => r.res === 'ok').length, no: rows.filter(r => r.res === 'no').length,
+      noMcq: rows.filter(r => r.res === 'no' && r.kind === 'MCQ').length, noTita: rows.filter(r => r.res === 'no' && r.kind === 'TITA').length,
+      att: att.length, skip: N - att.length, used: endT, onQs: rows.reduce((s, r) => s + r.time, 0) };
+    tot.acc = tot.att ? Math.round(100 * tot.ok / tot.att) : 0;
+    const D = rows.filter(r => r.doable);
+    const doable = { total: D.length, att: D.filter(r => r.res !== 'skip').length, ok: D.filter(r => r.res === 'ok').length, no: D.filter(r => r.res === 'no').length,
+      missed: D.filter(r => r.res === 'skip'), wrong: D.filter(r => r.res === 'no'), potential: D.length * 3, got: D.reduce((s, r) => s + r.marks, 0) };
+    doable.sel = doable.total ? Math.round(100 * doable.att / doable.total) : 0;
+    const H = rows.filter(r => r.diff >= 4);
+    const hard = { time: H.reduce((s, r) => s + r.time, 0), att: H.filter(r => r.res !== 'skip'), wrong: H.filter(r => r.res === 'no'), right: H.filter(r => r.res === 'ok') };
+    // hard/very hard answers saved while at least one doable question was still unanswered at that moment
+    const hardEarly = H.filter(r => r.savedAt !== null).map(r => ({ r, pending: D.filter(d => d.savedAt === null || d.savedAt > r.savedAt) })).filter(x => x.pending.length);
+    const negMarks = rows.filter(r => r.marks < 0).length;
+    const leftOnTable = D.filter(r => r.res !== 'ok').length * 3 + D.filter(r => r.marks < 0).length;
+    const scanIds = new Set(S.log.filter(e => e[2] === 'open' && e[0] <= 5 * 60 * 1000).map(e => e[1]));
+    const slow = rows.filter(r => r.res === 'ok' && r.time > r.ideal * 1.5);
+    const group = (key, order) => order.map(k => {
       const r = rows.filter(x => key(x) === k);
-      const att = r.filter(x => x.res !== 'skip');
-      return { k, total: r.length, att: att.length, ok: r.filter(x => x.res === 'ok').length, no: r.filter(x => x.res === 'no').length,
-        marks: r.reduce((s, x) => s + x.marks, 0), time: r.reduce((s, x) => s + x.time, 0) };
+      return { k, total: r.length, att: r.filter(x => x.res !== 'skip').length, ok: r.filter(x => x.res === 'ok').length, no: r.filter(x => x.res === 'no').length,
+        skip: r.filter(x => x.res === 'skip').length, marks: r.reduce((s, x) => s + x.marks, 0), time: r.reduce((s, x) => s + x.time, 0) };
     }).filter(g => g.total);
+    const timeSplit = [
+      { k: 'Doable → right', ms: D.filter(r => r.res === 'ok').reduce((s, r) => s + r.time, 0), c: 'good' },
+      { k: 'Doable → wrong', ms: D.filter(r => r.res === 'no').reduce((s, r) => s + r.time, 0), c: 'bad' },
+      { k: 'Doable, then left', ms: D.filter(r => r.res === 'skip').reduce((s, r) => s + r.time, 0), c: 'serious' },
+      { k: 'Hard & very hard', ms: hard.time, c: 'hard' },
+      { k: 'Other', ms: rows.filter(r => !r.doable && r.diff < 4).reduce((s, r) => s + r.time, 0), c: 'other' },
+      { k: 'No question open', ms: Math.max(0, endT - tot.onQs), c: 'idle' },
+    ];
+    return { rows, tot, doable, hard, hardEarly, negMarks, leftOnTable, scan: scanIds.size, slow, segs, saves,
+      topics: group(r => r.topic, TOPICS), diffs: group(r => r.diff, [1, 2, 3, 4, 5]), timeSplit, endT };
   }
-  function advice(rows, tot) {
+
+  const and = xs => xs.length < 2 ? xs.join('') : xs.slice(0, -1).join(', ') + ' and ' + xs[xs.length - 1];
+  function advice(A) {
     const out = [];
-    const missed = rows.filter(r => r.should && r.res === 'skip');
-    const wrongEasy = rows.filter(r => r.res === 'no' && r.m.diff <= 3);
-    const wrongHard = rows.filter(r => r.res === 'no' && r.m.diff >= 4);
-    const hardTime = rows.filter(r => r.m.diff >= 4).reduce((s, r) => s + r.time, 0);
-    const negs = rows.filter(r => r.marks < 0).length;
-    const firstScan = rows.filter(r => r.open && S.log.some(e => e[1] === r.q.n && e[2] === 'open' && e[0] <= 5 * 60 * 1000)).length;
-    const shouldTotal = rows.filter(r => r.should).length;
-    const shouldDone = rows.filter(r => r.should && r.res !== 'skip').length;
-    if (missed.length) out.push(`<b>Question selection:</b> you left ${missed.length} doable question${missed.length > 1 ? 's' : ''} (very easy to medium in Arithmetic, Algebra or Geometry): ${missed.map(r => 'Q' + r.q.n + ' (' + r.m.sub + ', ' + DIFF[r.m.diff].toLowerCase() + ')').join(', ')}. These are the marks you must collect first. Read the solutions below and redo them without the timer.`);
-    else out.push(`<b>Question selection:</b> you attempted every doable question in your three topics (${shouldDone} of ${shouldTotal}). That is exactly the plan.`);
-    if (hardTime > 5 * 60 * 1000) out.push(`<b>Time on traps:</b> you spent ${mmss(hardTime)} on hard and very hard questions. In the exam, give such a question 1 minute; if no method appears, move on. That time is enough for 2–3 easy questions.`);
-    if (wrongEasy.length) out.push(`<b>Accuracy on doable questions:</b> ${wrongEasy.map(r => 'Q' + r.q.n + ' (' + r.m.sub + ')').join(', ')} went wrong. Find the exact step that failed in the solution and add it to your error log. These are your highest-value fixes.`);
-    if (wrongHard.length) out.push(`<b>Risky attempts:</b> ${wrongHard.map(r => 'Q' + r.q.n).join(', ')} ${wrongHard.length > 1 ? 'were' : 'was'} hard and went wrong. ${negs ? 'Wrong MCQs cost you ' + negs + ' mark' + (negs > 1 ? 's' : '') + ' here. ' : ''}Only attempt a hard question when you are sure of the method.`);
-    if (tot.att < 12) out.push(`<b>Attempts:</b> ${tot.att} attempted. The target is 12–14. Make the first pass faster: open, decide in 30 seconds, move.`);
-    else if (tot.att && tot.ok / tot.att < 0.8) out.push(`<b>Accuracy:</b> ${Math.round(100 * tot.ok / tot.att)}%. Below 80%, extra attempts hurt. Before saving, put your answer back into the question.`);
-    if (firstScan < Math.min(N, 15)) out.push(`<b>First scan:</b> you opened ${firstScan} of ${N} questions in the first 5 minutes. Open all of them in the first 3–4 minutes and pick the easy ones first, as in the plan.`);
-    const topics = group(rows, r => r.m.topic, ['Arithmetic', 'Algebra', 'Geometry', 'Numbers']);
-    topics.forEach(g => { if (TARGET_TOPICS.includes(g.k) && g.att >= 2 && g.ok / g.att < 0.6) out.push(`<b>${g.k}:</b> ${g.ok} right out of ${g.att} attempted. Revise this topic's basics before the next test.`); });
-    const strong = topics.filter(g => g.att >= 2 && g.ok === g.att).map(g => g.k);
-    if (strong.length) out.push(`<b>Strength:</b> every attempt in ${strong.join(' and ')} was right. Keep doing these first.`);
+    const { tot, doable, hard } = A;
+    const list = rs => rs.map(r => `Q${r.n} (${esc(r.sub)}, ${DIFF[r.diff].toLowerCase()})`).join(', ');
+    const gap = 36 - tot.marks;
+    out.push(['score', gap > 0 ? `<b>Score ${tot.marks}.</b> ${gap} marks short of 36. Getting every doable question right would give ${doable.potential}${A.leftOnTable ? `; you left <b>${A.leftOnTable} marks</b> on doable questions alone.` : '.'}` : `<b>Score ${tot.marks}.</b> Target of 36 reached.`]);
+    if (doable.missed.length) out.push(['bad', `<b>Question selection:</b> you skipped ${doable.missed.length} doable question${doable.missed.length > 1 ? 's' : ''}: ${list(doable.missed)}. These are the first marks to collect. Redo them from the solutions below, without the timer.`]);
+    else out.push(['good', `<b>Question selection:</b> you attempted all ${doable.total} doable questions. That is exactly the plan.`]);
+    if (A.hardEarly.length) out.push(['bad', `<b>Order:</b> you answered ${A.hardEarly.length} hard question${A.hardEarly.length > 1 ? 's' : ''} before finishing the doable ones: ${A.hardEarly.slice().sort((x, y) => x.r.savedAt - y.r.savedAt).map(x => `Q${x.r.n} (${DIFF[x.r.diff].toLowerCase()}) at ${mmss(x.r.savedAt)}, ${x.pending.length} doable still open`).join('; ')}. Finish the doable ones first; try hard ones only with time left over.`]);
+    if (hard.time > 4 * 60 * 1000) out.push(['bad', `<b>Time on traps:</b> ${mmss(hard.time)} went on hard and very hard questions (${hard.right.length} right, ${hard.wrong.length} wrong). That is about ${Math.floor(hard.time / 120000)} easy questions' worth of time. Give a hard question 1 minute; no method, move on.`]);
+    if (doable.wrong.length) out.push(['bad', `<b>Accuracy on doable questions:</b> ${list(doable.wrong)} went wrong. Find the exact step that failed in the solution and add it to your error log. These are your highest-value fixes.`]);
+    if (A.negMarks) out.push(['bad', `<b>Negative marks:</b> ${A.negMarks} wrong MCQ${A.negMarks > 1 ? 's' : ''} cost you ${A.negMarks} mark${A.negMarks > 1 ? 's' : ''}. On an MCQ, check the answer against the options before saving; if you are guessing, leave it.`]);
+    if (tot.att < 12) out.push(['warn', `<b>Attempts:</b> ${tot.att} of 22. The target is 12–14. Make decisions faster on the first pass: open, decide in 30 seconds, move.`]);
+    else if (tot.acc < 80) out.push(['warn', `<b>Accuracy:</b> ${tot.acc}%. Below 80%, extra attempts cost marks. Before saving, put the answer back into the question.`]);
+    if (A.scan < 15) out.push(['warn', `<b>First scan:</b> you opened ${A.scan} of ${N} questions in the first 5 minutes. Open all of them in the first 3–4 minutes and pick the doable ones first.`]);
+    if (A.slow.length) out.push(['warn', `<b>Speed:</b> ${A.slow.map(r => 'Q' + r.n + ' took ' + mmss(r.time) + ' (ideal ' + mmss(r.ideal) + ')').join(', ')}. Right, but slow; look for the shortcut in the solution.`]);
+    // topic weakness judged only on doable questions (hard ones are covered by the trap advice)
+    TARGET_TOPICS.forEach(t => {
+      const d = A.rows.filter(r => r.doable && r.topic === t && r.res !== 'skip');
+      const ok = d.filter(r => r.res === 'ok').length;
+      if (d.length >= 2 && ok / d.length < 0.6) out.push(['warn', `<b>${t}:</b> ${ok} right of ${d.length} doable questions attempted (${and(d.filter(r => r.res === 'no').map(r => 'Q' + r.n + ' ' + esc(r.sub)))} wrong). Revise these basics before the next test.`]);
+    });
+    const strong = A.topics.filter(g => g.att >= 2 && g.ok === g.att).map(g => g.k);
+    if (strong.length) out.push(['good', `<b>Strength:</b> every attempt in ${and(strong)} was right. Keep doing these first.`]);
+    const spare = LIMIT - used();
+    if (S.early && spare > 5 * 60 * 1000) out.push([doable.missed.length ? 'warn' : 'good', `<b>Spare time:</b> you submitted with ${mmss(spare)} left. ${doable.missed.length ? 'That time was enough for the doable questions you skipped.' : 'Use it to recheck your answers, then try one hard question whose method you can see.'}`]);
     return out;
   }
-  function resultsText(rows, tot) {
+
+  function resultsText(A) {
+    const { rows, tot, doable } = A;
     const L = [C.title + ': my results', ''];
-    L.push(`Score ${tot.marks} | Right ${tot.ok} | Wrong ${tot.no} (MCQ ${rows.filter(r => r.res === 'no' && r.q.kind === 'MCQ').length}, TITA ${rows.filter(r => r.res === 'no' && r.q.kind === 'TITA').length}) | Skipped ${N - tot.att} | Time ${mmss(used())} ${S.early ? '(submitted)' : '(time up)'}`);
-    L.push('', 'Q | type | topic | level | answer | result | time | visits | opened# | saved# | changes | marked');
-    rows.forEach(r => L.push(['Q' + r.q.n, r.q.kind, r.m.topic + '/' + r.m.sub, DIFF[r.m.diff], r.a || '-', r.res === 'ok' ? 'RIGHT' : r.res === 'no' ? 'WRONG' : 'skip', mmss(r.time), r.visits, r.open || '-', r.saved || '-', r.changes, r.marked ? 'yes' : ''].join(' | ')));
-    L.push('', 'Save order: ' + rows.filter(r => r.saved).sort((a, b) => a.saved - b.saved).map(r => 'Q' + r.q.n).join(' > '));
-    L.push('Open order: ' + rows.filter(r => r.open).sort((a, b) => a.open - b.open).map(r => 'Q' + r.q.n).join(' > '));
+    L.push(`Score ${tot.marks} | Right ${tot.ok} | Wrong ${tot.no} (MCQ ${tot.noMcq}, TITA ${tot.noTita}) | Skipped ${tot.skip} | Accuracy ${tot.acc}% | Selection ${doable.sel}% (${doable.att}/${doable.total} doable) | Time ${mmss(used())} ${S.early ? '(submitted)' : '(time up)'}`);
+    L.push('', 'Q | type | topic | level | doable | answer | result | time | visits | opened# | saved# | changes | marked');
+    rows.forEach(r => L.push(['Q' + r.n, r.kind, r.topic + '/' + r.sub, DIFF[r.diff], r.doable ? 'yes' : 'no', r.a || '-', r.res === 'ok' ? 'RIGHT' : r.res === 'no' ? 'WRONG' : 'skip', mmss(r.time), r.visits, r.open || '-', r.saved || '-', r.changes, r.marked ? 'yes' : ''].join(' | ')));
+    L.push('', 'Save order: ' + rows.filter(r => r.saved).sort((a, b) => a.saved - b.saved).map(r => 'Q' + r.n).join(' > '));
+    L.push('Open order: ' + rows.filter(r => r.open).sort((a, b) => a.open - b.open).map(r => 'Q' + r.n).join(' > '));
     L.push('Log: ' + S.log.map(e => Math.round(e[0] / 1000) + 's ' + e[2] + ' Q' + e[1]).join('; '));
     return L.join('\n');
   }
 
+  /* ---------- report ---------- */
+  const ICON = { ok: '✓', no: '✗', skip: '–' };
+  const RES = { ok: 'Right', no: 'Wrong', skip: 'Skipped' };
   function renderReport() {
-    const rows = grade();
-    const att = rows.filter(r => r.res !== 'skip');
-    const tot = { marks: rows.reduce((s, r) => s + r.marks, 0), ok: rows.filter(r => r.res === 'ok').length, no: rows.filter(r => r.res === 'no').length, att: att.length };
-    const shouldRows = rows.filter(r => r.should);
-    const selPct = shouldRows.length ? Math.round(100 * shouldRows.filter(r => r.res !== 'skip').length / shouldRows.length) : 0;
-    const potential = shouldRows.length * 3;
-    const topics = group(rows, r => r.m.topic, ['Arithmetic', 'Algebra', 'Geometry', 'Numbers']);
-    const diffs = group(rows, r => r.m.diff, [1, 2, 3, 4, 5]);
-    const maxT = Math.max(1, ...rows.map(r => r.time));
-    const dtag = d => `<span class="dtag d${d}">${DIFF[d]}</span>`;
-    const resTxt = r => r.res === 'ok' ? '<span class="ok">✓ Right</span>' : r.res === 'no' ? '<span class="no">✗ Wrong</span>' : '<span class="sk">Skipped</span>';
-    const saveFlow = rows.filter(r => r.saved).sort((a, b) => a.saved - b.saved);
-    const openFlow = rows.filter(r => r.open).sort((a, b) => a.open - b.open);
-    const ansTxt = r => r.q.kind === 'MCQ' ? `(${r.m.ans}) ${esc(r.q.opts['abcd'.indexOf(r.m.ans)].replace(/^\([a-d]\)\s*/, ''))}` : esc(r.m.ans);
-    const herTxt = r => !r.a ? '—' : r.q.kind === 'MCQ' ? '(' + esc(r.a) + ')' : esc(r.a);
-    root.innerHTML = `<div class="rp">
-      <div><div class="muted" style="text-transform:uppercase;letter-spacing:.08em;font-weight:600;font-size:12px">${S.early ? 'Submitted' : "Time's up"} · report</div><h1>${esc(C.title)}: your analysis</h1></div>
-      <div class="tiles">
-        <div class="tile ${tot.marks >= 36 ? 'good' : ''}"><span>Score</span><b>${tot.marks}</b><div class="muted">of ${N * 3} · target 36+</div></div>
-        <div class="tile"><span>Right / wrong</span><b>${tot.ok} / ${tot.no}</b><div class="muted">${tot.att} attempted of ${N}</div></div>
-        <div class="tile ${tot.att && tot.ok / tot.att >= 0.8 ? 'good' : 'bad'}"><span>Accuracy</span><b>${tot.att ? Math.round(100 * tot.ok / tot.att) : 0}%</b><div class="muted">target 80%+</div></div>
-        <div class="tile ${selPct >= 90 ? 'good' : 'bad'}"><span>Selection</span><b>${selPct}%</b><div class="muted">doable questions attempted (${shouldRows.filter(r => r.res !== 'skip').length} of ${shouldRows.length})</div></div>
-        <div class="tile"><span>Time used</span><b>${mmss(used())}</b><div class="muted">of ${C.minutes}:00</div></div>
+    const A = analyze();
+    const { rows, tot, doable } = A;
+    const dchip = d => `<span class="lv lv${d}">${DIFF[d]}</span>`;
+    const res = r => `<span class="rs rs-${r.res}">${ICON[r.res]} ${RES[r.res]}</span>`;
+    const ansTxt = r => r.kind === 'MCQ' ? `(${r.ans}) ${esc(r.q.opts['abcd'.indexOf(r.ans)].replace(/^\([a-d]\)\s*/, ''))}` : esc(r.ans);
+    const herTxt = r => !r.a ? '—' : r.kind === 'MCQ' ? '(' + esc(r.a) + ')' : esc(r.a);
+    const tip = r => esc(`Q${r.n} · ${r.topic}: ${r.sub} · ${DIFF[r.diff]}${r.doable ? ' · doable' : ''} · ${RES[r.res]}${r.a ? ' (you: ' + r.a + ', key: ' + r.ans + ')' : ''} · time ${mmss(r.time)}`);
+    const pct = (a, b) => b ? Math.round(100 * a / b) : 0;
+
+    // hero
+    const maxM = N * 3;
+    const hero = `<section class="hero">
+      <div class="hero-main"><span class="eyebrow">Score</span><div class="big">${tot.marks}<small> / ${maxM}</small></div>
+        <div class="meter" role="img" aria-label="Score ${tot.marks} of ${maxM}, target 36">
+          <i style="width:${Math.max(0, pct(tot.marks, maxM))}%"></i><b style="left:${pct(36, maxM)}%"><em>target 36</em></b></div>
+        <div class="sub">${tot.marks >= 36 ? 'Target reached.' : (36 - tot.marks) + ' marks to the target'} · ${tot.ok} right · ${tot.no} wrong${tot.noMcq ? ' (−' + tot.noMcq + ' from MCQs)' : ''} · ${tot.skip} skipped</div></div>
+      <div class="kpis">
+        <div class="kpi"><span>Selection</span><b>${doable.sel}%</b><em>${doable.att} of ${doable.total} doable attempted</em></div>
+        <div class="kpi"><span>Accuracy</span><b>${tot.att ? tot.acc + '%' : '—'}</b><em>${tot.att ? tot.ok + ' of ' + tot.att + ' attempted' : 'nothing attempted'} · target 80%</em></div>
+        <div class="kpi"><span>Marks left</span><b>${A.leftOnTable}</b><em>on doable questions</em></div>
+        <div class="kpi"><span>Time used</span><b>${mmss(used())}</b><em>${S.early ? 'submitted' : 'time up'} · of ${C.minutes}:00</em></div>
+      </div></section>`;
+
+    // advice
+    const adv = `<section class="card"><h2>What to do next</h2><ul class="adv">${advice(A).map(([t, h]) => `<li class="a-${t}"><span class="ai" aria-hidden="true">${t === 'good' ? '✓' : t === 'bad' ? '!' : t === 'warn' ? '•' : '★'}</span><span>${h}</span></li>`).join('')}</ul>
+      <p class="note">Doable = every very easy question, plus easy and medium questions in Arithmetic, Algebra and Geometry. This paper has ${doable.total} (${doable.potential} marks).</p></section>`;
+
+    // question map: difficulty rows x topic columns
+    const cols = TOPICS.filter(t => rows.some(r => r.topic === t));
+    const map = `<section class="card"><h2>Question map</h2><p class="note">Every question by topic and difficulty. The shaded area is the doable zone: every question in it should be attempted. Tap a question for details.</p>
+      <div class="qmap" style="grid-template-columns:96px repeat(${cols.length},minmax(0,1fr))">
+        <div></div>${cols.map(t => `<div class="qh"><span class="f">${t}</span><span class="s">${{ Arithmetic: 'Arith.', Algebra: 'Algebra', Geometry: 'Geom.', Numbers: 'Num.' }[t] || t}</span>${TARGET_TOPICS.includes(t) ? '' : '<br><small>bonus</small>'}</div>`).join('')}
+        ${[1, 2, 3, 4, 5].map(d => `<div class="qr">${dchip(d)}</div>${cols.map(t => {
+          const zone = d === 1 || (TARGET_TOPICS.includes(t) && d <= 3);
+          const qs = rows.filter(r => r.topic === t && r.diff === d);
+          return `<div class="qc${zone ? ' zone' : ''}">${qs.map(r => `<button type="button" class="qd qd-${r.res}" data-tip="${tip(r)}" aria-label="${tip(r)}">Q${r.n}<i aria-hidden="true">${ICON[r.res]}</i></button>`).join('')}</div>`;
+        }).join('')}`).join('')}
       </div>
+      <div class="legend"><span><i class="sw qd-ok"></i>✓ Right</span><span><i class="sw qd-no"></i>✗ Wrong</span><span><i class="sw qd-skip"></i>– Skipped</span><span><i class="sw zone"></i>Doable zone</span></div></section>`;
 
-      <section class="cx-card"><h2>What to do next</h2><ul class="todo">${advice(rows, tot).map(x => '<li>' + x + '</li>').join('')}</ul>
-        <p class="muted" style="margin-top:8px">"Doable" = very easy, easy or medium questions in Arithmetic, Algebra and Geometry. In this paper they are worth ${potential} marks; getting all of them right is the 36+ plan.</p></section>
+    // timeline
+    const T = Math.max(LIMIT, A.endT);
+    const ticks = []; for (let m = 0; m <= C.minutes; m += 5) ticks.push(m);
+    const rowBy = n => rows[n - 1];
+    const tl = `<section class="card"><h2>Your 40 minutes</h2><p class="note">Which question you were on, minute by minute (shade = difficulty). Marks below the bar show when you saved an answer.</p>
+      <div class="tl">
+        <div class="tl-track">${A.segs.map(s => { const r = rowBy(s.n); const w = 100 * (s.t1 - s.t0) / T; return `<button type="button" class="seg lv${r.diff}" style="left:${100 * s.t0 / T}%;width:${w}%" data-tip="${esc(`Q${r.n} · ${r.sub} · ${DIFF[r.diff]} · ${mmss(s.t0)}–${mmss(s.t1)} (${mmss(s.t1 - s.t0)})`)}">${w > 3.2 ? 'Q' + r.n : ''}</button>`; }).join('')}
+          ${A.endT < T ? `<div class="seg-left" style="left:${100 * A.endT / T}%" title="Time not used">not used</div>` : ''}</div>
+        <div class="tl-saves">${A.saves.map(s => { const r = rowBy(s.n); const ok = r.q.kind === 'MCQ' ? s.v === String(r.ans) : Number(s.v) === Number(r.ans); return `<span class="sv ${ok ? 'sv-ok' : 'sv-no'}" style="left:${100 * s.t / T}%" data-tip="${esc('Saved Q' + r.n + ' = ' + s.v + ' at ' + mmss(s.t) + (ok ? ' (right)' : ' (wrong)'))}">${ok ? '✓' : '✗'}</span>`; }).join('')}</div>
+        <div class="tl-axis">${ticks.map(m => `<span style="left:${100 * m * 60000 / T}%">${m}′</span>`).join('')}</div>
+      </div>
+      <div class="legend">${[1, 2, 3, 4, 5].map(d => `<span><i class="sw lv${d}"></i>${DIFF[d]}</span>`).join('')}<span><b class="sv-ok">✓</b> saved right</span><span><b class="sv-no">✗</b> saved wrong</span></div></section>`;
 
-      <section class="cx-card"><h2>Question selection: the order you chose</h2>
-        <p class="muted">Order you <b>saved</b> answers (colour = difficulty). The ideal is green and yellow first, red last or never.</p>
-        <div class="flow">${saveFlow.length ? saveFlow.map((r, i) => `<span class="st d${r.m.diff}">${i + 1}. <b>Q${r.q.n}</b> ${r.m.topic} · ${mmss(r.time)} ${r.res === 'ok' ? '✓' : '✗'}</span>`).join('') : '<span class="muted">No answers saved.</span>'}</div>
-        <p class="muted" style="margin-top:12px">Order you <b>opened</b> questions:</p>
-        <div class="flow">${openFlow.map(r => `<span class="st d${r.m.diff}">Q${r.q.n}</span>`).join('')}</div></section>
+    // order
+    const saved = rows.filter(r => r.saved).sort((a, b) => a.saved - b.saved);
+    const order = `<section class="card"><h2>The order you chose</h2>
+      <p class="note">Answers in the order you saved them. The ideal is lighter shades (easier) first.</p>
+      <ol class="flow">${saved.length ? saved.map(r => `<li data-tip="${tip(r)}"><span class="lv lv${r.diff}">Q${r.n}</span><small>${r.topic} · ${mmss(r.time)}</small><b class="rs-${r.res}">${ICON[r.res]}</b></li>`).join('') : '<li class="none">No answer was saved.</li>'}</ol>
+      ${doable.missed.length ? `<p class="note" style="margin-top:12px">Doable but never answered: ${doable.missed.map(r => `<span class="lv lv${r.diff}" data-tip="${tip(r)}">Q${r.n}</span>`).join(' ')}</p>` : ''}</section>`;
 
-      <section class="cx-card"><h2>By topic</h2><div class="tw"><table class="t"><tr><th>Topic</th><th>Questions</th><th>Attempted</th><th>Right</th><th>Wrong</th><th>Marks</th><th>Time</th></tr>
-        ${topics.map(g => `<tr><td>${g.k}${TARGET_TOPICS.includes(g.k) ? '' : ' <span class="muted">(bonus)</span>'}</td><td class="n">${g.total}</td><td class="n">${g.att}</td><td class="n">${g.ok}</td><td class="n">${g.no}</td><td class="n">${g.marks}</td><td class="n">${mmss(g.time)}</td></tr>`).join('')}</table></div></section>
+    // time split
+    const tsTot = A.timeSplit.reduce((s, x) => s + x.ms, 0) || 1;
+    const split = `<section class="card"><h2>Where the time went</h2>
+      <div class="stack" role="img" aria-label="Time split">${A.timeSplit.filter(x => x.ms > 0).map(x => `<i class="c-${x.c}" style="width:${100 * x.ms / tsTot}%" data-tip="${esc(x.k + ': ' + mmss(x.ms))}"></i>`).join('')}</div>
+      <table class="t compact"><tr><th></th><th>Part</th><th class="n">Time</th><th class="n">Share</th></tr>${A.timeSplit.map(x => `<tr><td><i class="sw c-${x.c}"></i></td><td>${x.k}</td><td class="n">${mmss(x.ms)}</td><td class="n">${pct(x.ms, tsTot)}%</td></tr>`).join('')}</table></section>`;
 
-      <section class="cx-card"><h2>By difficulty</h2><div class="tw"><table class="t"><tr><th>Level</th><th>Questions</th><th>Attempted</th><th>Right</th><th>Wrong</th><th>Marks</th><th>Time</th><th>Ideal time each</th></tr>
-        ${diffs.map(g => `<tr><td>${dtag(g.k)}</td><td class="n">${g.total}</td><td class="n">${g.att}</td><td class="n">${g.ok}</td><td class="n">${g.no}</td><td class="n">${g.marks}</td><td class="n">${mmss(g.time)}</td><td class="n">${g.k === 5 ? 'skip' : mmss(IDEAL[g.k] * 1000)}</td></tr>`).join('')}</table></div>
-        <p class="muted" style="margin-top:8px">Levels come from real data: the share of test-takers who got each question right (35%+ very easy, 20–35% easy, 10–20% medium, 5–10% hard, under 5% very hard).</p></section>
+    // topics + difficulty
+    const bars = g => `<div class="hb" role="img" aria-label="${g.ok} right, ${g.no} wrong, ${g.skip} skipped">${g.ok ? `<i class="c-good" style="flex:${g.ok}"></i>` : ''}${g.no ? `<i class="c-bad" style="flex:${g.no}"></i>` : ''}${g.skip ? `<i class="c-skip" style="flex:${g.skip}"></i>` : ''}</div>`;
+    const gtable = (title, groups, label, extra) => `<section class="card"><h2>${title}</h2><div class="tw"><table class="t"><tr><th>${label}</th><th>Questions</th><th class="w">Right · wrong · skipped</th><th class="n">Marks</th><th class="n">Time</th>${extra ? '<th class="n">Ideal each</th>' : ''}</tr>
+      ${groups.map(g => `<tr><td>${extra ? dchip(g.k) : g.k + (TARGET_TOPICS.includes(g.k) ? '' : ' <small class="mut">(bonus)</small>')}</td><td class="n">${g.total}</td><td>${bars(g)}<small class="mut">${g.ok} ✓ · ${g.no} ✗ · ${g.skip} –</small></td><td class="n">${g.marks}</td><td class="n">${mmss(g.time)}</td>${extra ? `<td class="n">${g.k === 5 ? 'skip' : mmss(IDEAL[g.k] * 1000)}</td>` : ''}</tr>`).join('')}</table></div>
+      ${extra ? '<p class="note">Levels come from real data: the share of test-takers who got each question right (35%+ very easy, 20–35% easy, 10–20% medium, 5–10% hard, under 5% very hard).</p>' : ''}</section>`;
 
-      <section class="cx-card"><h2>Every question</h2><div class="tw"><table class="t"><tr><th>Q</th><th>Topic</th><th>Level</th><th>Opened #</th><th>Saved #</th><th>Time</th><th></th><th>Your answer</th><th>Correct</th><th>Result</th><th>Verdict</th></tr>
-        ${rows.map(r => `<tr><td class="n">${r.q.n}</td><td>${r.m.topic}<br><span class="muted">${esc(r.m.sub)}</span></td><td>${dtag(r.m.diff)}</td><td class="n">${r.open || '—'}</td><td class="n">${r.saved || '—'}</td><td class="n">${mmss(r.time)}${r.visits > 1 ? '<br><span class="muted">' + r.visits + ' visits</span>' : ''}</td><td><div class="bar"><i style="width:${Math.round(100 * r.time / maxT)}%"></i></div></td><td>${herTxt(r)}${r.changes ? '<br><span class="muted">changed ' + r.changes + '×</span>' : ''}</td><td>${ansTxt(r)}</td><td>${resTxt(r)}</td><td><span class="verdict" style="color:${r.verdict[1]}">${r.verdict[0]}</span></td></tr>`).join('')}</table></div></section>
+    // every question
+    const maxT = Math.max(...rows.map(r => Math.max(r.time, r.ideal)), 1);
+    const qtable = `<section class="card"><h2>Every question</h2><div class="tw"><table class="t qt"><tr><th>Q</th><th>Topic</th><th>Level</th><th class="n">Opened</th><th class="n">Saved</th><th class="w">Time (line = ideal)</th><th>You</th><th>Key</th><th>Result</th><th>Verdict</th></tr>
+      ${rows.map(r => `<tr><td class="n"><b>${r.n}</b></td><td>${r.topic}<br><small class="mut">${esc(r.sub)}</small></td><td>${dchip(r.diff)}${r.doable ? '<br><small class="mut">doable</small>' : ''}</td><td class="n">${r.open ? '#' + r.open : '—'}</td><td class="n">${r.saved ? '#' + r.saved : '—'}</td>
+        <td><div class="tb"><i class="${r.time > r.ideal * 1.5 ? 'over' : ''}" style="width:${100 * r.time / maxT}%"></i>${r.diff < 5 ? `<b style="left:${100 * r.ideal / maxT}%"></b>` : ''}</div><small class="mut">${mmss(r.time)}${r.visits > 1 ? ' · ' + r.visits + ' visits' : ''}</small></td>
+        <td>${herTxt(r)}${r.changes ? `<br><small class="mut">changed ${r.changes}×</small>` : ''}</td><td>${ansTxt(r)}</td><td>${res(r)}</td><td><span class="vd vd-${r.tone}">${r.verdict}</span></td></tr>`).join('')}</table></div></section>`;
 
-      <section style="display:grid;gap:10px"><h2 style="font-family:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;font-size:19px;margin:0">Solutions</h2>
-        ${rows.map(r => `<details class="sol"${r.res === 'no' || (r.should && r.res === 'skip') ? ' open' : ''}><summary>Q${r.q.n} ${dtag(r.m.diff)} <span class="muted">${r.m.topic} · ${esc(r.m.sub)}</span> ${resTxt(r)}</summary>
-          <div class="qt">${esc(r.q.text)}</div>${r.q.kind === 'MCQ' ? '<div class="muted">' + r.q.opts.map(esc).join(' &nbsp; ') + '</div>' : ''}
-          <div class="an"><b>Answer: ${ansTxt(r)}</b> · your answer: ${herTxt(r)} · time ${mmss(r.time)} (ideal ${r.m.diff === 5 ? 'skip' : mmss(IDEAL[r.m.diff] * 1000)})<br>${r.m.sol}</div>
-          <div class="muted" style="margin-top:6px">Source: ${esc(r.m.src)}</div></details>`).join('')}
-      </section>
+    const sols = `<section class="sols"><h2>Solutions</h2>
+      ${rows.map(r => `<details class="sol"${r.res === 'no' || (r.doable && r.res === 'skip') ? ' open' : ''}><summary><b>Q${r.n}</b> ${dchip(r.diff)} <span class="mut">${r.topic} · ${esc(r.sub)}</span> ${res(r)}</summary>
+        <div class="qtx">${esc(r.q.text)}</div>${r.kind === 'MCQ' ? '<div class="mut">' + r.q.opts.map(esc).join(' &nbsp; ') + '</div>' : ''}
+        <div class="an"><b>Answer: ${ansTxt(r)}</b> · you: ${herTxt(r)} · time ${mmss(r.time)} (ideal ${r.diff === 5 ? 'skip' : mmss(r.ideal)})<br>${r.m.sol}</div>
+        <div class="mut src">Source: ${esc(r.m.src)}</div></details>`).join('')}</section>`;
 
-      <section class="cx-card"><h2>Send your results</h2><p class="muted">Press Copy results and send the text to Vikas. It contains every answer, time and click, so the next plan can be built from it.</p>
-        <div class="copy"><button class="cx-go" type="button" id="rpCopy">Copy results</button><span id="rpToast" class="muted"></span></div>
-        <textarea id="rpOut" readonly aria-label="Results text"></textarea></section>
-    </div>`;
-    const text = resultsText(rows, tot);
+    const send = `<section class="card"><h2>Send your results</h2><p class="note">Press Copy results and send the text to Vikas. It contains every answer, time and click, so the next plan can be built from it.</p>
+      <div class="copy"><button class="cx-go" type="button" id="rpCopy">Copy results</button><span id="rpToast" class="mut"></span></div>
+      <textarea id="rpOut" readonly aria-label="Results text"></textarea></section>`;
+
+    root.innerHTML = `<div class="rp"><div><span class="eyebrow">${S.early ? 'Submitted' : "Time's up"} · your report</span><h1>${esc(C.title)}</h1></div>
+      ${hero}${adv}${map}${tl}${order}${split}${gtable('By topic', A.topics, 'Topic', false)}${gtable('By difficulty', A.diffs, 'Level', true)}${qtable}${sols}${send}
+      <script type="application/json" id="rpData">${JSON.stringify({ tot, doable: { total: doable.total, att: doable.att, ok: doable.ok, no: doable.no, sel: doable.sel, missed: doable.missed.map(r => r.n), wrong: doable.wrong.map(r => r.n), potential: doable.potential }, leftOnTable: A.leftOnTable, hardTime: A.hard.time, hardEarly: A.hardEarly.map(x => x.r.n), negMarks: A.negMarks, scan: A.scan, slow: A.slow.map(r => r.n), rows: rows.map(r => ({ n: r.n, res: r.res, marks: r.marks, time: r.time, verdict: r.verdict, doable: r.doable, visits: r.visits, open: r.open, saved: r.saved, changes: r.changes })), topics: A.topics, diffs: A.diffs, timeSplit: A.timeSplit.map(x => [x.k, x.ms]) }).replace(/</g, '\\u003c')}</script></div>
+      <div class="tip" id="rpTip" role="tooltip" hidden></div>`;
+    const text = resultsText(A);
     const out = root.querySelector('#rpOut'); out.value = text;
     root.querySelector('#rpCopy').addEventListener('click', () => {
       const t = root.querySelector('#rpToast');
       try { navigator.clipboard.writeText(text).then(() => { t.textContent = 'Copied. Now send it to Vikas.'; }, () => { out.focus(); out.select(); t.textContent = 'Select all and copy the text below.'; }); }
       catch (e) { out.focus(); out.select(); t.textContent = 'Select all and copy the text below.'; }
     });
-    const icon = document.querySelector('.cc-icon'); if (icon) icon.style.display = 'none';
+    // tooltip: hover, focus or tap
+    const tipEl = root.querySelector('#rpTip');
+    const showTip = el => {
+      tipEl.textContent = el.dataset.tip; tipEl.hidden = false;
+      const r = el.getBoundingClientRect(), w = tipEl.offsetWidth;
+      tipEl.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + 'px';
+      tipEl.style.top = (r.top + window.scrollY - tipEl.offsetHeight - 8 < window.scrollY ? r.bottom + window.scrollY + 8 : r.top + window.scrollY - tipEl.offsetHeight - 8) + 'px';
+    };
+    root.addEventListener('mouseover', e => { const el = e.target.closest('[data-tip]'); if (el) showTip(el); });
+    root.addEventListener('mouseout', e => { if (e.target.closest('[data-tip]')) tipEl.hidden = true; });
+    root.addEventListener('focusin', e => { const el = e.target.closest('[data-tip]'); if (el) showTip(el); });
+    root.addEventListener('click', e => { const el = e.target.closest('[data-tip]'); if (el) showTip(el); else tipEl.hidden = true; });
+    document.body.classList.add('cx-report');
   }
 
   /* ---------- boot ---------- */
   if (!S.startedAt) renderIntro();
   else if (locked() || now() - S.startedAt >= LIMIT) { if (!locked()) { S.endedAt = S.startedAt + LIMIT; save(); } renderReport(); }
-  else { since = now(); openQ(S.cur, true); save(); renderExam(); }
+  else { openQ(S.cur, 'resume'); save(); renderExam(); }
 })();
