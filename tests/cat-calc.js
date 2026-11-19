@@ -143,7 +143,13 @@
   icon.setAttribute('aria-label', 'Calculator'); icon.setAttribute('aria-expanded', 'false');
   icon.innerHTML = ICON;
   const strip = document.querySelector('.summary');
-  if (strip) { const bar = document.createElement('div'); bar.className = 'cc-bar'; bar.appendChild(icon); strip.insertBefore(bar, strip.firstChild); }
+  function attach() {
+    const slot = document.getElementById('cc-slot');   // CAT-style exam pages put a slot next to the timer
+    if (slot) { icon.classList.remove('cc-float'); slot.appendChild(icon); return true; }
+    return false;
+  }
+  if (attach()) { /* placed in the exam top bar */ }
+  else if (strip) { const bar = document.createElement('div'); bar.className = 'cc-bar'; bar.appendChild(icon); strip.insertBefore(bar, strip.firstChild); }
   else { icon.classList.add('cc-float'); document.body.appendChild(icon); }
 
   let placed = false;
@@ -181,5 +187,6 @@
   });
 
   render();
-  window.CatCalc = { press: k => { press(k); render(); return cur; }, value: () => cur, open: () => show(true) };
+  window.CatCalc = { press: k => { press(k); render(); return cur; }, value: () => cur, open: () => show(true),
+    attach: () => { icon.style.display = ''; placed = false; return attach(); } };
 })();

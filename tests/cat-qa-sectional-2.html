@@ -7,356 +7,215 @@
 <title>CAT QA Sectional 2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
-<style>
-  /* Layout: one narrow exam-sheet column; a summary strip on top, one card per question, results at the end */
-  :root {
-    --bg: #eef1f5;
-    --surface: #ffffff;
-    --ink: #17202d;
-    --muted: #5a6577;
-    --line: #d6dce5;
-    --accent: #1f5fae;
-    --accent-ink: #ffffff;
-    --run: #0d7a5a;
-    --run-soft: #e3f4ee;
-    --warn: #a45f00;
-    --warn-soft: #fbf0dc;
-    --done-soft: #e8eef8;
-    --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
-    --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
-    --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #0e131a; --surface: #161d27; --ink: #e4e9f1; --muted: #98a3b4; --line: #29323f;
-      --accent: #74a9ef; --accent-ink: #0e131a; --run: #46c49b; --run-soft: #11291f;
-      --warn: #f0b04a; --warn-soft: #2e230f; --done-soft: #1a2434; color-scheme: dark;
-    }
-  }
-  :root[data-theme="dark"] {
-    --bg: #0e131a; --surface: #161d27; --ink: #e4e9f1; --muted: #98a3b4; --line: #29323f;
-    --accent: #74a9ef; --accent-ink: #0e131a; --run: #46c49b; --run-soft: #11291f;
-    --warn: #f0b04a; --warn-soft: #2e230f; --done-soft: #1a2434; color-scheme: dark;
-  }
-
-  * { box-sizing: border-box; }
-  body {
-    background: var(--bg); color: var(--ink);
-    font-family: var(--font-body); font-size: 15px; line-height: 1.55;
-  }
-  .wrap {
-    max-width: 760px; margin: 0 auto;
-    padding-left: max(16px, env(safe-area-inset-left, 0px));
-    padding-right: max(16px, env(safe-area-inset-right, 0px));
-    padding-block: 28px 56px;
-    display: grid; gap: 18px;
-  }
-  header { display: grid; gap: 6px; }
-  .eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
-  h1 { font-family: var(--font-display); font-size: 30px; line-height: 1.15; margin: 0; text-wrap: balance; }
-  .lede { margin: 0; color: var(--muted); max-width: 62ch; }
-
-  .summary {
-    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
-    padding: 14px 16px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;
-  }
-  .stat { display: grid; gap: 2px; min-width: 0; }
-  .stat span { font-size: 12px; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
-  .stat b { font-family: var(--font-mono); font-size: 22px; font-variant-numeric: tabular-nums; font-weight: 600; }
-  .stat b.warn { color: var(--warn); }
-
-  h2 { font-family: var(--font-display); font-size: 19px; margin: 10px 0 0; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
-  h2 small { font-family: var(--font-body); font-size: 13px; color: var(--muted); font-weight: 500; }
-
-  .q {
-    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
-    padding: 16px; display: grid; gap: 12px; border-left: 4px solid var(--line);
-  }
-  .q.running { border-left-color: var(--run); }
-  .q.over { border-left-color: var(--warn); }
-  .q.done { border-left-color: var(--accent); background: var(--done-soft); }
-  .q-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .qnum { font-family: var(--font-display); font-weight: 700; font-size: 17px; }
-  .chip {
-    font-size: 11.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
-    padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted);
-  }
-  .chip.state { margin-left: auto; }
-  .chip.state.running { color: var(--run); border-color: var(--run); background: var(--run-soft); }
-  .chip.state.over { color: var(--warn); border-color: var(--warn); background: var(--warn-soft); }
-  .chip.state.done { color: var(--accent); border-color: var(--accent); }
-  .q p { margin: 0; max-width: 65ch; }
-  .opts { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; color: var(--ink); }
-
-  .controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-  .clock {
-    font-family: var(--font-mono); font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums;
-    min-width: 5.2ch; color: var(--ink);
-  }
-  .q.running .clock { color: var(--run); }
-  .q.over .clock { color: var(--warn); }
-  .target { font-size: 13px; color: var(--muted); font-family: var(--font-mono); }
-  .btns { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
-  button {
-    font: 600 14px/1 var(--font-body); border-radius: 8px; padding: 10px 14px; cursor: pointer;
-    border: 1px solid var(--line); background: var(--surface); color: var(--ink);
-  }
-  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); min-width: 92px; }
-  .q.running button.primary { background: var(--run); border-color: var(--run); }
-  button:disabled { opacity: .45; cursor: not-allowed; }
-  button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-
-  .answer { display: grid; gap: 4px; }
-  .answer label { font-size: 12.5px; color: var(--muted); font-weight: 600; }
-  .answer input {
-    font: 15px var(--font-body); padding: 9px 11px; border-radius: 8px;
-    border: 1px solid var(--line); background: var(--bg); color: var(--ink); width: 100%;
-  }
-
-  .results { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 12px; }
-  .results p { margin: 0; color: var(--muted); }
-  .row { display: flex; gap: 8px; flex-wrap: wrap; }
-  textarea {
-    width: 100%; min-height: 190px; font: 13px/1.5 var(--font-mono); padding: 10px;
-    border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink);
-  }
-  .toast { font-size: 13px; color: var(--run); font-weight: 600; align-self: center; }
-  .results p.sync { font-size: 13px; font-weight: 600; color: var(--muted); }
-  .results p.sync.ok { color: var(--run); }
-  .results p.sync.bad { color: var(--warn); }
-
-  @media (max-width: 520px) {
-    h1 { font-size: 25px; }
-    .summary { grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 12px; }
-    .stat b { font-size: 18px; }
-    .btns { margin-left: 0; width: 100%; }
-    .btns button { flex: 1; }
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    .q { transition: border-color .2s, background-color .2s; }
-  }
-  body { margin: 0; }
-
-  /* Exam mode: one countdown for the whole set, answers lock at 0:00 */
-  .summary { position: sticky; top: 0; z-index: 5; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; align-items: center; }
-  @media (max-width: 520px) { .summary { grid-template-columns: repeat(3, minmax(0, 1fr)); } #submitTop { grid-column: 1 / -1; } }
-  .stat b.low { color: var(--warn); }
-  .startbox { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 10px; justify-items: start; }
-  .startbox p { margin: 0; color: var(--muted); }
-  .q.answered { border-left-color: var(--accent); }
-  .locked .answer input { opacity: .75; }
-  .banner { border-radius: 10px; padding: 12px 16px; font-weight: 600; background: var(--warn-soft); color: var(--warn); border: 1px solid var(--warn); }
-  .banner[hidden], #list[hidden], .results[hidden], .startbox[hidden] { display: none; }
-</style>
 </head>
 <body>
-<div class="wrap" id="wrap">
-  <header>
-    <div class="eyebrow">CAT 2026 · Full QA section 2 · Real CAT 2024 paper</div>
-    <h1>CAT QA sectional 2: 22 questions in 40 minutes</h1>
-    <p class="lede">Exactly like the real CAT Quant section: <b>22 questions, 40 minutes</b>, 14 MCQs and 8 TITA, from a real CAT paper (CAT 2024, Slot 2, in its own order; 7 questions you have already seen are swapped for other real CAT questions of the same type and topic). So the topic mix is CAT's own: 8 arithmetic, 9 algebra, 3 geometry, 2 numbers. Topics come mixed, just like the exam. <b>Marking:</b> right +3; wrong MCQ −1; wrong TITA 0; blank 0. <b>Calculator:</b> the orange icon at the top right, above the timer, opens the same basic calculator CAT gives (mouse only). Nobody solves all 22: a good score comes from attempting 12–14 questions carefully. <b>Plan:</b> first 2–3 minutes, read every question and mark the easy ones; solve those first; leave any question with no method after 1 minute. One clock for the whole test; it keeps running if you close the page. Answers lock at 0:00 or when you press <b>Submit test</b> twice. For MCQs, type the letter. For TITA, put your answer back into the question before typing it.</p>
-  </header>
-
-  <section class="summary" aria-label="Progress">
-    <div class="stat"><span>Time left</span><b id="left">40:00</b></div>
-    <div class="stat"><span>Answered</span><b id="answered">0 / 22</b></div>
-    <div class="stat"><span>Status</span><b id="status">Not started</b></div>
-    <button class="primary" id="submitTop" type="button" hidden>Submit test</button>
-  </section>
-
-  <section class="startbox" id="startbox">
-    <p>Sit somewhere quiet with a pen and rough paper. Once you press Start, the clock cannot be paused.</p>
-    <button class="primary" id="startBtn" type="button">Start the 40-minute test</button>
-  </section>
-
-  <div class="banner" id="banner" role="status" hidden></div>
-
-  <div id="list" hidden></div>
-
-  <section class="results" id="results" aria-labelledby="resHead" hidden>
-    <h2 id="resHead">Send your results</h2>
-    <p id="resNote">Press <b>Copy results</b> and send the copied text to Vikas. Every answer will be checked, mistakes explained, and your tracker updated.</p>
-    <div class="row">
-      <button class="primary" id="copyBtn" type="button">Copy results</button>
-      <button id="finishBtn" type="button">Submit test</button>
-      <span class="toast" id="toast" role="status"></span>
-    </div>
-    <textarea id="copyOut" readonly hidden aria-label="Results text"></textarea>
-  </section>
-</div>
-
 <script>
-const QS = [
-  {"level": 1, "n": 1, "type": "MCQ · +3 / −1", "text": "When 3³³³ is divided by 11, the remainder is", "opts": ["(a) 1", "(b) 10", "(c) 6", "(d) 5"]},
-  {"level": 1, "n": 2, "type": "MCQ · +3 / −1", "text": "Let x, y and z be real numbers satisfying 4(x² + y² + z²) = a and 4(x − y − z) = 3 + a. Then a equals", "opts": ["(a) 3", "(b) 1⅓", "(c) 1", "(d) 4"]},
-  {"level": 1, "n": 3, "type": "MCQ · +3 / −1", "text": "If m and n are natural numbers such that n > 1, and mⁿ = 2²⁵ × 3⁴⁰, then m − n equals", "opts": ["(a) 209932", "(b) 209937", "(c) 209947", "(d) 209942"]},
-  {"level": 1, "n": 4, "type": "MCQ · +3 / −1", "text": "Consider two sets A = {2, 3, 5, 7, 11, 13} and B = {1, 8, 27}. Let f be a function from A to B such that for every element b in B, there is at least one element a in A such that f(a) = b. Then, the total number of such functions f is", "opts": ["(a) 540", "(b) 537", "(c) 665", "(d) 667"]},
-  {"level": 1, "n": 5, "type": "MCQ · +3 / −1", "text": "ABCD is a trapezium in which AB is parallel to CD. The sides AD and BC when extended, intersect at point E. If AB = 2 cm, CD = 1 cm, and perimeter of ABCD is 6 cm, then the perimeter, in cm, of △AEB is", "opts": ["(a) 10", "(b) 9", "(c) 8", "(d) 7"]},
-  {"level": 1, "n": 6, "type": "TITA · +3 / 0 (no minus)", "text": "Amal and Vimal together can complete a task in 150 days, while Vimal and Sunil together can complete the same task in 100 days. Amal starts working on the task and works for 75 days, then Vimal takes over and works for 135 days. Finally, Sunil takes over and completes the remaining task in 45 days. If Amal had started the task alone and worked on all days, Vimal had worked on every second day, and Sunil had worked on every third day, then the number of days required to complete the task would have been"},
-  {"level": 1, "n": 7, "type": "TITA · +3 / 0 (no minus)", "text": "Bina incurs 19% loss when she sells a product at Rs. 4860 to Shyam, who in turn sells this product to Hari. If Bina would have sold this product to Shyam at the purchase price of Hari, she would have obtained 17% profit. Then, the profit, in rupees, made by Shyam is"},
-  {"level": 1, "n": 8, "type": "MCQ · +3 / −1", "text": "The value of 1 + (1 + 1/3)(1/4) + (1 + 1/3 + 1/9)(1/16) + (1 + 1/3 + 1/9 + 1/27)(1/64) + ⋯ is", "opts": ["(a) 15/13", "(b) 16/11", "(c) 27/12", "(d) 15/8"]},
-  {"level": 1, "n": 9, "type": "TITA · +3 / 0 (no minus)", "text": "If the equations x² + mx + 9 = 0, x² + nx + 17 = 0 and x² + (m + n)x + 35 = 0 have a common negative root, then the value of (2m + 3n) is"},
-  {"level": 1, "n": 10, "type": "MCQ · +3 / −1", "text": "A company has 40 employees whose names are listed in a certain order. In the year 2022, the average bonus of the first 30 employees was Rs. 40000, of the last 30 employees was Rs. 60000, and of the first 10 and last 10 employees together was Rs. 50000. Next year, the average bonus of the first 10 employees increased by 100%, of the last 10 employees increased by 200% and of the remaining employees was unchanged. Then, the average bonus, in rupees, of all the 40 employees together in the year 2023 was", "opts": ["(a) 90000", "(b) 95000", "(c) 80000", "(d) 85000"]},
-  {"level": 1, "n": 11, "type": "TITA · +3 / 0 (no minus)", "text": "P, Q, R and S are four towns. One can travel between P and Q along 3 direct paths, between Q and S along 4 direct paths, and between P and R along 4 direct paths. There is no direct path between P and S, while there are few direct paths between Q and R, and between R and S. One can travel from P to S either via Q, or via R, or via Q followed by R, respectively, in exactly 62 possible ways. One can also travel from Q to R either directly, or via P, or via S, in exactly 27 possible ways. Then, the number of direct paths between Q and R is"},
-  {"level": 1, "n": 12, "type": "TITA · +3 / 0 (no minus)", "text": "A fruit seller has a stock of mangoes, bananas and apples with at least one fruit of each type. At the beginning of a day, the number of mangoes make up 40% of his stock. That day, he sells half of the mangoes, 96 bananas and 40% of the apples. At the end of the day, he ends up selling 50% of the fruits. The smallest possible total number of fruits in the stock at the beginning of the day is"},
-  {"level": 1, "n": 13, "type": "TITA · +3 / 0 (no minus)", "text": "If (x + 6√2)^(1/2) − (x − 6√2)^(1/2) = 2√2, then x equals"},
-  {"level": 1, "n": 14, "type": "TITA · +3 / 0 (no minus)", "text": "ABCD is a rectangle with sides AB = 56 cm and BC = 45 cm, and E is the midpoint of side CD. Then, the length, in cm, of radius of incircle of △ADE is"},
-  {"level": 1, "n": 15, "type": "MCQ · +3 / −1", "text": "Anil borrows Rs 2 lakhs at an interest rate of 8% per annum, compounded half-yearly. He repays Rs 10320 at the end of the first year and closes the loan by paying the outstanding amount at the end of the third year. Then, the total interest, in rupees, paid over the three years is nearest to", "opts": ["(a) 45311", "(b) 51311", "(c) 33130", "(d) 40991"]},
-  {"level": 1, "n": 16, "type": "MCQ · +3 / −1", "text": "The roots α, β of the equation 3x² + λx − 1 = 0 satisfy 1/α² + 1/β² = 15. The value of (α³ + β³)² is", "opts": ["(a) 9", "(b) 16", "(c) 4", "(d) 1"]},
-  {"level": 1, "n": 17, "type": "MCQ · +3 / −1", "text": "A bus starts at 9 am and follows a fixed route every day. One day, it traveled at a constant speed of 60 km per hour and reached its destination 3.5 hours later than its scheduled arrival time. Next day, it traveled two-thirds of its route in one-third of its total scheduled travel time, and the remaining part of the route at 40 km per hour to reach just on time. The scheduled arrival time of the bus is", "opts": ["(a) 10:30 pm", "(b) 7:00 pm", "(c) 7:30 pm", "(d) 9:00 pm"]},
-  {"level": 1, "n": 18, "type": "MCQ · +3 / −1", "text": "Three circles of equal radii touch (but not cross) each other externally. Two other circles, X and Y, are drawn such that both touch (but not cross) each of the three previous circles. If the radius of X is more than that of Y, the ratio of the radii of X and Y is", "opts": ["(a) 2 + √3 : 1", "(b) 4 + √3 : 1", "(c) 7 + 4√3 : 1", "(d) 4 + 2√3 : 1"]},
-  {"level": 1, "n": 19, "type": "MCQ · +3 / −1", "text": "A vessel contained a certain amount of a solution of acid and water. When 2 litres of water was added to it, the new solution had 50% acid concentration. When 15 litres of acid was further added to this new solution, the final solution had 80% acid concentration. The ratio of water and acid in the original solution was", "opts": ["(a) 5 : 3", "(b) 4 : 5", "(c) 5 : 4", "(d) 3 : 5"]},
-  {"level": 1, "n": 20, "type": "MCQ · +3 / −1", "text": "In the XY-plane, the area, in sq. units, of the region defined by the inequalities y ≥ x + 4 and −4 ≤ x² + y² + 4(x − y) ≤ 0 is", "opts": ["(a) 4π", "(b) 2π", "(c) π", "(d) 3π"]},
-  {"level": 1, "n": 21, "type": "TITA · +3 / 0 (no minus)", "text": "If x and y are real numbers such that 4x² + 4y² − 4xy − 6y + 3 = 0, then the value of (4x + 5y) is"},
-  {"level": 1, "n": 22, "type": "MCQ · +3 / −1", "text": "When Rajesh's age was same as the present age of Garima, the ratio of their ages was 3 : 2. When Garima's age becomes the same as the present age of Rajesh, the ratio of the ages of Rajesh and Garima will become", "opts": ["(a) 4 : 3", "(b) 2 : 1", "(c) 3 : 2", "(d) 5 : 4"]}
-];
-const LIMIT = 40 * 60 * 1000;
-const KEY = 'cat-qa-sectional2-v1';
-const HEADS = {
-        1: 'Quantitative Ability: 22 questions'
-      };
-
-let state = { startedAt: null, endedAt: null, early: false, answers: {} };
-try { state = Object.assign(state, JSON.parse(localStorage.getItem(KEY) || '{}') || {}); } catch (e) {}
-function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
-
-function fmt(t) {
-  const sec = Math.max(0, Math.ceil(t / 1000));
-  return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
-}
-const used = () => state.startedAt ? Math.min(LIMIT, (state.endedAt || Date.now()) - state.startedAt) : 0;
-const locked = () => !!state.endedAt;
-
-const list = document.getElementById('list');
-const inputs = {};
-function build() {
-  let level = -1;
-  QS.forEach(q => {
-    if (q.level !== level) {
-      level = q.level;
-      const h = document.createElement('h2');
-      h.innerHTML = HEADS[level];
-      list.appendChild(h);
-    }
-    const card = document.createElement('article');
-    card.className = 'q';
-    card.style.marginTop = '12px';
-    card.innerHTML =
-      '<div class="q-head"><span class="qnum">Q' + q.n + '</span>' + (q.type ? '<span class="chip">' + q.type + '</span>' : '') + '</div>' +
-      '<p></p>' +
-      (q.opts ? '<ul class="opts">' + q.opts.map(o => '<li>' + o + '</li>').join('') + '</ul>' : '') +
-      '<div class="answer"><label for="ans-' + q.n + '">Your answer</label>' +
-      '<input id="ans-' + q.n + '" type="text" autocomplete="off" placeholder="Type your answer"></div>';
-    card.querySelector('p').textContent = q.text;
-    const input = card.querySelector('input');
-    input.value = state.answers[q.n] || '';
-    input.addEventListener('input', () => {
-      if (locked()) return;
-      state.answers[q.n] = input.value; save();
-      card.classList.toggle('answered', !!input.value.trim());
-      renderSummary();
-    });
-    card.classList.toggle('answered', !!input.value.trim());
-    inputs[q.n] = input;
-    list.appendChild(card);
-  });
-}
-
-function answeredCount() { return QS.filter(q => (state.answers[q.n] || '').trim()).length; }
-function renderSummary() {
-  const left = LIMIT - used();
-  const el = document.getElementById('left');
-  el.textContent = fmt(left);
-  el.classList.toggle('low', !!state.startedAt && left <= 5 * 60 * 1000);
-  document.getElementById('answered').textContent = answeredCount() + ' / ' + QS.length;
-  document.getElementById('status').textContent = !state.startedAt ? 'Not started' : (locked() ? 'Locked' : 'Running');
-}
-
-function lock(early) {
-  if (!state.endedAt) {
-    state.endedAt = early ? Date.now() : state.startedAt + LIMIT;
-    state.early = !!early;
-    save();
+window.CAT_EXAM = {
+ "title": "CAT QA Sectional 2",
+ "section": "Quantitative Ability",
+ "key": "cat-qa-sectional2-v2",
+ "minutes": 40,
+ "intro": "22 real CAT questions in 40 minutes: 14 MCQs and 8 TITA from CAT 2024 Slot 2 (7 questions you have already seen are swapped for other real CAT questions of the same type and topic). Topic mix is CAT's own: 8 arithmetic, 9 algebra, 3 geometry, 2 numbers. Nobody solves all 22; the job is to find the 12–14 you can do and get them right.",
+ "questions": [
+  {
+   "n": 1,
+   "kind": "MCQ",
+   "text": "When 3³³³ is divided by 11, the remainder is",
+   "opts": [
+    "(a) 1",
+    "(b) 10",
+    "(c) 6",
+    "(d) 5"
+   ]
+  },
+  {
+   "n": 2,
+   "kind": "MCQ",
+   "text": "Let x, y and z be real numbers satisfying 4(x² + y² + z²) = a and 4(x − y − z) = 3 + a. Then a equals",
+   "opts": [
+    "(a) 3",
+    "(b) 1⅓",
+    "(c) 1",
+    "(d) 4"
+   ]
+  },
+  {
+   "n": 3,
+   "kind": "MCQ",
+   "text": "If m and n are natural numbers such that n > 1, and mⁿ = 2²⁵ × 3⁴⁰, then m − n equals",
+   "opts": [
+    "(a) 209932",
+    "(b) 209937",
+    "(c) 209947",
+    "(d) 209942"
+   ]
+  },
+  {
+   "n": 4,
+   "kind": "MCQ",
+   "text": "Consider two sets A = {2, 3, 5, 7, 11, 13} and B = {1, 8, 27}. Let f be a function from A to B such that for every element b in B, there is at least one element a in A such that f(a) = b. Then, the total number of such functions f is",
+   "opts": [
+    "(a) 540",
+    "(b) 537",
+    "(c) 665",
+    "(d) 667"
+   ]
+  },
+  {
+   "n": 5,
+   "kind": "MCQ",
+   "text": "ABCD is a trapezium in which AB is parallel to CD. The sides AD and BC when extended, intersect at point E. If AB = 2 cm, CD = 1 cm, and perimeter of ABCD is 6 cm, then the perimeter, in cm, of △AEB is",
+   "opts": [
+    "(a) 10",
+    "(b) 9",
+    "(c) 8",
+    "(d) 7"
+   ]
+  },
+  {
+   "n": 6,
+   "kind": "TITA",
+   "text": "Amal and Vimal together can complete a task in 150 days, while Vimal and Sunil together can complete the same task in 100 days. Amal starts working on the task and works for 75 days, then Vimal takes over and works for 135 days. Finally, Sunil takes over and completes the remaining task in 45 days. If Amal had started the task alone and worked on all days, Vimal had worked on every second day, and Sunil had worked on every third day, then the number of days required to complete the task would have been"
+  },
+  {
+   "n": 7,
+   "kind": "TITA",
+   "text": "Bina incurs 19% loss when she sells a product at Rs. 4860 to Shyam, who in turn sells this product to Hari. If Bina would have sold this product to Shyam at the purchase price of Hari, she would have obtained 17% profit. Then, the profit, in rupees, made by Shyam is"
+  },
+  {
+   "n": 8,
+   "kind": "MCQ",
+   "text": "The value of 1 + (1 + 1/3)(1/4) + (1 + 1/3 + 1/9)(1/16) + (1 + 1/3 + 1/9 + 1/27)(1/64) + ⋯ is",
+   "opts": [
+    "(a) 15/13",
+    "(b) 16/11",
+    "(c) 27/12",
+    "(d) 15/8"
+   ]
+  },
+  {
+   "n": 9,
+   "kind": "TITA",
+   "text": "If the equations x² + mx + 9 = 0, x² + nx + 17 = 0 and x² + (m + n)x + 35 = 0 have a common negative root, then the value of (2m + 3n) is"
+  },
+  {
+   "n": 10,
+   "kind": "MCQ",
+   "text": "A company has 40 employees whose names are listed in a certain order. In the year 2022, the average bonus of the first 30 employees was Rs. 40000, of the last 30 employees was Rs. 60000, and of the first 10 and last 10 employees together was Rs. 50000. Next year, the average bonus of the first 10 employees increased by 100%, of the last 10 employees increased by 200% and of the remaining employees was unchanged. Then, the average bonus, in rupees, of all the 40 employees together in the year 2023 was",
+   "opts": [
+    "(a) 90000",
+    "(b) 95000",
+    "(c) 80000",
+    "(d) 85000"
+   ]
+  },
+  {
+   "n": 11,
+   "kind": "TITA",
+   "text": "P, Q, R and S are four towns. One can travel between P and Q along 3 direct paths, between Q and S along 4 direct paths, and between P and R along 4 direct paths. There is no direct path between P and S, while there are few direct paths between Q and R, and between R and S. One can travel from P to S either via Q, or via R, or via Q followed by R, respectively, in exactly 62 possible ways. One can also travel from Q to R either directly, or via P, or via S, in exactly 27 possible ways. Then, the number of direct paths between Q and R is"
+  },
+  {
+   "n": 12,
+   "kind": "TITA",
+   "text": "A fruit seller has a stock of mangoes, bananas and apples with at least one fruit of each type. At the beginning of a day, the number of mangoes make up 40% of his stock. That day, he sells half of the mangoes, 96 bananas and 40% of the apples. At the end of the day, he ends up selling 50% of the fruits. The smallest possible total number of fruits in the stock at the beginning of the day is"
+  },
+  {
+   "n": 13,
+   "kind": "TITA",
+   "text": "If (x + 6√2)^(1/2) − (x − 6√2)^(1/2) = 2√2, then x equals"
+  },
+  {
+   "n": 14,
+   "kind": "TITA",
+   "text": "ABCD is a rectangle with sides AB = 56 cm and BC = 45 cm, and E is the midpoint of side CD. Then, the length, in cm, of radius of incircle of △ADE is"
+  },
+  {
+   "n": 15,
+   "kind": "MCQ",
+   "text": "Anil borrows Rs 2 lakhs at an interest rate of 8% per annum, compounded half-yearly. He repays Rs 10320 at the end of the first year and closes the loan by paying the outstanding amount at the end of the third year. Then, the total interest, in rupees, paid over the three years is nearest to",
+   "opts": [
+    "(a) 45311",
+    "(b) 51311",
+    "(c) 33130",
+    "(d) 40991"
+   ]
+  },
+  {
+   "n": 16,
+   "kind": "MCQ",
+   "text": "The roots α, β of the equation 3x² + λx − 1 = 0 satisfy 1/α² + 1/β² = 15. The value of (α³ + β³)² is",
+   "opts": [
+    "(a) 9",
+    "(b) 16",
+    "(c) 4",
+    "(d) 1"
+   ]
+  },
+  {
+   "n": 17,
+   "kind": "MCQ",
+   "text": "A bus starts at 9 am and follows a fixed route every day. One day, it traveled at a constant speed of 60 km per hour and reached its destination 3.5 hours later than its scheduled arrival time. Next day, it traveled two-thirds of its route in one-third of its total scheduled travel time, and the remaining part of the route at 40 km per hour to reach just on time. The scheduled arrival time of the bus is",
+   "opts": [
+    "(a) 10:30 pm",
+    "(b) 7:00 pm",
+    "(c) 7:30 pm",
+    "(d) 9:00 pm"
+   ]
+  },
+  {
+   "n": 18,
+   "kind": "MCQ",
+   "text": "Three circles of equal radii touch (but not cross) each other externally. Two other circles, X and Y, are drawn such that both touch (but not cross) each of the three previous circles. If the radius of X is more than that of Y, the ratio of the radii of X and Y is",
+   "opts": [
+    "(a) 2 + √3 : 1",
+    "(b) 4 + √3 : 1",
+    "(c) 7 + 4√3 : 1",
+    "(d) 4 + 2√3 : 1"
+   ]
+  },
+  {
+   "n": 19,
+   "kind": "MCQ",
+   "text": "A vessel contained a certain amount of a solution of acid and water. When 2 litres of water was added to it, the new solution had 50% acid concentration. When 15 litres of acid was further added to this new solution, the final solution had 80% acid concentration. The ratio of water and acid in the original solution was",
+   "opts": [
+    "(a) 5 : 3",
+    "(b) 4 : 5",
+    "(c) 5 : 4",
+    "(d) 3 : 5"
+   ]
+  },
+  {
+   "n": 20,
+   "kind": "MCQ",
+   "text": "In the XY-plane, the area, in sq. units, of the region defined by the inequalities y ≥ x + 4 and −4 ≤ x² + y² + 4(x − y) ≤ 0 is",
+   "opts": [
+    "(a) 4π",
+    "(b) 2π",
+    "(c) π",
+    "(d) 3π"
+   ]
+  },
+  {
+   "n": 21,
+   "kind": "TITA",
+   "text": "If x and y are real numbers such that 4x² + 4y² − 4xy − 6y + 3 = 0, then the value of (4x + 5y) is"
+  },
+  {
+   "n": 22,
+   "kind": "MCQ",
+   "text": "When Rajesh's age was same as the present age of Garima, the ratio of their ages was 3 : 2. When Garima's age becomes the same as the present age of Rajesh, the ratio of the ages of Rajesh and Garima will become",
+   "opts": [
+    "(a) 4 : 3",
+    "(b) 2 : 1",
+    "(c) 3 : 2",
+    "(d) 5 : 4"
+   ]
   }
-  render();
-}
-
-function render() {
-  const started = !!state.startedAt;
-  document.getElementById('startbox').hidden = started;
-  list.hidden = !started;
-  document.getElementById('results').hidden = !started;
-  const isLocked = locked();
-  document.getElementById('wrap').classList.toggle('locked', isLocked);
-  QS.forEach(q => { inputs[q.n].readOnly = isLocked; });
-  document.getElementById('finishBtn').hidden = isLocked;
-  document.getElementById('submitTop').hidden = !started || isLocked;
-  const banner = document.getElementById('banner');
-  banner.hidden = !isLocked;
-  if (isLocked) {
-    banner.textContent = (state.early ? 'Test submitted. ' : "Time's up. ") + 'Your answers are locked. Press Copy results below and send them to Vikas.';
-    document.getElementById('copyOut').value = resultsText();
-    document.getElementById('copyOut').hidden = false;
-  }
-  renderSummary();
-}
-
-function resultsText() {
-  const lines = ['CAT QA sectional 2: my results', ''];
-  QS.forEach(q => lines.push('Q' + q.n + ': ' + ((state.answers[q.n] || '').trim() || '(no answer)')));
-  lines.push('', 'Answered: ' + answeredCount() + ' / ' + QS.length);
-  lines.push('Time used: ' + fmt(used()) + ' of 40:00' + (locked() ? (state.early ? ' (submitted)' : ' (time up, auto-locked)') : ' (still running)'));
-  return lines.join('\n');
-}
-
-document.getElementById('startBtn').addEventListener('click', () => {
-  if (state.startedAt) return;
-  state.startedAt = Date.now(); save(); render();
-  window.scrollTo({ top: 0 });
-});
-
-// Submit needs two taps so a stray tap cannot end the test.
-let armed = null;
-['finishBtn', 'submitTop'].forEach(id => {
-  const btn = document.getElementById(id);
-  btn.addEventListener('click', () => {
-    if (armed !== btn) {
-      armed = btn; btn.textContent = 'Tap again to submit';
-      setTimeout(() => { if (armed === btn) armed = null; btn.textContent = 'Submit test'; }, 3000);
-      return;
-    }
-    armed = null;
-    lock(true);
-    window.scrollTo({ top: 0 });
-  });
-});
-
-const toast = document.getElementById('toast');
-document.getElementById('copyBtn').addEventListener('click', () => {
-  const text = resultsText();
-  const out = document.getElementById('copyOut');
-  const fallback = () => {
-    out.value = text; out.hidden = false; out.focus(); out.select();
-    toast.textContent = 'Select all and copy the text below';
-  };
-  try {
-    navigator.clipboard.writeText(text).then(() => {
-      toast.textContent = 'Copied. Now send it to Vikas.';
-      out.value = text; out.hidden = false;
-    }, fallback);
-  } catch (e) { fallback(); }
-});
-
-setInterval(() => {
-  if (!state.startedAt || locked()) return;
-  if (Date.now() - state.startedAt >= LIMIT) lock(false);
-  else renderSummary();
-}, 250);
-
-build();
-if (state.startedAt && !state.endedAt && Date.now() - state.startedAt >= LIMIT) lock(false);
-render();
+ ],
+ "data": "W3sibiI6IDEsICJ0b3BpYyI6ICJOdW1iZXJzIiwgInN1YiI6ICJSZW1haW5kZXJzIiwgImRpZmYiOiAxLCAiYW5zIjogImQiLCAic29sIjogIjPigbUgPSAyNDMgPSAyMiDDlyAxMSArIDEsIHNvIDPigbUgbGVhdmVzIDEuIDMzMyA9IDUgw5cgNjYgKyAzIOKGkiByZW1haW5kZXIgPSAzwrMgPSAyNyDihpIgMjcg4oiSIDIyID0gNS4iLCAic3JjIjogIkNBVCAyMDI0IFMyIFExIMK3IDQxLjMxJSBvZiB0ZXN0LXRha2VycyBnb3QgaXQgcmlnaHQiLCAicGN0IjogNDEuMzF9LCB7Im4iOiAyLCAidG9waWMiOiAiQWxnZWJyYSIsICJzdWIiOiAiRXF1YXRpb25zIChzdW0gb2Ygc3F1YXJlcykiLCAiZGlmZiI6IDUsICJhbnMiOiAiYSIsICJzb2wiOiAiU3VidHJhY3QgdGhlIHNlY29uZCBsaW5lIGZyb20gdGhlIGZpcnN0OiA0eMKyIOKIkiA0eCArIDR5wrIgKyA0eSArIDR6wrIgKyA0eiArIDMgPSAwIOKGkiAoMngg4oiSIDEpwrIgKyAoMnkgKyAxKcKyICsgKDJ6ICsgMSnCsiA9IDAuIEVhY2ggc3F1YXJlIGlzIDA6IHggPSDCvSwgeSA9IHogPSDiiJLCvSDihpIgYSA9IDQgw5cgwr4gPSAzLiIsICJzcmMiOiAiQ0FUIDIwMjQgUzEgUTggwrcgMi44NSUgb2YgdGVzdC10YWtlcnMgZ290IGl0IHJpZ2h0IiwgInBjdCI6IDIuODV9LCB7Im4iOiAzLCAidG9waWMiOiAiQWxnZWJyYSIsICJzdWIiOiAiSW5kaWNlcyIsICJkaWZmIjogMywgImFucyI6ICJjIiwgInNvbCI6ICJuIG11c3QgZGl2aWRlIGJvdGggMjUgYW5kIDQwIOKGkiBuID0gNS4gbSA9IDLigbUgw5cgM+KBuCA9IDMyIMOXIDY1NjEgPSAyMDk5NTIg4oaSIG0g4oiSIG4gPSAyMDk5NDcuIiwgInNyYyI6ICJDQVQgMjAyNCBTMiBRMyDCtyAxMS4zNSUgb2YgdGVzdC10YWtlcnMgZ290IGl0IHJpZ2h0IiwgInBjdCI6IDExLjM1fSwgeyJuIjogNCwgInRvcGljIjogIkFsZ2VicmEiLCAic3ViIjogIkZ1bmN0aW9ucyAoY291bnRpbmcpIiwgImRpZmYiOiA1LCAiYW5zIjogImEiLCAic29sIjogIkV2ZXJ5IGVsZW1lbnQgb2YgQiBtdXN0IGJlIHVzZWQgKG9udG8pLiBBbGwgZnVuY3Rpb25zIDPigbYgPSA3Mjk7IHJlbW92ZSB0aG9zZSBtaXNzaW5nIG9uZSBlbGVtZW50OiAzIMOXIDLigbYgPSAxOTI7IGFkZCBiYWNrIHRob3NlIG1pc3NpbmcgdHdvOiAzIMOXIDEgPSAzLiA3Mjkg4oiSIDE5MiArIDMgPSA1NDAuIiwgInNyYyI6ICJDQVQgMjAyNCBTMSBRNyDCtyAzLjY5JSBvZiB0ZXN0LXRha2VycyBnb3QgaXQgcmlnaHQiLCAicGN0IjogMy42OX0sIHsibiI6IDUsICJ0b3BpYyI6ICJHZW9tZXRyeSIsICJzdWIiOiAiVHJhcGV6aXVtLCBzaW1pbGFyIHRyaWFuZ2xlcyIsICJkaWZmIjogMiwgImFucyI6ICJjIiwgInNvbCI6ICJDRCDiiKUgQUIgYW5kIENEID0gwr0gQUIsIHNvIOKWs0VDRCB+IOKWs0VBQiB3aXRoIHJhdGlvIDEgOiAyIOKGkiBEIGFuZCBDIGFyZSBtaWRwb2ludHMgb2YgRUEgYW5kIEVCIOKGkiBFRCA9IEFELCBFQyA9IEJDLiBBRCArIEJDID0gNiDiiJIgMyA9IDMuIFBlcmltZXRlciBvZiDilrNBRUIgPSAyICsgMkFEICsgMkJDID0gMiArIDYgPSA4LiIsICJzcmMiOiAiQ0FUIDIwMjQgUzIgUTUgwrcgMjguNzQlIG9mIHRlc3QtdGFrZXJzIGdvdCBpdCByaWdodCIsICJwY3QiOiAyOC43NH0sIHsibiI6IDYsICJ0b3BpYyI6ICJBcml0aG1ldGljIiwgInN1YiI6ICJUaW1lICYgd29yayIsICJkaWZmIjogNSwgImFucyI6ICIxMzkiLCAic29sIjogIlJhdGVzIGEsIHYsIHM6IGEgKyB2ID0gMS8xNTAsIHYgKyBzID0gMS8xMDAsIDc1YSArIDEzNXYgKyA0NXMgPSAxIOKGkiA3NShhICsgdikgKyA0NSh2ICsgcykgKyAxNXYgPSAxIOKGkiAwLjUgKyAwLjQ1ICsgMTV2ID0gMSDihpIgdiA9IDEvMzAwLCBhID0gMS8zMDAsIHMgPSAyLzMwMC4gSm9iID0gMzAwIHVuaXRzOyBBIDEvZGF5LCBWIDEsIFMgMi4gSW4gNiBkYXlzOiBBIDYgKyBWIDMgKyBTIDIgw5cgMiA9IDEzIHVuaXRzLiAyMyBjeWNsZXMgPSAyOTkgdW5pdHMgaW4gMTM4IGRheXM7IGRheSAxMzkgQW1hbCBkb2VzIHRoZSBsYXN0IHVuaXQuIiwgInNyYyI6ICJDQVQgMjAyNCBTMiBRNiDCtyA0LjY1JSBvZiB0ZXN0LXRha2VycyBnb3QgaXQgcmlnaHQiLCAicGN0IjogNC42NX0sIHsibiI6IDcsICJ0b3BpYyI6ICJBcml0aG1ldGljIiwgInN1YiI6ICJQcm9maXQgJiBsb3NzIiwgImRpZmYiOiAxLCAiYW5zIjogIjIxNjAiLCAic29sIjogIkJpbmEmI3gyNztzIGNvc3QgPSA0ODYwIMO3IDAuODEgPSA2MDAwLiBIYXJpIHBhaWQgNjAwMCDDlyAxLjE3ID0gNzAyMC4gU2h5YW0mI3gyNztzIHByb2ZpdCA9IDcwMjAg4oiSIDQ4NjAgPSAyMTYwLiIsICJzcmMiOiAiQ0FUIDIwMjQgUzIgUTcgwrcgNTQuMzIlIG9mIHRlc3QtdGFrZXJzIGdvdCBpdCByaWdodCIsICJwY3QiOiA1NC4zMn0sIHsibiI6IDgsICJ0b3BpYyI6ICJBbGdlYnJhIiwgInN1YiI6ICJJbmZpbml0ZSBzZXJpZXMiLCAiZGlmZiI6IDQsICJhbnMiOiAiYiIsICJzb2wiOiAiU3dhcCB0aGUgb3JkZXI6IGVhY2ggMS8z4bWPIGFwcGVhcnMgd2l0aCAxLzThtY8gKyAxLzThtY/igbrCuSArIOKApiA9ICgxLzThtY8pIMOXIDQvMy4gU3VtID0gKDQvMykgw5cgKDEgKyAxLzEyICsgMS8xNDQgKyDigKYpID0gKDQvMykgw5cgMTIvMTEgPSAxNi8xMS4iLCAic3JjIjogIkNBVCAyMDIzIFMzIFEyMCDCtyBsZXZlbCBzZXQgYnkgVmlrYXMncyB0ZWFjaGVyIChubyBwdWJsaWMgZGF0YSkiLCAicGN0IjogbnVsbH0sIHsibiI6IDksICJ0b3BpYyI6ICJBbGdlYnJhIiwgInN1YiI6ICJRdWFkcmF0aWNzIChjb21tb24gcm9vdCkiLCAiZGlmZiI6IDUsICJhbnMiOiAiMzgiLCAic29sIjogIkFkZCB0aGUgZmlyc3QgdHdvOiAyeMKyICsgKG0gKyBuKXggKyAyNiA9IDAuIFN1YnRyYWN0IHRoZSB0aGlyZDogeMKyIOKIkiA5ID0gMCDihpIgY29tbW9uIG5lZ2F0aXZlIHJvb3QgeCA9IOKIkjMuIFRoZW4gOSDiiJIgM20gKyA5ID0gMCDihpIgbSA9IDY7IDkg4oiSIDNuICsgMTcgPSAwIOKGkiBuID0gMjYvMy4gMm0gKyAzbiA9IDEyICsgMjYgPSAzOC4iLCAic3JjIjogIkNBVCAyMDI0IFMxIFEyMCDCtyAzLjY0JSBvZiB0ZXN0LXRha2VycyBnb3QgaXQgcmlnaHQiLCAicGN0IjogMy42NH0sIHsibiI6IDEwLCAidG9waWMiOiAiQXJpdGhtZXRpYyIsICJzdWIiOiAiQXZlcmFnZXMiLCAiZGlmZiI6IDMsICJhbnMiOiAiYiIsICJzb2wiOiAiRmlyc3QgMTAgPSBGLCBtaWRkbGUgMjAgPSBNLCBsYXN0IDEwID0gTCAodG90YWxzKS4gRiArIE0gPSAxMiBsYWtoLCBNICsgTCA9IDE4IGxha2gsIEYgKyBMID0gMTAgbGFraCDihpIgRiArIE0gKyBMID0gMjAgbGFraCDihpIgRiA9IDIsIE0gPSAxMCwgTCA9IDggbGFraC4gTmV4dCB5ZWFyOiA0ICsgMTAgKyAyNCA9IDM4IGxha2gg4oaSIMO3IDQwID0gOTUwMDAuIiwgInNyYyI6ICJDQVQgMjAyNCBTMiBRMTAgwrcgMTEuNzQlIG9mIHRlc3QtdGFrZXJzIGdvdCBpdCByaWdodCIsICJwY3QiOiAxMS43NH0sIHsibiI6IDExLCAidG9waWMiOiAiTnVtYmVycyIsICJzdWIiOiAiQ291bnRpbmcgcGF0aHMiLCAiZGlmZiI6IDUsICJhbnMiOiAiNyIsICJzb2wiOiAiUeKAk1IgZGlyZWN0ID0geCwgUuKAk1MgZGlyZWN0ID0geS4gUCB0byBTOiAzIMOXIDQgKyA0eSArIDN4eSA9IDYyLiBRIHRvIFI6IHggKyAzIMOXIDQgKyA0eSA9IDI3IOKGkiB4ID0gMTUg4oiSIDR5LiBQdXQgaW46IDR5ICsgM3koMTUg4oiSIDR5KSA9IDUwIOKGkiAxMnnCsiDiiJIgNDl5ICsgNTAgPSAwIOKGkiB5ID0gMiAodGhlIG90aGVyIHJvb3QgMjUvMTIgaXMgbm90IHdob2xlKSDihpIgeCA9IDcuIiwgInNyYyI6ICJDQVQgMjAyNCBTMiBRMTEgwrcgMy4zOCUgb2YgdGVzdC10YWtlcnMgZ290IGl0IHJpZ2h0IiwgInBjdCI6IDMuMzh9LCB7Im4iOiAxMiwgInRvcGljIjogIkFyaXRobWV0aWMiLCAic3ViIjogIlBlcmNlbnRhZ2VzIiwgImRpZmYiOiA0LCAiYW5zIjogIjM0MCIsICJzb2wiOiAiVG90YWwgVDogbWFuZ29lcyAwLjRULiBTb2xkIDAuMlQgKyA5NiArIDAuNEEgPSAwLjVUIOKGkiBBID0gMC43NVQg4oiSIDI0MCwgYmFuYW5hcyBCID0gMjQwIOKIkiAwLjE1VC4gTmVlZCBBIOKJpSAxIChUICZndDsgMzIwKSwgQiDiiaUgOTYsIGFuZCB3aG9sZSBudW1iZXJzIChUIGEgbXVsdGlwbGUgb2YgMjAsIDAuNEEgd2hvbGUpLiBUID0gMzQwOiBBID0gMTUsIEIgPSAxODksIE0gPSAxMzYg4pyTIChUID0gMzIwIGdpdmVzIEEgPSAwKS4iLCAic3JjIjogIkNBVCAyMDI0IFMyIFExMiDCtyA3LjAzJSBvZiB0ZXN0LXRha2VycyBnb3QgaXQgcmlnaHQiLCAicGN0IjogNy4wM30sIHsibiI6IDEzLCAidG9waWMiOiAiQWxnZWJyYSIsICJzdWIiOiAiU3VyZHMiLCAiZGlmZiI6IDMsICJhbnMiOiAiMTEiLCAic29sIjogIkxldCB1IOKIkiB2ID0gMuKImjIgYW5kIHXCsiDiiJIgdsKyID0gKHggKyA24oiaMikg4oiSICh4IOKIkiA24oiaMikgPSAxMuKImjIg4oaSIHUgKyB2ID0gNiDihpIgdSA9IDMgKyDiiJoyIOKGkiB4ICsgNuKImjIgPSAxMSArIDbiiJoyIOKGkiB4ID0gMTEuIiwgInNyYyI6ICJDQVQgMjAyNCBTMiBRMTMgwrcgMTYuMzklIG9mIHRlc3QtdGFrZXJzIGdvdCBpdCByaWdodCIsICJwY3QiOiAxNi4zOX0sIHsibiI6IDE0LCAidG9waWMiOiAiR2VvbWV0cnkiLCAic3ViIjogIkluY2lyY2xlIiwgImRpZmYiOiAyLCAiYW5zIjogIjEwIiwgInNvbCI6ICLilrNBREUgaXMgcmlnaHQtYW5nbGVkIGF0IEQ6IEFEID0gNDUsIERFID0gMjgsIEFFID0g4oiaKDIwMjUgKyA3ODQpID0gNTMuIFJpZ2h0IHRyaWFuZ2xlOiByID0gKDQ1ICsgMjgg4oiSIDUzKS8yID0gMTAuIiwgInNyYyI6ICJDQVQgMjAyNCBTMSBRMTkgwrcgMjcuMjUlIG9mIHRlc3QtdGFrZXJzIGdvdCBpdCByaWdodCIsICJwY3QiOiAyNy4yNX0sIHsibiI6IDE1LCAidG9waWMiOiAiQXJpdGhtZXRpYyIsICJzdWIiOiAiQ29tcG91bmQgaW50ZXJlc3QiLCAiZGlmZiI6IDMsICJhbnMiOiAiYiIsICJzb2wiOiAiNCUgcGVyIGhhbGYteWVhci4gQWZ0ZXIgMSB5ZWFyOiAyLDAwLDAwMCDDlyAxLjA0wrIgPSAyLDE2LDMyMCDiiJIgMTAsMzIwID0gMiwwNiwwMDAuIFR3byBtb3JlIHllYXJzOiAyLDA2LDAwMCDDlyAxLjA04oG0ID0gMiw0MCw5OTAuODYuIFRvdGFsIHBhaWQgMiw1MSwzMTAuODYg4oaSIGludGVyZXN0IOKJiCA1MTMxMS4iLCAic3JjIjogIkNBVCAyMDIzIFMyIFExMiDCtyBsZXZlbCBzZXQgYnkgVmlrYXMncyB0ZWFjaGVyIChubyBwdWJsaWMgZGF0YSkiLCAicGN0IjogbnVsbH0sIHsibiI6IDE2LCAidG9waWMiOiAiQWxnZWJyYSIsICJzdWIiOiAiUXVhZHJhdGljIHJvb3RzIiwgImRpZmYiOiAyLCAiYW5zIjogImMiLCAic29sIjogIs6xzrIgPSDiiJIxLzMsIM6xICsgzrIgPSBzLiAxL86xwrIgKyAxL86ywrIgPSAozrHCsiArIM6ywrIpIMOXIDkgPSAxNSDihpIgzrHCsiArIM6ywrIgPSA1LzMg4oaSIHPCsiA9IDUvMyDiiJIgMi8zID0gMS4gzrHCsyArIM6ywrMgPSBzwrMg4oiSIDPOsc6ycyA9IHPCsyArIHMgPSAycyDihpIgc3F1YXJlZCA9IDRzwrIgPSA0LiIsICJzcmMiOiAiQ0FUIDIwMjQgUzIgUTE2IMK3IDI3LjUyJSBvZiB0ZXN0LXRha2VycyBnb3QgaXQgcmlnaHQiLCAicGN0IjogMjcuNTJ9LCB7Im4iOiAxNywgInRvcGljIjogIkFyaXRobWV0aWMiLCAic3ViIjogIlNwZWVkLCB0aW1lICYgZGlzdGFuY2UiLCAiZGlmZiI6IDIsICJhbnMiOiAiYyIsICJzb2wiOiAiU2NoZWR1bGVkIHRpbWUgVCBoLCBkaXN0YW5jZSBELiBEYXkgMjogbGFzdCDihZMgb2YgdGhlIHJvdXRlIGF0IDQwIGttL2ggdGFrZXMg4oWUVCDihpIgRC8xMjAgPSAyVC8zIOKGkiBEID0gODBULiBEYXkgMTogODBULzYwID0gVCArIDMuNSDihpIgVC8zID0gMy41IOKGkiBUID0gMTAuNSBoIOKGkiA5IGFtICsgMTA6MzAgPSA3OjMwIHBtLiIsICJzcmMiOiAiQ0FUIDIwMjQgUzIgUTE3IMK3IDIyLjE1JSBvZiB0ZXN0LXRha2VycyBnb3QgaXQgcmlnaHQiLCAicGN0IjogMjIuMTV9LCB7Im4iOiAxOCwgInRvcGljIjogIkdlb21ldHJ5IiwgInN1YiI6ICJDaXJjbGVzIiwgImRpZmYiOiA1LCAiYW5zIjogImMiLCAic29sIjogIkNlbnRyZXMgZm9ybSBhbiBlcXVpbGF0ZXJhbCB0cmlhbmdsZSBvZiBzaWRlIDJyOyBkaXN0YW5jZSBmcm9tIHRoZSBjZW50cmUgdG8gZWFjaCA9IDJyL+KImjMuIEJpZyBjaXJjbGUgWDogMnIv4oiaMyArIHI7IHNtYWxsIGNpcmNsZSBZOiAyci/iiJozIOKIkiByLiBSYXRpbyAoMiArIOKImjMpLygyIOKIkiDiiJozKSA9ICgyICsg4oiaMynCsiA9IDcgKyA04oiaMy4iLCAic3JjIjogIkNBVCAyMDI0IFMyIFExOCDCtyAyLjMzJSBvZiB0ZXN0LXRha2VycyBnb3QgaXQgcmlnaHQiLCAicGN0IjogMi4zM30sIHsibiI6IDE5LCAidG9waWMiOiAiQXJpdGhtZXRpYyIsICJzdWIiOiAiTWl4dHVyZXMiLCAiZGlmZiI6IDEsICJhbnMiOiAiZCIsICJzb2wiOiAiQWNpZCBhLCB3YXRlciB3LiBBZnRlciAyIEwgd2F0ZXI6IGEgPSB3ICsgMiAoNTAlKSwgdG90YWwgMmEuIEFmdGVyIDE1IEwgYWNpZDogYSArIDE1ID0gMC44KDJhICsgMTUpIOKGkiAwLjZhID0gMyDihpIgYSA9IDUsIHcgPSAzIOKGkiB3YXRlciA6IGFjaWQgPSAzIDogNS4iLCAic3JjIjogIkNBVCAyMDI0IFMyIFExOSDCtyA0My4wOCUgb2YgdGVzdC10YWtlcnMgZ290IGl0IHJpZ2h0IiwgInBjdCI6IDQzLjA4fSwgeyJuIjogMjAsICJ0b3BpYyI6ICJBbGdlYnJhIiwgInN1YiI6ICJJbmVxdWFsaXRpZXMgKHJlZ2lvbikiLCAiZGlmZiI6IDUsICJhbnMiOiAiYiIsICJzb2wiOiAieMKyICsgecKyICsgNHgg4oiSIDR5ID0gKHggKyAyKcKyICsgKHkg4oiSIDIpwrIg4oiSIDgsIHNvIDQg4omkICh4ICsgMinCsiArICh5IOKIkiAyKcKyIOKJpCA4OiBhIHJpbmcgYmV0d2VlbiByYWRpaSAyIGFuZCAy4oiaMiwgYXJlYSA4z4Ag4oiSIDTPgCA9IDTPgC4gVGhlIGxpbmUgeSA9IHggKyA0IHBhc3NlcyB0aHJvdWdoIHRoZSBjZW50cmUgKOKIkjIsIDIpLCBzbyBpdCBrZWVwcyBleGFjdGx5IGhhbGY6IDLPgC4iLCAic3JjIjogIkNBVCAyMDI0IFMxIFE0IMK3IDQuOSUgb2YgdGVzdC10YWtlcnMgZ290IGl0IHJpZ2h0IiwgInBjdCI6IDQuOX0sIHsibiI6IDIxLCAidG9waWMiOiAiQWxnZWJyYSIsICJzdWIiOiAiRXF1YXRpb25zIChzdW0gb2Ygc3F1YXJlcykiLCAiZGlmZiI6IDQsICJhbnMiOiAiNyIsICJzb2wiOiAiNHjCsiDiiJIgNHh5ICsgecKyICsgM3nCsiDiiJIgNnkgKyAzID0gKDJ4IOKIkiB5KcKyICsgMyh5IOKIkiAxKcKyID0gMCDihpIgeSA9IDEsIHggPSDCvSDihpIgNHggKyA1eSA9IDcuIiwgInNyYyI6ICJDQVQgMjAyNCBTMiBRMjEgwrcgNy41MyUgb2YgdGVzdC10YWtlcnMgZ290IGl0IHJpZ2h0IiwgInBjdCI6IDcuNTN9LCB7Im4iOiAyMiwgInRvcGljIjogIkFyaXRobWV0aWMiLCAic3ViIjogIkFnZXMiLCAiZGlmZiI6IDIsICJhbnMiOiAiZCIsICJzb2wiOiAiQWdlIGdhcCBkLiBkIHllYXJzIGFnbyBSYWplc2ggd2FzIEdhcmltYSYjeDI3O3MgcHJlc2VudCBhZ2U6IEcgOiAoRyDiiJIgZCkgPSAzIDogMiDihpIgRyA9IDNkLCBSID0gNGQuIEluIGQgeWVhcnM6ICg1ZCkgOiAoNGQpID0gNSA6IDQuIiwgInNyYyI6ICJDQVQgMjAyNCBTMiBRMjIgwrcgMjkuOSUgb2YgdGVzdC10YWtlcnMgZ290IGl0IHJpZ2h0IiwgInBjdCI6IDI5Ljl9XQ=="
+};
 </script>
+<script src="cat-exam.js"></script>
 <script src="cat-calc.js"></script>
 </body>
 </html>
