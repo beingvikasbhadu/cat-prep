@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>CAT Calculator Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  :root {
+    --bg: #eef1f5; --surface: #ffffff; --ink: #17202d; --muted: #5a6577; --line: #d6dce5;
+    --accent: #1f5fae; --accent-ink: #ffffff; --run: #0d7a5a; --run-soft: #e3f4ee; --warn: #a45f00; --warn-soft: #fbf0dc;
+    --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+    --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e131a; --surface: #161d27; --ink: #e4e9f1; --muted: #98a3b4; --line: #29323f;
+      --accent: #74a9ef; --accent-ink: #0e131a; --run: #46c49b; --run-soft: #11291f; --warn: #f0b04a; --warn-soft: #2e230f; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e131a; --surface: #161d27; --ink: #e4e9f1; --muted: #98a3b4; --line: #29323f;
+    --accent: #74a9ef; --accent-ink: #0e131a; --run: #46c49b; --run-soft: #11291f; --warn: #f0b04a; --warn-soft: #2e230f; color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.55; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 28px max(16px, env(safe-area-inset-left, 0px)) 90px; display: grid; gap: 18px; }
+  .eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  h1 { font-family: var(--font-display); font-size: 30px; line-height: 1.15; margin: 4px 0 0; text-wrap: balance; }
+  h2 { font-family: var(--font-display); font-size: 20px; margin: 8px 0 0; }
+  .lede { margin: 6px 0 0; color: var(--muted); max-width: 62ch; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  .card p { margin: 0 0 8px; } .card p:last-child { margin: 0; }
+  ul.tight { margin: 0; padding-left: 20px; } ul.tight li { margin: 4px 0; }
+  kbd { font-family: var(--font-mono); font-size: 13px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; background: var(--bg); white-space: nowrap; }
+  .warn { background: var(--warn-soft); border-color: transparent; }
+  .drill { display: grid; gap: 8px; }
+  .drill .q { font-weight: 500; }
+  .drill .how { font-size: 13.5px; color: var(--muted); }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .row input { font: 600 16px var(--font-mono); width: 150px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); }
+  .row button { font: 600 14px var(--font-body); padding: 8px 14px; border-radius: 6px; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+  .res { font-size: 14px; font-weight: 600; }
+  .res.ok { color: var(--run); } .res.no { color: var(--warn); }
+  .score { font-family: var(--font-mono); font-weight: 600; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <div class="eyebrow">CAT 2026 · Calculator practice</div>
+    <h1>Practise on the CAT calculator</h1>
+    <p class="lede">The real CAT gives you a basic on-screen calculator (TCS calls it the <b>Normal Calculator</b>), not a scientific one. The one on this page copies its keys and its rules, so nothing surprises you on 29 Nov. Tap <b>Calculator</b> (bottom right) to open it. It also appears in the CAT sectional test pages.</p>
+  </header>
+
+  <section class="card">
+    <h2>What is on it</h2>
+    <ul class="tight">
+      <li><b>Numbers and</b> <kbd>+</kbd> <kbd>-</kbd> <kbd>*</kbd> <kbd>/</kbd> <kbd>=</kbd> <kbd>.</kbd></li>
+      <li><kbd>sqrt</kbd> square root, <kbd>1/x</kbd> reciprocal, <kbd>+/-</kbd> change sign, <kbd>%</kbd> percent</li>
+      <li><kbd>←</kbd> deletes the last digit, <kbd>C</kbd> clears everything</li>
+      <li>Memory: <kbd>MS</kbd> save, <kbd>M+</kbd> add to memory, <kbd>M-</kbd> subtract from memory, <kbd>MR</kbd> bring it back, <kbd>MC</kbd> wipe it. A small <b>M</b> shows when memory holds something.</li>
+    </ul>
+  </section>
+
+  <section class="card warn">
+    <h2>What is NOT on it</h2>
+    <ul class="tight">
+      <li>No brackets, no x², no powers, no cube root, no log. For 1.08³ press <kbd>1.08</kbd> <kbd>*</kbd> <kbd>1.08</kbd> <kbd>*</kbd> <kbd>1.08</kbd> <kbd>=</kbd>.</li>
+      <li><b>No keyboard.</b> You click every key with the mouse. Typing digits on the keyboard does nothing.</li>
+      <li>A number can be at most 9 characters long (the dot counts).</li>
+      <li>For TITA answers you type the number into the answer box yourself, using the exam's on-screen number pad.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>3 rules to know before the exam</h2>
+    <p><b>1. It does × and ÷ before + and − (BODMAS).</b> <kbd>2</kbd> <kbd>+</kbd> <kbd>3</kbd> <kbd>*</kbd> <kbd>4</kbd> <kbd>=</kbd> gives <b>14</b>, not 20. So for (5230 − 4610) ÷ 4610 press <kbd>=</kbd> after the subtraction first, then divide.</p>
+    <p><b>2. % means "percent of".</b> <kbd>6480</kbd> <kbd>%</kbd> <kbd>15</kbd> <kbd>=</kbd> gives <b>972</b> (15% of 6480). It is not the Windows-calculator %, so don't try 6480 + 15%.</p>
+    <p><b>3. Use it only when the arithmetic is truly ugly.</b> Clicking 4–5 digit numbers with a mouse takes 15–30 seconds. In Quant, most answers come faster from options, units digits and rough values. In DILR it saves real time.</p>
+    <p><b>Try first:</b> open the calculator and press <kbd>2</kbd> <kbd>+</kbd> <kbd>3</kbd> <kbd>*</kbd> <kbd>4</kbd> <kbd>=</kbd>. You should see 14. Do the same once in the official CAT mock to confirm.</p>
+  </section>
+
+  <section class="card">
+    <h2>10 drills <small class="score" id="score"></small></h2>
+    <p class="lede" style="margin:0">Solve each one on the calculator only (no paper). Round to 2 decimals where needed.</p>
+  </section>
+  <div id="drills" style="display:grid;gap:12px"></div>
+</main>
+<script>
+const D = [
+  ['3847 × 1.18', 4539.46, 'Plain multiply. Good for "18% more than".'],
+  ['15% of 6480', 972, 'Use %: 6480 % 15 =.'],
+  ['Percentage growth from 4610 to 5230', 13.45, 'BODMAS trap: 5230 − 4610 = first, then / 4610 * 100 =.'],
+  ['√7921', 89, 'Type 7921, then sqrt.'],
+  ['1 ÷ 0.0625', 16, 'Type 0.0625, then 1/x.'],
+  ['Average of 1245, 2318, 987, 3110', 1915, 'Add them up, =, then / 4 =.'],
+  ['12.5 × 48 + 7.2 × 35 + 3.6 × 110', 1248, 'Because × is done first, you can type it straight through. Or use M+ after each product.'],
+  ['25000 × 1.08 × 1.08 × 1.08 (3 years at 8% CI)', 31492.80, 'No power key: multiply by 1.08 three times.'],
+  ['7384 ÷ 13920 (2 decimals)', 0.53, 'Read 0.5304… and round.'],
+  ['Successive discounts of 20% and 10% on 2400', 1728, 'Multiply: 2400 × 0.8 × 0.9.'],
+];
+const box = document.getElementById('drills'); const done = {};
+D.forEach(([q, a, how], i) => {
+  const c = document.createElement('section'); c.className = 'card drill';
+  c.innerHTML = `<div class="q">${i + 1}. ${q}</div><div class="row"><input inputmode="decimal" aria-label="Answer ${i + 1}"><button type="button">Check</button><span class="res" aria-live="polite"></span></div><div class="how" hidden>${how}</div>`;
+  const inp = c.querySelector('input'), res = c.querySelector('.res');
+  c.querySelector('button').addEventListener('click', () => {
+    const v = parseFloat(inp.value.replace(/,/g, ''));
+    if (isNaN(v)) { res.textContent = 'Type a number'; res.className = 'res no'; return; }
+    const ok = Math.abs(v - a) <= 0.011 + Math.abs(a) * 1e-6;
+    res.textContent = ok ? 'Right' : 'Not yet (answer ' + a + ')';
+    res.className = 'res ' + (ok ? 'ok' : 'no');
+    c.querySelector('.how').hidden = false;
+    if (!(i in done)) done[i] = ok;
+    const n = Object.keys(done).length, r = Object.values(done).filter(Boolean).length;
+    document.getElementById('score').textContent = r + ' / ' + n + ' right first try';
+  });
+  box.appendChild(c);
+});
+</script>
+<script src="cat-calc.js"></script>
+</body>
+</html>
