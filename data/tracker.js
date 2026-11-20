@@ -1,6 +1,6 @@
 // Your revision-plan tracker. Claude updates this file after every test report you paste in chat.
 window.TRACKER = {
-  updated: "2026-11-17",
+  updated: "2026-11-20",
   examDate: "2026-11-29",
   targets: { qa: 12, varc: 15, lrdi: 12 },
   goalNote: "QA: attempt 14–15 at about 85% accuracy (12 right + 2 wrong = 34 marks).",
@@ -158,7 +158,7 @@ window.TRACKER = {
       { date: "2026-11-17", text: "Polygons, Mensuration, basic coordinate geometry", done: false },
       { date: "2026-11-18", text: "Number System", done: false },
       { date: "2026-11-19", text: "P&C, Probability, Sets (basics only)", done: false },
-      { date: "2026-11-20", text: "Mixed sectional on 16–19 Nov topics + fix mistakes", done: false }
+      { date: "2026-11-20", text: "Arithmetic weak-spots revision (15 cards, try-it first) + weak-spots test (15 fresh Qs, 35 min) given", done: false }
     ]},
     { block: "Mocks and weak areas", items: [
       { date: "2026-11-21", text: "Full mock 2 + analysis", done: false },

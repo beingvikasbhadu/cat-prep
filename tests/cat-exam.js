@@ -9,6 +9,7 @@
   const QS = C.questions;
   const N = QS.length;
   const LIMIT = C.minutes * 60 * 1000;
+  const GOAL = C.target || 36, ATTS = C.attempts || [12, 14], ATT_MIN = ATTS[0], ATT = ATTS[0] === ATTS[1] ? String(ATTS[0]) : ATTS.join('–');
   const TARGET_TOPICS = ['Arithmetic', 'Algebra', 'Geometry'];
   const DIFF = ['', 'Very easy', 'Easy', 'Medium', 'Hard', 'Very hard'];
   const IDEAL = [0, 90, 120, 180, 240, 300]; // seconds per difficulty
@@ -253,7 +254,7 @@
         <div class="full"><span class="pq s-amk">5</span> Answered &amp; marked for review (will be evaluated)</div></div></div>
       <div class="cx-card"><h2>Your plan</h2><ul>
         <li>First 3 minutes: open every question (use the palette or Save &amp; Next without answering) and decide <b>do now / later / skip</b>.</li>
-        <li>Do the easy ones in <b>Arithmetic, Algebra and Geometry</b> first. Target: 12–14 attempts with 80%+ accuracy.</li>
+        <li>Do the easy ones in <b>Arithmetic, Algebra and Geometry</b> first. Target: ${ATT} attempts with 80%+ accuracy.</li>
         <li>No method in 1 minute → leave it. A very hard question is a trap, not a challenge.</li>
         <li>Every click and every second is recorded. After you submit you get a full report: score, topics, difficulty, the order you chose, time per question, solutions and what to do next.</li>
       </ul>
@@ -505,17 +506,17 @@
     const out = [];
     const { tot, doable, hard } = A;
     const list = rs => rs.map(r => `Q${r.n} (${esc(r.sub)}, ${DIFF[r.diff].toLowerCase()})`).join(', ');
-    const gap = 36 - tot.marks;
-    out.push(['score', gap > 0 ? `<b>Score ${tot.marks}.</b> ${gap} marks short of 36. Getting every doable question right would give ${doable.potential}${A.leftOnTable ? `; you left <b>${A.leftOnTable} marks</b> on doable questions alone.` : '.'}` : `<b>Score ${tot.marks}.</b> Target of 36 reached.`]);
+    const gap = GOAL - tot.marks;
+    out.push(['score', gap > 0 ? `<b>Score ${tot.marks}.</b> ${gap} marks short of ${GOAL}. Getting every doable question right would give ${doable.potential}${A.leftOnTable ? `; you left <b>${A.leftOnTable} marks</b> on doable questions alone.` : '.'}` : `<b>Score ${tot.marks}.</b> Target of ${GOAL} reached.`]);
     if (doable.missed.length) out.push(['bad', `<b>Question selection:</b> you skipped ${doable.missed.length} doable question${doable.missed.length > 1 ? 's' : ''}: ${list(doable.missed)}. These are the first marks to collect. Redo them from the solutions below, without the timer.`]);
     else out.push(['good', `<b>Question selection:</b> you attempted all ${doable.total} doable questions. That is exactly the plan.`]);
     if (A.hardEarly.length) out.push(['bad', `<b>Order:</b> you answered ${A.hardEarly.length} hard question${A.hardEarly.length > 1 ? 's' : ''} before finishing the doable ones: ${A.hardEarly.slice().sort((x, y) => x.r.savedAt - y.r.savedAt).map(x => `Q${x.r.n} (${DIFF[x.r.diff].toLowerCase()}) at ${mmss(x.r.savedAt)}, ${x.pending.length} doable still open`).join('; ')}. Finish the doable ones first; try hard ones only with time left over.`]);
     if (hard.time > 4 * 60 * 1000) out.push(['bad', `<b>Time on traps:</b> ${mmss(hard.time)} went on hard and very hard questions (${hard.right.length} right, ${hard.wrong.length} wrong). That is about ${Math.floor(hard.time / 120000)} easy questions' worth of time. Give a hard question 1 minute; no method, move on.`]);
     if (doable.wrong.length) out.push(['bad', `<b>Accuracy on doable questions:</b> ${list(doable.wrong)} went wrong. Find the exact step that failed in the solution and add it to your error log. These are your highest-value fixes.`]);
     if (A.negMarks) out.push(['bad', `<b>Negative marks:</b> ${A.negMarks} wrong MCQ${A.negMarks > 1 ? 's' : ''} cost you ${A.negMarks} mark${A.negMarks > 1 ? 's' : ''}. On an MCQ, check the answer against the options before saving; if you are guessing, leave it.`]);
-    if (tot.att < 12) out.push(['warn', `<b>Attempts:</b> ${tot.att} of 22. The target is 12–14. Make decisions faster on the first pass: open, decide in 30 seconds, move.`]);
+    if (tot.att < ATT_MIN) out.push(['warn', `<b>Attempts:</b> ${tot.att} of ${N}. The target is ${ATT}. Make decisions faster on the first pass: open, decide in 30 seconds, move.`]);
     else if (tot.acc < 80) out.push(['warn', `<b>Accuracy:</b> ${tot.acc}%. Below 80%, extra attempts cost marks. Before saving, put the answer back into the question.`]);
-    if (A.scan < 15) out.push(['warn', `<b>First scan:</b> you opened ${A.scan} of ${N} questions in the first 5 minutes. Open all of them in the first 3–4 minutes and pick the doable ones first.`]);
+    if (A.scan < Math.min(15, N)) out.push(['warn', `<b>First scan:</b> you opened ${A.scan} of ${N} questions in the first 5 minutes. Open all of them in the first 3–4 minutes and pick the doable ones first.`]);
     if (A.slow.length) out.push(['warn', `<b>Speed:</b> ${A.slow.map(r => 'Q' + r.n + ' took ' + mmss(r.time) + ' (ideal ' + mmss(r.ideal) + ')').join(', ')}. Right, but slow; look for the shortcut in the solution.`]);
     // topic weakness judged only on doable questions (hard ones are covered by the trap advice)
     TARGET_TOPICS.forEach(t => {
@@ -559,9 +560,9 @@
     const maxM = N * 3;
     const hero = `<section class="hero">
       <div class="hero-main"><span class="eyebrow">Score</span><div class="big">${tot.marks}<small> / ${maxM}</small></div>
-        <div class="meter" role="img" aria-label="Score ${tot.marks} of ${maxM}, target 36">
-          <i style="width:${Math.max(0, pct(tot.marks, maxM))}%"></i><b style="left:${pct(36, maxM)}%"><em>target 36</em></b></div>
-        <div class="sub">${tot.marks >= 36 ? 'Target reached.' : (36 - tot.marks) + ' marks to the target'} · ${tot.ok} right · ${tot.no} wrong${tot.noMcq ? ' (−' + tot.noMcq + ' from MCQs)' : ''} · ${tot.skip} skipped</div></div>
+        <div class="meter" role="img" aria-label="Score ${tot.marks} of ${maxM}, target ${GOAL}">
+          <i style="width:${Math.max(0, pct(tot.marks, maxM))}%"></i><b style="left:${pct(GOAL, maxM)}%"><em>target ${GOAL}</em></b></div>
+        <div class="sub">${tot.marks >= GOAL ? 'Target reached.' : (GOAL - tot.marks) + ' marks to the target'} · ${tot.ok} right · ${tot.no} wrong${tot.noMcq ? ' (−' + tot.noMcq + ' from MCQs)' : ''} · ${tot.skip} skipped</div></div>
       <div class="kpis">
         <div class="kpi"><span>Selection</span><b>${doable.sel}%</b><em>${doable.att} of ${doable.total} doable attempted</em></div>
         <div class="kpi"><span>Accuracy</span><b>${tot.att ? tot.acc + '%' : '—'}</b><em>${tot.att ? tot.ok + ' of ' + tot.att + ' attempted' : 'nothing attempted'} · target 80%</em></div>
@@ -590,7 +591,7 @@
     const T = Math.max(LIMIT, A.endT);
     const ticks = []; for (let m = 0; m <= C.minutes; m += 5) ticks.push(m);
     const rowBy = n => rows[n - 1];
-    const tl = `<section class="card"><h2>Your 40 minutes</h2><p class="note">Which question you were on, minute by minute (shade = difficulty). Marks below the bar show when you saved an answer.</p>
+    const tl = `<section class="card"><h2>Your ${C.minutes} minutes</h2><p class="note">Which question you were on, minute by minute (shade = difficulty). Marks below the bar show when you saved an answer.</p>
       <div class="tl">
         <div class="tl-track">${A.segs.map(s => { const r = rowBy(s.n); const w = 100 * (s.t1 - s.t0) / T; return `<button type="button" class="seg lv${r.diff}" style="left:${100 * s.t0 / T}%;width:${w}%" data-tip="${esc(`Q${r.n} · ${r.sub} · ${DIFF[r.diff]} · ${mmss(s.t0)}–${mmss(s.t1)} (${mmss(s.t1 - s.t0)})`)}">${w > 3.2 ? 'Q' + r.n : ''}</button>`; }).join('')}
           ${A.endT < T ? `<div class="seg-left" style="left:${100 * A.endT / T}%" title="Time not used">not used</div>` : ''}</div>

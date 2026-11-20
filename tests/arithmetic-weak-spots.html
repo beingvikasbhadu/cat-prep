@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Arithmetic Weak Spots</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  :root {
+    --bg: #eef1f5; --surface: #ffffff; --ink: #17202d; --muted: #5a6577; --line: #d6dce5;
+    --accent: #1f5fae; --accent-ink: #ffffff; --accent-soft: #e4eefb;
+    --good: #0a7a3a; --good-soft: #e2f4e8; --bad: #b3261e; --bad-soft: #fbe6e4; --warn: #8a5200; --warn-soft: #fbf0dc;
+    --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+    --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e131a; --surface: #161d27; --ink: #e4e9f1; --muted: #98a3b4; --line: #29323f;
+      --accent: #74a9ef; --accent-ink: #0e131a; --accent-soft: #15253a;
+      --good: #4cc77f; --good-soft: #10281a; --bad: #f08a80; --bad-soft: #2e1513; --warn: #f0b04a; --warn-soft: #2e230f; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e131a; --surface: #161d27; --ink: #e4e9f1; --muted: #98a3b4; --line: #29323f;
+    --accent: #74a9ef; --accent-ink: #0e131a; --accent-soft: #15253a;
+    --good: #4cc77f; --good-soft: #10281a; --bad: #f08a80; --bad-soft: #2e1513; --warn: #f0b04a; --warn-soft: #2e230f; color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15.5px; line-height: 1.55; }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 28px 16px 100px; display: grid; gap: 18px; }
+  .eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  h1 { font-family: var(--font-display); font-size: 31px; line-height: 1.15; margin: 4px 0 0; text-wrap: balance; }
+  h2 { font-family: var(--font-display); font-size: 21px; margin: 18px 0 0; }
+  .lede { margin: 8px 0 0; color: var(--muted); max-width: 64ch; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; min-width: 0; }
+  .how ol { margin: 6px 0 0; padding-left: 20px; } .how li { margin: 3px 0; }
+  .prog { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 10px 0 8px; display: grid; gap: 6px; }
+  .prog .bar { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; display: flex; gap: 2px; }
+  .prog .bar i { display: block; height: 100%; }
+  .prog .bar .ok { background: var(--good); } .prog .bar .later { background: var(--accent); }
+  .prog .txt { font-size: 13.5px; color: var(--muted); display: flex; gap: 2px 14px; flex-wrap: wrap; }
+  .prog .txt b { color: var(--ink); font-family: var(--font-mono); }
+  .ws { display: grid; gap: 12px; scroll-margin-top: 70px; }
+  .ws-head { display: flex; gap: 12px; align-items: flex-start; }
+  .num { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font: 600 15px var(--font-mono); background: var(--accent-soft); color: var(--accent); }
+  .ws.done-ok .num { background: var(--good-soft); color: var(--good); }
+  .ws-head h3 { font-family: var(--font-display); font-size: 18.5px; margin: 0; line-height: 1.25; }
+  .found { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .story { background: var(--accent-soft); border-radius: 10px; padding: 12px 14px; }
+  .story .lab { font-size: 11.5px; letter-spacing: .07em; text-transform: uppercase; font-weight: 600; color: var(--accent); }
+  .story p { margin: 4px 0 0; font-weight: 500; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .row input { font: 600 16px var(--font-mono); width: 150px; max-width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); color: var(--ink); }
+  .row input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .btn { font: 600 14px var(--font-body); padding: 9px 15px; border-radius: 7px; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+  .btn.ghost { background: transparent; color: var(--accent); }
+  .btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .res { font-size: 14.5px; font-weight: 600; }
+  .res.ok { color: var(--good); } .res.no { color: var(--bad); }
+  .lesson { display: none; gap: 10px; }
+  .ws.open .lesson { display: grid; }
+  .box { border-radius: 10px; padding: 11px 14px; }
+  .box .lab { font-size: 11.5px; letter-spacing: .07em; text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 2px; }
+  .box p { margin: 0; }
+  .sol { background: var(--good-soft); } .sol .lab { color: var(--good); }
+  .last { background: var(--warn-soft); } .last .lab { color: var(--warn); }
+  .rule { border: 1px solid var(--line); }
+  .rule .lab { color: var(--muted); }
+  .rule .r { font-weight: 600; }
+  .rule p + p { margin-top: 8px; }
+  .rem { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  .rem .lab { opacity: .85; }
+  .habits ol { margin: 6px 0 0; padding-left: 20px; } .habits li { margin: 6px 0; }
+  .end { display: grid; gap: 10px; }
+  .end a.btn { text-decoration: none; display: inline-block; text-align: center; }
+  .copied { font-size: 13.5px; color: var(--good); font-weight: 600; }
+  textarea.out { width: 100%; min-height: 120px; font: 13px var(--font-mono); border: 1px solid var(--line); border-radius: 7px; background: var(--bg); color: var(--ink); padding: 8px; display: none; }
+  @media (max-width: 880px) { .prog { padding-right: 56px; } }
+  @media (max-width: 520px) { h1 { font-size: 26px; } .card { padding: 14px; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <div class="eyebrow">CAT 2026 · Arithmetic revision · 20 Nov</div>
+    <h1>Your 15 arithmetic weak spots</h1>
+    <p class="lede">Every card here comes from a mistake in your own tests. Each one starts with a short story question. <b>Try it first</b>, then check: the card opens with the fix, the rule and an example. About 45 minutes. Then take the 15-question test at the end.</p>
+  </header>
+
+  <section class="card how">
+    <b>How to use each card</b>
+    <ol>
+      <li>Read the story and solve it on paper. Type your answer and press <b>Check</b>.</li>
+      <li>Right or wrong, read the card that opens: the rule, what it means, an example and one line to remember.</li>
+      <li>Wrong? Try again after reading. Stuck for 3 minutes? Press <b>Show me</b>.</li>
+    </ol>
+  </section>
+
+  <div class="prog" aria-live="polite">
+    <div class="bar" id="bar"></div>
+    <div class="txt"><span>Tried <b id="pTried">0</b> / 15</span><span>Right first try <b id="pFirst">0</b></span><span>Right after reading <b id="pLater">0</b></span></div>
+  </div>
+
+  <div id="cards"></div>
+
+  <section class="card habits">
+    <h2 style="margin-top:0">3 habits before you type any answer</h2>
+    <ol>
+      <li><b>Reread the last line.</b> Term or sum? Boat or stream? Water added or water after? Sides or angle? You lost marks to this 6 times.</li>
+      <li><b>TITA: put the answer back in.</b> There are no options to catch a slip. A count of coins or people must be a whole number.</li>
+      <li><b>Rough-check the size.</b> A share can't be bigger than the profit; a 3/4-speed trip can't make you early.</li>
+    </ol>
+  </section>
+
+  <section class="card end">
+    <h2 style="margin-top:0">Done? Two last steps</h2>
+    <p style="margin:0">1. Copy your answers and send them to Vikas. 2. Take the test: 15 <b>new</b> questions, one per weak spot, 35 minutes, on the CAT screen.</p>
+    <div class="row"><button class="btn ghost" id="copy" type="button">Copy my answers</button><span class="copied" id="copied"></span></div>
+    <textarea class="out" id="out" readonly aria-label="Your answers as text"></textarea>
+    <a class="btn" href="arithmetic-weak-spots-test.html">Start the weak-spots test →</a>
+  </section>
+</main>
+
+<script>
+const WS = [
+ { topic: 'Percentages', title: 'Successive % change', found: 'Percentages Set 1, Q1(b): you answered 2%',
+   story: 'A shop raises a phone’s price by 25%. A month later it cuts the new price by 20%. By what % has the price changed overall? (Type 0 for no change, use a minus sign for a fall.)', ans: 0,
+   sol: '25 + (−20) + (25 × −20)/100 = 5 − 5 = 0. Check with 100: 100 → 125 → 125 × 0.8 = 100. No change at all, even though 25 − 20 looks like +5.',
+   last: 'You wrote only the last term (ab/100 = −2) and dropped a + b. The answer needs all three terms.',
+   rule: 'Net change = a + b + ab/100 (a fall is negative).',
+   means: 'The second change works on the new price, not the old one. So on top of a + b there is a small “change on the change”: ab/100.',
+   ex: ['+20% then −10%.', 'a + b = 20 − 10 = 10.', 'ab/100 = (20 × −10)/100 = −2.', 'Net = 10 − 2 = +8%.', 'Check: 100 → 120 → 108. Yes, +8%.'],
+   rem: 'Three terms, every time: a, b and ab/100. Unsure? Start at 100 and walk it.' },
+ { topic: 'Profit & loss', title: 'Marked price, discount and profit', found: 'Mixed CAT quiz 4, Q2 (answered a); Mixed CAT quiz 1, Q1 (skipped)',
+   story: 'A shopkeeper marks a bag at ₹1,000. He gives a 10% discount and still makes a 20% profit. What did the bag cost him (₹)?', ans: 750,
+   sol: 'Selling price = 1,000 × 0.9 = 900. 900 = 1.2 × cost → cost = 900 ÷ 1.2 = 750.',
+   last: 'The percentages were added and subtracted directly (15 − 10 = 5). A discount is a % of the marked price and a profit is a % of the cost: different bases, so they can’t be added.',
+   rule: 'Selling price = MP × (1 − discount) = CP × (1 + profit). Two discounts in a row: multiply (0.9 × 0.8).',
+   means: 'The selling price is the bridge. Reach it from the marked-price side, reach it from the cost side, and set the two equal. If no number is given, put MP = 100.',
+   ex: ['15% discount gives a 2% profit. What discount gives a 20% profit?', 'MP = 100 → SP = 85.', '85 = 1.02 × CP → CP = 83.33.', '20% profit → SP = 1.2 × 83.33 = 100.', 'SP = MP, so the discount is 0: sell at the marked price.'],
+   rem: 'Find the CP first. Never add a discount % to a profit %.' },
+ { topic: 'Profit & loss', title: 'Price–demand: the best price', found: 'P&L Set 2, Q15',
+   story: 'A café sells 200 cups a day at ₹50. For every ₹1 it raises the price, it sells 2 cups fewer. Each cup costs ₹30 to make. Which price gives the highest daily profit (₹)?', ans: 90,
+   sol: 'Raise the price by x. Profit per cup = 20 + x, cups = 200 − 2x. The brackets are 0 at x = −20 and x = 100. Halfway: x = 40 → price ₹90 (profit 60 × 120 = ₹7,200).',
+   last: 'You multiplied the price by the units, not the profit per unit. Profit per unit = price − cost.',
+   rule: 'Profit = (profit per unit) × (units sold). Write both as brackets in x. Each bracket = 0 gives a root; the maximum is exactly halfway between the two roots.',
+   means: 'A higher price earns more per cup but sells fewer cups. The best point sits in the middle of where each bracket hits zero.',
+   ex: ['Price ₹10, sells 100. Each ₹1 more → 5 fewer. Cost ₹6.', 'Profit = (4 + x)(100 − 5x).', 'Zero at x = −4 and x = 20.', 'Halfway: x = 8 → price ₹18.', 'Profit = 12 × 60 = ₹720 (x = 7 or 9 gives 715, less).'],
+   rem: 'Profit per unit, not price. Two brackets, two zeros, take the middle.' },
+ { topic: 'SI & CI', title: 'Equal instalments', found: 'SI & CI Set 2, Q13 (answered 1,230, answer 1,331)',
+   story: 'Riya borrows ₹2,100 at 10% compound interest a year and repays it in 2 equal yearly instalments. How much is each instalment (₹)?', ans: 1210,
+   sol: 'Each payment is worth less today: x/1.1 + x/1.21 = 2,100 → x × 2.1/1.21 = 2,100 → x = 1,210. Check: 2,100 → 2,310, pay 1,210 → 1,100 → 1,210, pay 1,210 → 0.',
+   last: 'Year-2 interest was taken on (2,310 − x) instead of (2,541 − x): the year-1 interest was left out of what grows.',
+   rule: 'Loan = x/(1 + r) + x/(1 + r)² + … (one term per instalment). Quick case, 2 instalments at 10%: x = loan × 1.21 ÷ 2.1.',
+   means: 'Bring every payment back to today by dividing by the growth factor once for each year. The payments, brought back, add up to the loan.',
+   ex: ['₹2,310 at 10%, 2 equal instalments.', 'x × (1/1.1 + 1/1.21) = 2,310 → x × 2.1/1.21 = 2,310.', '2,310 ÷ 2.1 = 1,100 → × 1.21 = 1,331.', 'Bank-statement check: 2,310 → 2,541, pay 1,331 → 1,210 → 1,331, pay → 0 ✓'],
+   rem: 'Divide each payment back to today. Finish with the bank-statement check: it must end at 0.' },
+ { topic: 'Ratio', title: 'Variation (√n, x²)', found: 'Ratio Set 1, Q9 and Q20; fresh check Q1(b) (answered 9, max 10)',
+   story: 'A toy engine runs at 50 km/h on its own. Its speed drops in proportion to the square root of the number of wagons. With 4 wagons it runs at 42 km/h. What is the largest number of wagons it can pull and still move?', ans: 156,
+   sol: 'Speed = 50 − k√n. 42 = 50 − k × 2 → k = 4. It moves while 4√n < 50 → √n < 12.5 → n < 156.25. Largest whole number: 156 (check 157: √157 ≈ 12.53, speed below 0).',
+   last: 'You treated the drop as a fixed amount per wagon (a straight line). The question said √n, so the drop grows more slowly. Then, at the last step, you rounded the wrong way.',
+   rule: '“y varies as x²” → y = kx². “Drops in proportion to √n” → y = start − k√n. Find k from the given case first.',
+   means: 'The words tell you the shape. Write the equation with k, use the one case you know to find k, then use it for the question.',
+   ex: ['Engine 42 km/h, fall ∝ √n. 9 wagons → falls by 18.', '18 = k√9 = 3k → k = 6.', 'Stops when 6√n = 42 → √n = 7 → n = 49.', '49 wagons stop it, so the max is 48.'],
+   rem: 'k first, then the question. At the edge, test the number and the next one.' },
+ { topic: 'Ratio', title: 'Partnership with mid-year changes', found: 'Ratio Set 1, Q10; fresh check Q3 (answered 23,250, answer 19,375)',
+   story: 'A opens a shop with ₹60,000. After 4 months B joins with ₹80,000. At the end of month 7, A takes out ₹20,000. The year’s profit is ₹37,800. What is B’s share (₹)?', ans: 19200,
+   sol: 'A: 60k × 7 + 40k × 5 = 620k. B: 80k × 8 = 640k (months 5 to 12). 620 : 640 = 31 : 32. B = 37,800 × 32/63 = 19,200.',
+   last: 'The months for one piece of money were counted wrong: a partner’s new amount got more months than it was really in the business.',
+   rule: 'Share ∝ money × months, worked out piece by piece.',
+   means: 'Draw a 12-month line for each partner. Every time an amount changes, start a new piece. Multiply each piece by its months, then add.',
+   ex: ['P puts ₹10,000 for 12 months. Q joins after 4 months with ₹15,000.', 'P: 10k × 12 = 120k.', 'Q: 15k × 8 = 120k (months 5 to 12).', 'Ratio 1 : 1, so they share the profit equally.'],
+   rem: 'Joins after 4 months = 8 months of money. Count the months on the line, not in your head.' },
+ { topic: 'Ratio', title: 'Equal ratios: the second case', found: 'Ratio Set 1, Q15 (forgot the second case)',
+   story: 'If a/(b + c) = b/(c + a) = c/(a + b) = k, what is the sum of all possible values of k? (A fraction like −1/2 is fine.)', ans: -0.5,
+   sol: 'Case 1, a + b + c ≠ 0: add tops and bottoms: k = (a + b + c)/(2(a + b + c)) = 1/2. Case 2, a + b + c = 0: b + c = −a → k = a/(−a) = −1. Sum = 1/2 − 1 = −1/2.',
+   last: 'You stopped at the first case (k = 1/2) and missed k = −1.',
+   rule: 'Equal ratios: k = (sum of tops) ÷ (sum of bottoms), but only when the bottom sum isn’t 0. Always test “sum = 0” as a second case.',
+   means: 'Adding tops and bottoms means dividing by a + b + c. You can’t divide by 0, so the case a + b + c = 0 must be checked on its own. It usually gives k = −1.',
+   ex: ['a/2 = b/3 = c/5 = k, and a + b + c = 20.', 'Add tops and bottoms: k = (a + b + c)/(2 + 3 + 5) = 20/10 = 2.', 'So a = 4, b = 6, c = 10.', 'Here the bottoms are numbers, never 0, so one case is enough. When the bottoms are letters, as in the story, check the zero case too.'],
+   rem: 'Letters in the bottoms → two cases: the add-up case and the sum-is-zero case.' },
+ { topic: 'Ratio', title: 'Continued proportion', found: 'Ratio Set 1, Q16',
+   story: '2, b, c and 54 are in continued proportion. What is b + c?', ans: 24,
+   sol: 'Each term = the one before × r. 54 = 2 × r³ → r³ = 27 → r = 3. b = 6, c = 18 → 24.',
+   last: 'Continued proportion wasn’t seen as a GP.',
+   rule: 'a : b = b : c = c : d means each term is the previous one × r (a GP). 3 terms: b² = ac. 4 terms: d = a × r³.',
+   means: '“Continued” means the same ratio carries on from one term to the next, like doubling or tripling.',
+   ex: ['3, b, c, 192.', '192 = 3 × r³ → r³ = 64 → r = 4.', 'b = 12, c = 48 → b + c = 60.'],
+   rem: 'Continued proportion = GP. Find r from the first and last terms.' },
+ { topic: 'Ratio', title: 'Coins: values or counts?', found: 'Ratio Set 1, Q7; fresh check Q6 (blank); TSD fresh check Q1 (answered 110, answer 90)',
+   story: 'A bag has ₹2, ₹1 and 50-paise coins whose VALUES are in the ratio 3 : 2 : 1. The bag holds ₹120. How many coins are there in all?', ans: 110,
+   sol: 'Values: split ₹120 as 3 : 2 : 1 → ₹60, ₹40, ₹20. Counts: 60 ÷ 2 = 30, 40 ÷ 1 = 40, 20 ÷ 0.5 = 40. Total 110.',
+   last: 'The ratio was used as the other kind: values treated as counts, or counts as values.',
+   rule: 'First ask: is the ratio about how many coins (counts) or how much money (values)? Values: split the ₹ first, then ÷ each coin’s value. Counts: find the value of one “set”, then the number of sets.',
+   means: 'Counts 2 : 3 : 4 of ₹1, 50p and 25p coins means one “set” of 2 + 3 + 4 coins, worth 2 + 1.5 + 1 = ₹4.50.',
+   ex: ['₹1, 50p, 25p coins, counts 2 : 3 : 4, total ₹90.', 'One set: 2 × 1 + 3 × 0.5 + 4 × 0.25 = ₹4.50.', 'Sets: 90 ÷ 4.5 = 20.', 'Coins: 40, 60, 80 → 180 in all.'],
+   rem: 'Underline “number” or “value”. A coin count is never a fraction.' },
+ { topic: 'Mixtures', title: 'Alligation: find the mean first', found: 'A&M Set 1, Q8, Q10, Q14; fresh check Q2 (answered 1 : 1)',
+   story: 'Rice A costs ₹40/kg and rice B ₹60/kg. A grocer mixes them and sells the mix at ₹52.80/kg, making a 10% profit. He used 30 kg of A. How many kg of B did he use?', ans: 20,
+   sol: 'Take the profit out first: cost of the mix = 52.80 ÷ 1.1 = ₹48. Cross: A : B = (60 − 48) : (48 − 40) = 12 : 8 = 3 : 2. 30 kg of A → 20 kg of B.',
+   last: 'The cross was drawn with the selling price (or with the ratios as given) instead of first finding the mean in the same unit.',
+   rule: 'The cross needs three numbers in the same unit: cheap, dear and the mean. Work out the mean first: cost = SP ÷ (1 + profit); for mixtures use each one’s milk fraction.',
+   means: 'Alligation only compares like with like: cost with cost, milk fraction with milk fraction.',
+   ex: ['P has milk : water 5 : 3, Q has 1 : 3. Mix them to get 1 : 1.', 'Milk fractions over one denominator: P 5/8, Q 2/8, mean 4/8.', 'P : Q = (4 − 2) : (5 − 4) = 2 : 1.'],
+   rem: 'Before the cross: the same unit for all three numbers. Profit out, fractions in.' },
+ { topic: 'Mixtures', title: 'Repeated replacement: solving for x', found: 'A&M Set 1, Q20 (blank)',
+   story: 'A can holds 50 litres of pure juice. x litres are taken out and replaced with water, and this is done once more. Now there are 32 litres of juice. What is x?', ans: 10,
+   sol: '(1 − x/50)² = 32/50 = 0.64 → 1 − x/50 = 0.8 → x/50 = 0.2 → x = 10.',
+   last: 'You couldn’t start, because the formula had only been used forwards.',
+   rule: 'Left = start × (1 − x/V)ⁿ, where n is how many times you replaced.',
+   means: 'Each time, the same fraction (x/V) of what is left is taken out. To find x, work backwards: divide, take the nth root, solve.',
+   ex: ['60 L of milk, replaced twice, 38.4 L of milk left.', '(1 − x/60)² = 38.4/60 = 0.64.', '1 − x/60 = 0.8 → x = 12.'],
+   rem: 'Divide, root, solve. Know 0.64 = 0.8², 0.81 = 0.9², 27/64 = (3/4)³.' },
+ { topic: 'Averages', title: 'Overlapping groups', found: 'A&M Set 1, Q2 (answered 18)',
+   story: 'The average of 9 numbers is 30. The first 5 average 28 and the last 5 average 33. What is the 5th number?', ans: 35,
+   sol: 'First 5 sum 140, last 5 sum 165. Together 305, but the 5th is counted twice. 305 − 270 = 35.',
+   last: 'The shared number wasn’t spotted, so the double count wasn’t removed.',
+   rule: 'Shared item = sum of group 1 + sum of group 2 − total.',
+   means: 'When two groups share one item, adding their sums counts that item twice. Take away the real total; what is left is the shared item.',
+   ex: ['11 numbers average 50: total 550.', 'First 6 average 49 → 294. Last 6 average 52 → 312.', '294 + 312 = 606 → 606 − 550 = 56.'],
+   rem: '5 + 5 = 10, but there are only 9 numbers: one is counted twice.' },
+ { topic: 'Averages', title: 'Maximum count: round down', found: 'Mixed CAT quiz 4, Q3 (answered 12, answer 11)',
+   story: 'A lift can carry 500 kg. One passenger weighs 60 kg and everyone else weighs at least 45 kg. What is the largest number of people the lift can take?', ans: 10,
+   sol: '60 + 45m ≤ 500 → m ≤ 9.78 → m = 9 others, so 10 people. Check 11: 60 + 450 = 510 > 500.',
+   last: '630 ÷ 53 ≈ 11.9 was rounded up to 12.',
+   rule: 'For a “maximum number”, round DOWN, then test the next number.',
+   means: 'You can’t put 9.78 people in a lift. Rounding up breaks the limit.',
+   ex: ['Limit 630 kg, one person 57 kg, others at least 53 kg.', '57 + 53(n − 1) ≤ 630 → n − 1 ≤ 10.8 → n = 11.', 'Check 12: 57 + 583 = 640 > 630 ✗'],
+   rem: 'Max count: round down and test the next one. Min count: round up.' },
+ { topic: 'TSD', title: 'Slower speed, late arrival (accident)', found: 'TSD Set 1, Q17 (blank after 13.5 min); TSD fresh check Q8 (answered 90, answer 60)',
+   story: 'Rahul drives to office at 3/4 of his usual speed and reaches 20 minutes late. How many minutes does the trip usually take?', ans: 60,
+   sol: 'Speed × 3/4 → time × 4/3. The extra is 1/3 of the usual time = 20 min → usual time = 60 min.',
+   last: 'Speeds went into the equation instead of the extra time per km.',
+   rule: 'Speed × a/b → time × b/a, so the extra time = (b − a)/a of the normal time for that stretch. 3/4 → extra 1/3; 4/5 → extra 1/4; 2/3 → extra 1/2.',
+   means: 'Accident questions give two cases. The gap between the two late times comes only from the km that moved from slow to normal speed.',
+   ex: ['After an accident a train runs at 4/5 of its speed. Had it happened 60 km later, it would have saved 15 min.', 'At 4/5 speed every km takes 1/4 extra.', 'Those 60 km: 1/4 × normal time = 15 min → normal time 60 min.', '60 km in 60 min → 60 km/h.'],
+   rem: 'Turn the speed fraction into “extra time”. Two cases → subtract → only the shifted km are left.' },
+ { topic: 'Time & work', title: 'Men and women', found: 'Time & Work Set 1, Q14 (answered 21.7, answer 9)',
+   story: '6 men or 10 women can build a wall in 15 days. How many days will 3 men and 10 women take?', ans: 10,
+   sol: '6 men = 10 women → 3 men = 5 women. Team = 5 + 10 = 15 women. Work = 10 women × 15 days = 150 woman-days → 150 ÷ 15 = 10 days.',
+   last: '“OR” wasn’t turned into “the two teams are equal”, so men and women were mixed without one unit.',
+   rule: '“OR” means the two teams do the same work: set them equal and turn everyone into one kind. “AND” (2 men and 3 women in 10 days, …) means two equations: solve for one man’s and one woman’s daily work.',
+   means: 'Work = people × days, but only once everyone is counted in the same unit.',
+   ex: ['12 men or 18 women in 14 days. How long for 8 men and 16 women?', '12 men = 18 women → 1 man = 1.5 women.', '8 men + 16 women = 12 + 16 = 28 women.', 'Work = 18 × 14 = 252 woman-days → 252 ÷ 28 = 9 days.'],
+   rem: 'OR → equal teams → one unit. AND → two equations.' },
+];
+
+const KEY = 'cat-arith-weakspots-rev-v1';
+let S = {};
+try { S = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { S = {}; }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+
+function parse(v) {
+  v = String(v).trim().replace(/[−–]/g, '-').replace(/[,₹\s]/g, '').replace(/%$/, '');
+  if (!v) return null;
+  const f = v.match(/^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/);
+  if (f) return Number(f[2]) ? Number(f[1]) / Number(f[2]) : null;
+  return /^-?\d*\.?\d+$/.test(v) ? Number(v) : null;
+}
+const same = (a, b) => Math.abs(a - b) <= Math.max(1e-6, Math.abs(b) * 1e-4);
+
+const cards = document.getElementById('cards');
+let group = '';
+WS.forEach((w, i) => {
+  const id = i + 1;
+  if (w.topic !== group) { group = w.topic; cards.insertAdjacentHTML('beforeend', `<h2>${esc(group)}</h2>`); }
+  cards.insertAdjacentHTML('beforeend', `
+  <section class="card ws" id="ws${id}" data-i="${i}">
+    <div class="ws-head"><span class="num">${id}</span><div><h3>${esc(w.title)}</h3><div class="found">Found in: ${esc(w.found)}</div></div></div>
+    <div class="story"><span class="lab">Try it first</span><p>${esc(w.story)}</p></div>
+    <div class="row">
+      <input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer for card ${id}" placeholder="your answer">
+      <button class="btn chk" type="button">Check</button>
+      <button class="btn ghost show" type="button">Show me</button>
+      <span class="res" role="status"></span>
+    </div>
+    <div class="lesson">
+      <div class="box sol"><span class="lab">The story, solved</span><p>${esc(w.sol)}</p></div>
+      <div class="box last"><span class="lab">What went wrong last time</span><p>${esc(w.last)}</p></div>
+      <div class="box rule"><span class="lab">Rule</span><p class="r">${esc(w.rule)}</p>
+        <p><span class="lab" style="display:inline">What it means · </span>${esc(w.means)}</p>
+        <p><span class="lab" style="display:inline">Example</span></p><ol style="margin:2px 0 0;padding-left:20px">${w.ex.map(s => `<li>${esc(s)}</li>`).join('')}</ol></div>
+      <div class="box rem"><span class="lab">Remember</span><p>${esc(w.rem)}</p></div>
+    </div>
+  </section>`);
+});
+
+function paint() {
+  let tried = 0, first = 0, later = 0;
+  WS.forEach((w, i) => {
+    const id = i + 1, st = S[id], el = document.getElementById('ws' + id);
+    const res = el.querySelector('.res'), inp = el.querySelector('input');
+    el.classList.toggle('open', !!(st && (st.tries || st.shown)));
+    el.classList.toggle('done-ok', !!(st && st.ok));
+    if (!st) { res.textContent = ''; res.className = 'res'; return; }
+    if (st.tries) tried++;
+    if (st.firstOk) first++; else if (st.ok) later++;
+    if (st.last != null && !inp.value) inp.value = st.last;
+    if (st.ok) { res.textContent = st.firstOk ? '✓ Right, first try' : '✓ Right now'; res.className = 'res ok'; }
+    else if (st.tries) { res.textContent = '✗ Not yet. Read the card below, then try again'; res.className = 'res no'; }
+    else if (st.shown) { res.textContent = 'Shown. Now solve it yourself and check'; res.className = 'res'; }
+  });
+  document.getElementById('pTried').textContent = tried;
+  document.getElementById('pFirst').textContent = first;
+  document.getElementById('pLater').textContent = later;
+  document.getElementById('bar').innerHTML = `<i class="ok" style="width:${first / 15 * 100}%"></i><i class="later" style="width:${later / 15 * 100}%"></i>`;
+}
+
+cards.addEventListener('click', e => {
+  const card = e.target.closest('.ws'); if (!card) return;
+  const i = +card.dataset.i, id = i + 1, w = WS[i];
+  const st = S[id] || (S[id] = { tries: 0, shown: false, ok: false, firstOk: false, first: null, last: null, shownBefore: false });
+  if (e.target.closest('.chk')) {
+    const raw = card.querySelector('input').value, v = parse(raw);
+    const res = card.querySelector('.res');
+    if (v === null) { res.textContent = 'Type a number (a fraction like −1/2 is fine)'; res.className = 'res no'; return; }
+    if (st.ok) return;
+    const ok = same(v, w.ans);
+    if (!st.tries) { st.first = raw.trim(); st.firstOk = ok && !st.shown; st.shownBefore = st.shown; }
+    st.tries++; st.last = raw.trim(); st.ok = ok;
+    save(); paint();
+    if (st.tries === 1) card.querySelector('.lesson').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } else if (e.target.closest('.show')) {
+    st.shown = true; save(); paint();
+  }
+});
+cards.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('input')) e.target.closest('.ws').querySelector('.chk').click(); });
+
+function report() {
+  const L = ['Arithmetic weak spots revision: my answers', ''];
+  let first = 0, tried = 0;
+  WS.forEach((w, i) => {
+    const st = S[i + 1];
+    let line = `${i + 1}. ${w.title}: `;
+    if (!st || !st.tries) line += st && st.shown ? 'not tried (looked at the answer)' : 'not tried';
+    else {
+      tried++; if (st.firstOk) first++;
+      line += `first answer ${st.first} ${st.firstOk ? '✓' : '✗'}`;
+      if (st.shownBefore) line += ' (after Show me)';
+      if (!st.firstOk) line += st.ok ? `, right after ${st.tries} tries` : `, still wrong after ${st.tries} ${st.tries > 1 ? 'tries' : 'try'} (last ${st.last})`;
+    }
+    L.push(line);
+  });
+  L.splice(1, 0, `Tried ${tried} / 15 · right first try ${first}`);
+  return L.join('\n');
+}
+document.getElementById('copy').addEventListener('click', async () => {
+  const t = report(), out = document.getElementById('out'), msg = document.getElementById('copied');
+  out.value = t;
+  try { await navigator.clipboard.writeText(t); msg.textContent = 'Copied. Paste it to Vikas.'; out.style.display = 'none'; }
+  catch (e) { out.style.display = 'block'; out.select(); msg.textContent = 'Select the text below and copy it.'; }
+});
+paint();
+</script>
+<script src="cat-calc.js"></script>
+</body>
+</html>
