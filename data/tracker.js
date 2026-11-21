@@ -1,6 +1,6 @@
 // Your revision-plan tracker. Claude updates this file after every test report you paste in chat.
 window.TRACKER = {
-  updated: "2026-11-20",
+  updated: "2026-11-21",
   examDate: "2026-11-29",
   targets: { qa: 12, varc: 15, lrdi: 12 },
   goalNote: "QA: attempt 14–15 at about 85% accuracy (12 right + 2 wrong = 34 marks).",
@@ -161,7 +161,7 @@ window.TRACKER = {
       { date: "2026-11-20", text: "Arithmetic weak-spots revision (15 cards, try-it first) + weak-spots test (15 fresh Qs, 35 min) given", done: false }
     ]},
     { block: "Mocks and weak areas", items: [
-      { date: "2026-11-21", text: "Full mock 2 + analysis", done: false },
+      { date: "2026-11-21", text: "CAT QA Sectional 4 given (easier confidence paper: 22 real CAT Qs, 40 min) · Full mock 2 + analysis", done: false },
       { date: "2026-11-22", text: "Weekly review: fix the top 3 weaknesses + 20 arithmetic PYQs", done: false },
       { date: "2026-11-23", text: "QA sectional (22 Qs, 40 min) + analysis", done: false },
       { date: "2026-11-24", text: "Full mock 3 + analysis", done: false },
